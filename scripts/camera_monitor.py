@@ -1,37 +1,10 @@
 #!/usr/bin/env python3
 """
 BEEPER KEEPER 10000 - Dual Camera Monitoring System
-==================================================
-
-A Flask-based web UI for monitoring dual camera streams via MediaMTX WebRTC.
-
-Features:
-- CSI Camera (IR Night Vision) + USB Webcam streaming
-- Side-by-side or single camera view modes
-- Real-time system and sensor monitoring
-- Environmental sensor support (BME680)
-- CPU temperature and system stats
-- Camera metadata display (exposure, gain, lux)
-
-Hardware Requirements:
-- Raspberry Pi (tested on Pi 3B+)
-- CSI camera module (e.g., OV5647 IR)
-- USB webcam (optional, for dual camera setup)
-- BME680 sensor (optional, for environmental monitoring)
-
-Dependencies:
-- Flask (web framework)
-- psutil (system monitoring)
-- adafruit-circuitpython-bme680 (optional, for BME680 sensor)
-
-Configuration:
-- Copy config.example.py to config.py and update with your settings
-- Set RASPBERRY_PI_IP to your Pi's IP address
-- Configure sensor I2C addresses if needed
-
-Author: z3r0-c001
-License: MIT
-Repository: https://github.com/z3r0-c001/beeperKeeper
+- CSI Camera (IR Night Vision) + USB Webcam
+- Side-by-side or single view
+- Audio control for USB webcam
+- Real-time sensor monitoring
 """
 
 from flask import Flask, Response, jsonify, render_template_string, send_file
@@ -40,20 +13,6 @@ import threading
 import psutil
 from datetime import datetime
 import os
-
-# Load configuration
-try:
-    from config import *
-except ImportError:
-    print("WARNING: config.py not found. Using default configuration.")
-    print("Copy config.example.py to config.py and update with your settings.")
-    # Default configuration
-    RASPBERRY_PI_IP = "YOUR_PI_IP_HERE"
-    WEBRTC_PORT = 8889
-    WEB_UI_PORT = 8080
-    BME680_ENABLED = True
-    BME680_I2C_ADDRESS = 0x76
-    UPDATE_INTERVAL_SECONDS = 2
 
 app = Flask(__name__)
 
@@ -72,42 +31,26 @@ bme680 = None
 # ============= SENSOR INITIALIZATION =============
 
 def init_i2c_sensors():
-    """
-    Initialize I2C environmental sensors.
-
-    Attempts to initialize BME680 sensor for temperature, humidity, pressure, and air quality monitoring.
-    Falls back gracefully if sensor is not available or BME680_ENABLED is False in config.
-    """
+    """Auto-detect and initialize I2C sensors"""
     global bme680
-    if not BME680_ENABLED:
-        print("ℹ BME680 sensor disabled in configuration")
-        return
-
     try:
         import board
         import busio
         import adafruit_bme680
         i2c = busio.I2C(board.SCL, board.SDA)
         try:
-            bme680 = adafruit_bme680.Adafruit_BME680_I2C(i2c, address=BME680_I2C_ADDRESS)
-            print(f"✓ BME680 sensor detected at 0x{BME680_I2C_ADDRESS:02x}")
+            bme680 = adafruit_bme680.Adafruit_BME680_I2C(i2c, address=0x76)
+            print("✓ BME680 sensor detected at 0x76")
         except:
-            # Try alternate address
-            alt_address = 0x77 if BME680_I2C_ADDRESS == 0x76 else 0x76
-            bme680 = adafruit_bme680.Adafruit_BME680_I2C(i2c, address=alt_address)
-            print(f"✓ BME680 sensor detected at 0x{alt_address:02x}")
+            bme680 = adafruit_bme680.Adafruit_BME680_I2C(i2c, address=0x77)
+            print("✓ BME680 sensor detected at 0x77")
     except Exception as e:
         print(f"✗ I2C initialization failed: {e}")
 
 # ============= DATA COLLECTION =============
 
 def get_cpu_temp():
-    """
-    Read CPU temperature from thermal zone.
-
-    Returns:
-        float: CPU temperature in Celsius, or None if unable to read
-    """
+    """Get CPU temperature"""
     try:
         with open('/sys/class/thermal/thermal_zone0/temp', 'r') as f:
             return round(float(f.read().strip()) / 1000.0, 1)
@@ -115,21 +58,7 @@ def get_cpu_temp():
         return None
 
 def get_camera_metadata():
-    """
-    Extract camera sensor metadata from rpicam-vid JSON output.
-
-    Reads the last complete JSON object from /tmp/camera_metadata.json which is
-    continuously written by rpicam-vid. Provides real-time camera sensor information.
-
-    Returns:
-        dict: Camera metadata including:
-            - exposure_time: Shutter speed in microseconds
-            - analogue_gain: Sensor analogue gain multiplier
-            - digital_gain: Digital gain multiplier
-            - colour_gains: White balance gains (red, blue)
-            - lux: Light level estimate (if available)
-            - colour_temp: Color temperature in Kelvin (if available)
-    """
+    """Get camera sensor metadata from rpicam-vid output file"""
     try:
         import json
         with open('/tmp/camera_metadata.json', 'rb') as f:
@@ -163,18 +92,7 @@ def get_camera_metadata():
         return {}
 
 def get_i2c_sensor_data():
-    """
-    Read environmental data from BME680 sensor.
-
-    Returns:
-        dict: Sensor readings including:
-            - temperature: Ambient temperature in Celsius
-            - humidity: Relative humidity percentage
-            - pressure: Atmospheric pressure in hPa
-            - gas: Gas resistance in Ohms (air quality indicator)
-            - altitude: Estimated altitude in meters
-        Empty dict if sensor not available or read fails.
-    """
+    """Read BME680 sensor"""
     if not bme680:
         return {}
     try:
@@ -191,20 +109,7 @@ def get_i2c_sensor_data():
         return {}
 
 def get_system_stats():
-    """
-    Collect system resource usage statistics.
-
-    Returns:
-        dict: System metrics including:
-            - cpu_percent: CPU usage percentage
-            - memory_percent: RAM usage percentage
-            - memory_used_mb: Used RAM in megabytes
-            - memory_total_mb: Total RAM in megabytes
-            - disk_percent: Disk usage percentage
-            - disk_used_gb: Used disk space in gigabytes
-            - disk_total_gb: Total disk space in gigabytes
-            - uptime_seconds: System uptime in seconds
-    """
+    """Get system statistics"""
     cpu_percent = psutil.cpu_percent(interval=0.1)
     mem = psutil.virtual_memory()
     disk = psutil.disk_usage('/')
@@ -530,17 +435,17 @@ def index():
         <button class="btn btn-primary active" onclick="setView('dual')">Dual View</button>
         <button class="btn btn-secondary" onclick="setView('csi')">IR Camera Only</button>
         <button class="btn btn-secondary" onclick="setView('usb')">USB Camera Only</button>
-        <button class="btn btn-secondary" id="audioBtn" onclick="toggleAudio()">Audio: OFF</button>
+        <!-- Audio button removed - audio always enabled -->
     </div>
     
     <div class="video-grid dual" id="videoGrid">
         <div class="video-container" id="csiContainer">
             <div class="video-label">IR CAMERA (CSI)</div>
-            <iframe id="csiFrame" src="http://''' + RASPBERRY_PI_IP + ''':''' + str(WEBRTC_PORT) + '''/csi_camera"></iframe>
+            <iframe id="csiFrame" src="/csi_camera"></iframe>
         </div>
         <div class="video-container" id="usbContainer">
             <div class="video-label">USB WEBCAM</div>
-            <iframe id="usbFrame" src="http://''' + RASPBERRY_PI_IP + ''':''' + str(WEBRTC_PORT) + '''/usb_camera"></iframe>
+            <iframe id="usbFrame" src="/usb_camera"></iframe>
         </div>
     </div>
     
@@ -717,6 +622,28 @@ def index():
         // Update every 2 seconds
         updateMetrics();
         setInterval(updateMetrics, 2000);
+
+        // Auto-unmute USB camera after autoplay starts
+        const usbFrame = document.getElementById("usbFrame");
+        usbFrame.addEventListener("load", function() {
+            setTimeout(() => {
+                try {
+                    const iframeDoc = usbFrame.contentDocument || usbFrame.contentWindow.document;
+                    const video = iframeDoc.querySelector("video");
+                    if (video) {
+                        // Listen for video to start playing (autoplay with muted=true)
+                        video.addEventListener("playing", function() {
+                            // Once playing, unmute it
+                            video.muted = false;
+                            video.volume = 1.0;
+                            console.log("USB camera audio unmuted after autoplay");
+                        });
+                    }
+                } catch(e) {
+                    console.log("Could not access iframe content (cross-origin)", e);
+                }
+            }, 1000);
+        });
     </script>
 </body>
 </html>
@@ -734,9 +661,9 @@ if __name__ == '__main__':
     sensor_thread = threading.Thread(target=update_sensor_data, daemon=True)
     sensor_thread.start()
     
-    print(f"\n✓ Monitoring server starting on http://0.0.0.0:{WEB_UI_PORT}")
-    print(f"  IR Camera: http://{RASPBERRY_PI_IP}:{WEBRTC_PORT}/csi_camera")
-    print(f"  USB Camera: http://{RASPBERRY_PI_IP}:{WEBRTC_PORT}/usb_camera")
-    print(f"  Web UI: http://{RASPBERRY_PI_IP}:{WEB_UI_PORT}\n")
-
-    app.run(host='0.0.0.0', port=WEB_UI_PORT, threaded=True)
+    print("\n✓ Monitoring server starting on http://0.0.0.0:8080")
+    print("  IR Camera: /csi_camera")
+    print("  USB Camera: /usb_camera")
+    print("  Web UI: http://172.16.0.28:8080\n")
+    
+    app.run(host='0.0.0.0', port=8080, threaded=True)
