@@ -7,12 +7,14 @@ BEEPER KEEPER 10000 - Dual Camera Monitoring System
 - Real-time sensor monitoring
 """
 
-from flask import Flask, Response, jsonify, render_template_string, send_file
+from flask import Flask, Response, jsonify, render_template_string, send_file, request
 import time
 import threading
 import psutil
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
+import jwt
+import json
 
 app = Flask(__name__)
 
@@ -27,6 +29,10 @@ sensor_data = {
 
 # Sensor instances
 bme680 = None
+
+# Active users tracking (JWT-based sessions)
+active_users = {}  # {email: last_seen_timestamp}
+SESSION_TIMEOUT = 300  # 5 minutes
 
 # ============= SENSOR INITIALIZATION =============
 
@@ -46,6 +52,47 @@ def init_i2c_sensors():
             print("✓ BME680 sensor detected at 0x77")
     except Exception as e:
         print(f"✗ I2C initialization failed: {e}")
+
+# ============= JWT USER TRACKING =============
+
+def get_user_from_jwt():
+    """Extract user email from Cloudflare Access JWT token"""
+    try:
+        jwt_token = request.headers.get('Cf-Access-Jwt-Assertion', '')
+        if not jwt_token:
+            return None
+
+        # Decode without verification (Cloudflare already verified it)
+        decoded = jwt.decode(jwt_token, options={"verify_signature": False})
+        return decoded.get('email', 'unknown@unknown.com')
+    except Exception as e:
+        return None
+
+def update_active_user():
+    """Update active user timestamp"""
+    global active_users
+    user_email = get_user_from_jwt()
+    if user_email:
+        active_users[user_email] = time.time()
+
+def cleanup_expired_sessions():
+    """Remove users who haven't been seen in SESSION_TIMEOUT seconds"""
+    global active_users
+    current_time = time.time()
+    expired_users = [
+        email for email, last_seen in active_users.items()
+        if current_time - last_seen > SESSION_TIMEOUT
+    ]
+    for email in expired_users:
+        del active_users[email]
+
+def get_active_users_info():
+    """Get list of active users and count"""
+    cleanup_expired_sessions()
+    return {
+        'count': len(active_users),
+        'users': list(active_users.keys())
+    }
 
 # ============= DATA COLLECTION =============
 
@@ -143,13 +190,17 @@ def update_sensor_data():
 @app.route('/api/metrics')
 def api_metrics():
     """JSON metrics for web UI"""
+    # Update this user's last-seen timestamp
+    update_active_user()
+
     return jsonify({
         'timestamp': datetime.now().isoformat(),
         'cpu_temperature': sensor_data['cpu_temp'],
         'camera': sensor_data['camera'],
         'system': sensor_data['system'],
         'i2c_sensors': sensor_data['i2c_sensors'],
-        'last_update': sensor_data['last_update']
+        'last_update': sensor_data['last_update'],
+        'active_users': get_active_users_info()
     })
 
 @app.route('/chicken_image')
@@ -161,6 +212,9 @@ def chicken_image():
 @app.route('/')
 def index():
     """Main web interface with dual camera support"""
+    # Track user on page load
+    update_active_user()
+
     return render_template_string('''
 <!DOCTYPE html>
 <html>
@@ -429,8 +483,12 @@ def index():
     <div class="header">
         <img src="/chicken_image" alt="Chicken of Despair">
         <h1>BEEPER KEEPER 10000</h1>
+        <div id="activeUsers" style="margin-top: 15px; font-size: 14px; color: #94a3b8;">
+            <span id="userCount">Loading users...</span>
+            <div id="userList" style="margin-top: 5px; font-size: 12px;"></div>
+        </div>
     </div>
-    
+
     <div class="controls">
         <button class="btn btn-primary active" onclick="setView('dual')">Dual View</button>
         <button class="btn btn-secondary" onclick="setView('csi')">IR Camera Only</button>
@@ -615,6 +673,21 @@ def index():
                             <span class="metric-value">${uptime_hours}h ${uptime_mins}m</span>
                         </div>
                     `;
+
+                    // Active Users
+                    const activeUsers = data.active_users || {count: 0, users: []};
+                    const userCount = activeUsers.count;
+                    const userList = activeUsers.users;
+
+                    document.getElementById('userCount').textContent =
+                        `Active Users: ${userCount}`;
+
+                    if (userList.length > 0) {
+                        document.getElementById('userList').innerHTML =
+                            userList.map(email => `<div style="color: #64748b;">• ${email}</div>`).join('');
+                    } else {
+                        document.getElementById('userList').innerHTML = '';
+                    }
                 })
                 .catch(error => console.error('Error fetching metrics:', error));
         }
