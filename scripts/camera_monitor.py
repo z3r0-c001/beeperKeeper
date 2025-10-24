@@ -209,6 +209,18 @@ def chicken_image():
     image_path = os.path.join(os.path.dirname(__file__), 'chicken_of_despair.png')
     return send_file(image_path, mimetype='image/png')
 
+@app.route('/csi_camera')
+def csi_camera():
+    """Proxy to MediaMTX WebRTC player for CSI camera"""
+    from flask import redirect
+    return redirect('http://localhost:8889/csi_camera', code=302)
+
+@app.route('/usb_camera')
+def usb_camera():
+    """Proxy to MediaMTX WebRTC player for USB camera"""
+    from flask import redirect
+    return redirect('http://localhost:8889/usb_camera', code=302)
+
 @app.route('/')
 def index():
     """Main web interface with dual camera support"""
@@ -499,13 +511,22 @@ def index():
     <div class="video-grid dual" id="videoGrid">
         <div class="video-container" id="csiContainer">
             <div class="video-label">IR CAMERA (CSI)</div>
-            <iframe id="csiFrame" src="/csi_camera"></iframe>
+            <iframe id="csiFrame" src=""></iframe>
         </div>
         <div class="video-container" id="usbContainer">
             <div class="video-label">USB WEBCAM</div>
-            <iframe id="usbFrame" src="/usb_camera"></iframe>
+            <iframe id="usbFrame" src=""></iframe>
         </div>
     </div>
+
+    <script>
+        // Set camera stream URLs based on access method
+        const isCloudflare = window.location.hostname.includes('goodsupply.farm');
+        const baseUrl = isCloudflare ? '' : 'http://172.16.0.28:8889';
+
+        document.getElementById('csiFrame').src = baseUrl + '/csi_camera';
+        document.getElementById('usbFrame').src = baseUrl + '/usb_camera';
+    </script>
     
     <div class="metrics-grid">
         <div class="card">
