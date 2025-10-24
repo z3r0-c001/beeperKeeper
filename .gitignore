@@ -1,0 +1,70 @@
+# Configuration files with sensitive information
+config.py
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.Python
+
+# Virtual environments
+venv/
+ENV/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Claude Code (local development only)
+.claude/
+CLAUDE.md
+
+# Logs
+*.log
+/tmp/
+
+# System files
+.DS_Store
+Thumbs.db
+*:Zone.Identifier
+
+# Test files
+test_*.py
+*_test.py
+
+# Temporary files
+*.tmp
+*.bak
+*~
+
+# MediaMTX downloads
+mediamtx_*.tar.gz
+
+# Docker volumes and data
+mosquitto/data/
+mosquitto/log/
+influxdb-data/
+influxdb-config/
+grafana-data/
+
+# Development/debug files
+final_camera.py
+lightweight_camera.py
+simple_camera.py
+POWER_DIAGNOSTICS.md
+WIFI_ISSUE_SUMMARY.md
+WIFI_STABILITY_ACTION_PLAN.md
+wifi_power_fix/
+
+# Sensitive documentation
+CREDENTIALS.md
