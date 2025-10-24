@@ -1,0 +1,295 @@
+apiVersion: 1
+
+groups:
+  - orgId: 1
+    name: BME680 Environmental Alerts
+    folder: Beeper Keeper
+    interval: 1m
+    rules:
+      # High Temperature Alert
+      - uid: temp_high
+        title: High Temperature Alert
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: InfluxDB_Beeper
+            model:
+              query: |
+                from(bucket: "sensors")
+                  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
+                  |> filter(fn: (r) => r["_measurement"] == "mqtt_consumer")
+                  |> filter(fn: (r) => r["_field"] == "temperature")
+                  |> aggregateWindow(every: 1m, fn: mean, createEmpty: false)
+          - refId: C
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: classic_conditions
+              conditions:
+                - evaluator:
+                    params:
+                      - 35  # Alert if temp > 35°C (95°F)
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params:
+                      - A
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+        noDataState: NoData
+        execErrState: Error
+        for: 2m
+        annotations:
+          summary: Temperature is too high
+          description: 'Temperature is {{ $values.A.Value }}°C (threshold: 35°C)'
+        labels:
+          severity: warning
+          sensor: BME680
+
+      # Low Temperature Alert
+      - uid: temp_low
+        title: Low Temperature Alert  
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: InfluxDB_Beeper
+            model:
+              query: |
+                from(bucket: "sensors")
+                  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
+                  |> filter(fn: (r) => r["_measurement"] == "mqtt_consumer")
+                  |> filter(fn: (r) => r["_field"] == "temperature")
+                  |> aggregateWindow(every: 1m, fn: mean, createEmpty: false)
+          - refId: C
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: classic_conditions
+              conditions:
+                - evaluator:
+                    params:
+                      - 10  # Alert if temp < 10°C (50°F)
+                    type: lt
+                  operator:
+                    type: and
+                  query:
+                    params:
+                      - A
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+        noDataState: NoData
+        execErrState: Error
+        for: 2m
+        annotations:
+          summary: Temperature is too low
+          description: 'Temperature is {{ $values.A.Value }}°C (threshold: 10°C)'
+        labels:
+          severity: warning
+          sensor: BME680
+
+      # High Humidity Alert
+      - uid: humidity_high
+        title: High Humidity Alert
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: InfluxDB_Beeper
+            model:
+              query: |
+                from(bucket: "sensors")
+                  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
+                  |> filter(fn: (r) => r["_measurement"] == "mqtt_consumer")
+                  |> filter(fn: (r) => r["_field"] == "humidity")
+                  |> aggregateWindow(every: 1m, fn: mean, createEmpty: false)
+          - refId: C
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: classic_conditions
+              conditions:
+                - evaluator:
+                    params:
+                      - 80  # Alert if humidity > 80%
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params:
+                      - A
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+        noDataState: NoData
+        execErrState: Error
+        for: 5m
+        annotations:
+          summary: Humidity is too high
+          description: 'Humidity is {{ $values.A.Value }}% (threshold: 80%)'
+        labels:
+          severity: warning
+          sensor: BME680
+
+      # Low Humidity Alert
+      - uid: humidity_low
+        title: Low Humidity Alert
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: InfluxDB_Beeper
+            model:
+              query: |
+                from(bucket: "sensors")
+                  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
+                  |> filter(fn: (r) => r["_measurement"] == "mqtt_consumer")
+                  |> filter(fn: (r) => r["_field"] == "humidity")
+                  |> aggregateWindow(every: 1m, fn: mean, createEmpty: false)
+          - refId: C
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: classic_conditions
+              conditions:
+                - evaluator:
+                    params:
+                      - 20  # Alert if humidity < 20%
+                    type: lt
+                  operator:
+                    type: and
+                  query:
+                    params:
+                      - A
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+        noDataState: NoData
+        execErrState: Error
+        for: 5m
+        annotations:
+          summary: Humidity is too low
+          description: 'Humidity is {{ $values.A.Value }}% (threshold: 20%)'
+        labels:
+          severity: info
+          sensor: BME680
+
+      # CPU Temperature Critical
+      - uid: cpu_temp_critical
+        title: CPU Temperature Critical
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: InfluxDB_Beeper
+            model:
+              query: |
+                from(bucket: "sensors")
+                  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
+                  |> filter(fn: (r) => r["_measurement"] == "mqtt_consumer")
+                  |> filter(fn: (r) => r["_field"] == "cpu_temp")
+                  |> aggregateWindow(every: 1m, fn: mean, createEmpty: false)
+          - refId: C
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: classic_conditions
+              conditions:
+                - evaluator:
+                    params:
+                      - 80  # Alert if CPU temp > 80°C
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params:
+                      - A
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+        noDataState: NoData
+        execErrState: Error
+        for: 1m
+        annotations:
+          summary: CPU temperature is critical
+          description: 'CPU temperature is {{ $values.A.Value }}°C (threshold: 80°C)'
+        labels:
+          severity: critical
+          sensor: System
+
+      # No Sensor Data
+      - uid: no_sensor_data
+        title: No Sensor Data Received
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: InfluxDB_Beeper
+            model:
+              query: |
+                from(bucket: "sensors")
+                  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
+                  |> filter(fn: (r) => r["_measurement"] == "mqtt_consumer")
+                  |> filter(fn: (r) => r["_field"] == "temperature")
+                  |> count()
+          - refId: C
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: classic_conditions
+              conditions:
+                - evaluator:
+                    params:
+                      - 1  # Alert if data count < 1 (no data)
+                    type: lt
+                  operator:
+                    type: and
+                  query:
+                    params:
+                      - A
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+        noDataState: Alerting
+        execErrState: Error
+        for: 10m
+        annotations:
+          summary: No sensor data received
+          description: 'No data from BME680 sensor in the last 10 minutes. Check MQTT publisher and sensor connection.'
+        labels:
+          severity: critical
+          sensor: BME680

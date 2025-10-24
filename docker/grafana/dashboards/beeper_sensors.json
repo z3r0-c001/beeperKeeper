@@ -1,0 +1,330 @@
+{
+  "title": "Beeper Keeper - Sensor Monitoring",
+  "uid": "beeper-sensors",
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "5s",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 100,
+      "title": "",
+      "type": "text",
+      "gridPos": {
+        "h": 5,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "options": {
+        "mode": "html",
+        "content": "\n<div style=\"text-align: center; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\">\n    <div style=\"display: flex; align-items: center; justify-content: center; gap: 20px;\">\n        <img src=\"/public/img/chicken_of_despair.png\" style=\"height: 80px;\">\n        <div>\n            <div style=\"font-size: 48px; font-weight: bold; color: white; line-height: 1.2;\">\n                \ud83d\udc14 BEEPER KEEPER 10000 \ud83d\udc14\n            </div>\n            <div style=\"font-size: 18px; color: #fff; margin-top: 10px; opacity: 0.95;\">\n                Good Supply Farm - Chicken Monitoring System\n            </div>\n        </div>\n        <img src=\"/public/img/chicken_of_despair.png\" style=\"height: 80px;\">\n    </div>\n</div>\n"
+      }
+    },
+    {
+      "id": 101,
+      "title": "IR Camera (CSI - Night Vision)",
+      "type": "text",
+      "gridPos": {
+        "h": 16,
+        "w": 12,
+        "x": 0,
+        "y": 5
+      },
+      "options": {
+        "mode": "html",
+        "content": "\n<div style=\"width: 100%; height: 100%; display: flex; flex-direction: column;\">\n    <div style=\"flex: 1; background: #000; position: relative; min-height: 300px; display: flex; align-items: center; justify-content: center;\">\n        <video id=\"csi_video\" autoplay playsinline muted controls style=\"max-width: 100%; max-height: 100%; width: auto; height: auto;\"></video>\n        <div id=\"csi_status\" style=\"position: absolute; color: white; font-size: 14px; text-shadow: 0 0 5px black;\">Connecting...</div>\n    </div>\n    <div style=\"background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); color: white; text-align: center; padding: 20px;\">\n        <div style=\"font-size: 14px; color: rgba(255,255,255,0.9); margin-bottom: 10px;\">\n            <strong>CSI Camera:</strong> OV5647 IR \u2022 1280x720 @ 30fps \u2022 H.264 Hardware\n        </div>\n        <a href=\"http://172.16.0.28:8889/csi_camera/\" target=\"_blank\" \n           style=\"display: inline-block; background: white; color: #1e40af; padding: 10px 30px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: bold;\">\n            \ud83c\udfa5 Open in New Tab\n        </a>\n    </div>\n</div>\n<script>\n(function() {\n    const video = document.getElementById('csi_video');\n    const status = document.getElementById('csi_status');\n    \n    async function startStream() {\n        try {\n            status.textContent = 'Connecting to camera...';\n            \n            const pc = new RTCPeerConnection({\n                iceServers: [{urls: 'stun:stun.l.google.com:19302'}]\n            });\n            \n            pc.ontrack = (event) => {\n                video.srcObject = event.streams[0];\n                status.style.display = 'none';\n            };\n            \n            pc.oniceconnectionstatechange = () => {\n                if (pc.iceConnectionState === 'failed' || pc.iceConnectionState === 'disconnected') {\n                    status.textContent = 'Connection lost. Retrying...';\n                    status.style.display = 'block';\n                    setTimeout(startStream, 2000);\n                }\n            };\n            \n            pc.addTransceiver('video', {direction: 'recvonly'});\n            \n            const offer = await pc.createOffer();\n            await pc.setLocalDescription(offer);\n            \n            const response = await fetch('http://172.16.0.28:8889/csi_camera/whep', {\n                method: 'POST',\n                headers: {'Content-Type': 'application/sdp'},\n                body: offer.sdp\n            });\n            \n            if (!response.ok) throw new Error('WHEP request failed');\n            \n            const answer = await response.text();\n            await pc.setRemoteDescription(new RTCSessionDescription({\n                type: 'answer',\n                sdp: answer\n            }));\n            \n        } catch (err) {\n            console.error('Stream error:', err);\n            status.textContent = 'Failed to load. Use button below.';\n        }\n    }\n    \n    startStream();\n})();\n</script>\n"
+      }
+    },
+    {
+      "id": 102,
+      "title": "USB Webcam (Audio Enabled)",
+      "type": "text",
+      "gridPos": {
+        "h": 16,
+        "w": 12,
+        "x": 12,
+        "y": 5
+      },
+      "options": {
+        "mode": "html",
+        "content": "\n<div style=\"width: 100%; height: 100%; display: flex; flex-direction: column;\">\n    <div style=\"flex: 1; background: #000; position: relative; min-height: 300px; display: flex; align-items: center; justify-content: center;\">\n        <video id=\"usb_video\" autoplay playsinline controls style=\"max-width: 100%; max-height: 100%; width: auto; height: auto;\"></video>\n        <div id=\"usb_status\" style=\"position: absolute; color: white; font-size: 14px; text-shadow: 0 0 5px black;\">Connecting...</div>\n    </div>\n    <div style=\"background: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%); color: white; text-align: center; padding: 20px;\">\n        <div style=\"font-size: 14px; color: rgba(255,255,255,0.9); margin-bottom: 10px;\">\n            <strong>USB Camera:</strong> Logitech C270 \u2022 640x480 @ 15fps \u2022 VP8 + Opus Audio\n        </div>\n        <a href=\"http://172.16.0.28:8889/usb_camera/\" target=\"_blank\" \n           style=\"display: inline-block; background: white; color: #0f766e; padding: 10px 30px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: bold;\">\n            \ud83c\udfa5 Open in New Tab\n        </a>\n    </div>\n</div>\n<script>\n(function() {\n    const video = document.getElementById('usb_video');\n    const status = document.getElementById('usb_status');\n    \n    async function startStream() {\n        try {\n            status.textContent = 'Connecting to camera...';\n            \n            const pc = new RTCPeerConnection({\n                iceServers: [{urls: 'stun:stun.l.google.com:19302'}]\n            });\n            \n            pc.ontrack = (event) => {\n                video.srcObject = event.streams[0];\n                status.style.display = 'none';\n            };\n            \n            pc.oniceconnectionstatechange = () => {\n                if (pc.iceConnectionState === 'failed' || pc.iceConnectionState === 'disconnected') {\n                    status.textContent = 'Connection lost. Retrying...';\n                    status.style.display = 'block';\n                    setTimeout(startStream, 2000);\n                }\n            };\n            \n            pc.addTransceiver('video', {direction: 'recvonly'});\n            pc.addTransceiver('audio', {direction: 'recvonly'});\n            \n            const offer = await pc.createOffer();\n            await pc.setLocalDescription(offer);\n            \n            const response = await fetch('http://172.16.0.28:8889/usb_camera/whep', {\n                method: 'POST',\n                headers: {'Content-Type': 'application/sdp'},\n                body: offer.sdp\n            });\n            \n            if (!response.ok) throw new Error('WHEP request failed');\n            \n            const answer = await response.text();\n            await pc.setRemoteDescription(new RTCSessionDescription({\n                type: 'answer',\n                sdp: answer\n            }));\n            \n        } catch (err) {\n            console.error('Stream error:', err);\n            status.textContent = 'Failed to load. Use button below.';\n        }\n    }\n    \n    startStream();\n})();\n</script>\n"
+      }
+    },
+    {
+      "id": 1,
+      "title": "BME680 - Temperature",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 21
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB_Beeper"
+          },
+          "query": "from(bucket: \"sensors\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"_field\"] == \"temperature\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "celsius",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 10
+          }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "title": "BME680 - Humidity",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 21
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB_Beeper"
+          },
+          "query": "from(bucket: \"sensors\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"_field\"] == \"humidity\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 10
+          }
+        }
+      }
+    },
+    {
+      "id": 3,
+      "title": "BME680 - Pressure",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 29
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB_Beeper"
+          },
+          "query": "from(bucket: \"sensors\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"_field\"] == \"pressure\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "pressurehpa",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 10
+          }
+        }
+      }
+    },
+    {
+      "id": 4,
+      "title": "BME680 - Gas Resistance (Air Quality)",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 29
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB_Beeper"
+          },
+          "query": "from(bucket: \"sensors\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"_field\"] == \"gas\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ohm",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 10
+          }
+        }
+      }
+    },
+    {
+      "id": 5,
+      "title": "CPU Temperature",
+      "type": "gauge",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 37
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB_Beeper"
+          },
+          "query": "from(bucket: \"sensors\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"_field\"] == \"cpu_temp\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "celsius",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": 0,
+                "color": "green"
+              },
+              {
+                "value": 60,
+                "color": "yellow"
+              },
+              {
+                "value": 80,
+                "color": "red"
+              }
+            ]
+          },
+          "min": 0,
+          "max": 100
+        }
+      }
+    },
+    {
+      "id": 6,
+      "title": "CPU Usage",
+      "type": "gauge",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 37
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB_Beeper"
+          },
+          "query": "from(bucket: \"sensors\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"_field\"] == \"cpu_percent\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": 0,
+                "color": "green"
+              },
+              {
+                "value": 70,
+                "color": "yellow"
+              },
+              {
+                "value": 90,
+                "color": "red"
+              }
+            ]
+          },
+          "min": 0,
+          "max": 100
+        }
+      }
+    },
+    {
+      "id": 7,
+      "title": "Memory Usage",
+      "type": "gauge",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 37
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB_Beeper"
+          },
+          "query": "from(bucket: \"sensors\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"_field\"] == \"memory_percent\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": 0,
+                "color": "green"
+              },
+              {
+                "value": 70,
+                "color": "yellow"
+              },
+              {
+                "value": 90,
+                "color": "red"
+              }
+            ]
+          },
+          "min": 0,
+          "max": 100
+        }
+      }
+    }
+  ]
+}

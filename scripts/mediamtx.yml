@@ -1,0 +1,30 @@
+# MediaMTX - Dual Camera Configuration (Final)
+# CSI Camera (H.264) + USB Webcam (VP8)
+
+# API
+api: yes
+apiAddress: :9997
+
+# WebRTC
+webrtcAddress: :8889
+webrtcICEServers: []
+
+# Disable HLS
+hls: no
+
+# RTSP backend
+rtspAddress: :8554
+protocols: [tcp]
+encryption: "no"
+
+# Camera streams
+paths:
+  # CSI Camera (OV5647 IR) - H.264 hardware encoding - NO ROTATION
+  csi_camera:
+    runOnInit: bash -c 'rpicam-vid --codec h264 --metadata /tmp/camera_metadata.json --metadata-format json --width 1280 --height 720 --framerate 30 --inline --timeout 0 -o - | ffmpeg -f h264 -i - -c:v copy -f rtsp rtsp://localhost:8554/csi_camera'
+    runOnInitRestart: yes
+
+  # USB Webcam (Logitech) - VP8 encoding with audio (auto-detects /dev/videoX and hw:X,0)
+  usb_camera:
+    runOnInit: /home/binhex/start_usb_camera.sh
+    runOnInitRestart: yes

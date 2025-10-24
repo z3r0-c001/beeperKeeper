@@ -1,0 +1,17 @@
+apiVersion: 1
+
+datasources:
+  - name: InfluxDB_Beeper
+    type: influxdb
+    access: proxy
+    url: http://influxdb:8086
+    jsonData:
+      version: Flux
+      organization: beeperkeeper
+      defaultBucket: sensors
+      tlsSkipVerify: true
+    secureJsonData:
+      token: beeper-admin-token-change-this-in-production
+    uid: InfluxDB_Beeper
+    isDefault: true
+    editable: false
