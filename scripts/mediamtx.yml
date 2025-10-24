@@ -26,5 +26,5 @@ paths:
 
   # USB Webcam (Logitech) - VP8 encoding with audio (auto-detects /dev/videoX and hw:X,0)
   usb_camera:
-    runOnInit: /home/binhex/start_usb_camera.sh
+    runOnInit: /home/pi/start_usb_camera.sh
     runOnInitRestart: yes

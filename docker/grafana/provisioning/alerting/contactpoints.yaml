@@ -7,15 +7,5 @@ contactPoints:
       - uid: email_alerts
         type: email
         settings:
-          addresses: farmer@goodsupply.farm
-        disableResolveMessage: false
-      - uid: orange_dot_email
-        type: email
-        settings:
-          addresses: orange_dot@goodsupply.farm
-        disableResolveMessage: false
-      - uid: super_fun_email
-        type: email
-        settings:
-          addresses: super_fun@goodsupply.farm
+          addresses: your-email@example.com
         disableResolveMessage: false
