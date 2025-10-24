@@ -289,13 +289,13 @@ def index():
             pointer-events: none;
             background-image:
                 /* Top row - scattered chickens */
-                url('/chicken'), url('/chicken'), url('/chicken'), url('/chicken'),
+                url('/chicken_image'), url('/chicken_image'), url('/chicken_image'), url('/chicken_image'),
                 /* Middle rows - more scattered chickens */
-                url('/chicken'), url('/chicken'), url('/chicken'), url('/chicken'),
-                url('/chicken'), url('/chicken'), url('/chicken'), url('/chicken'),
+                url('/chicken_image'), url('/chicken_image'), url('/chicken_image'), url('/chicken_image'),
+                url('/chicken_image'), url('/chicken_image'), url('/chicken_image'), url('/chicken_image'),
                 /* Bottom rows - scattered chickens */
-                url('/chicken'), url('/chicken'), url('/chicken'), url('/chicken'),
-                url('/chicken'), url('/chicken'), url('/chicken'), url('/chicken');
+                url('/chicken_image'), url('/chicken_image'), url('/chicken_image'), url('/chicken_image'),
+                url('/chicken_image'), url('/chicken_image'), url('/chicken_image'), url('/chicken_image');
             background-size:
                 80px, 120px, 60px, 100px,
                 90px, 70px, 110px, 85px,
@@ -323,10 +323,10 @@ def index():
             pointer-events: none;
             background-image:
                 /* More scattered chickens with rotations (via different positioning) */
-                url('/chicken'), url('/chicken'), url('/chicken'), url('/chicken'),
-                url('/chicken'), url('/chicken'), url('/chicken'), url('/chicken'),
-                url('/chicken'), url('/chicken'), url('/chicken'), url('/chicken'),
-                url('/chicken'), url('/chicken'), url('/chicken'), url('/chicken');
+                url('/chicken_image'), url('/chicken_image'), url('/chicken_image'), url('/chicken_image'),
+                url('/chicken_image'), url('/chicken_image'), url('/chicken_image'), url('/chicken_image'),
+                url('/chicken_image'), url('/chicken_image'), url('/chicken_image'), url('/chicken_image'),
+                url('/chicken_image'), url('/chicken_image'), url('/chicken_image'), url('/chicken_image');
             background-size:
                 110px, 65px, 95px, 85px,
                 102px, 78px, 88px, 73px,
