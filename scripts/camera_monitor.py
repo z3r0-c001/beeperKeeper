@@ -276,6 +276,7 @@ def index():
             overflow-x: hidden;
         }
         
+        /* Scattered chicken background - different sizes and rotations */
         body::before {
             content: '';
             position: fixed;
@@ -283,42 +284,60 @@ def index():
             left: 0;
             width: 100%;
             height: 100%;
-            opacity: 0.08;
+            opacity: 0.15;
             z-index: 0;
             pointer-events: none;
-            background-image: 
-                /* Random chicken emojis at different sizes */
-                radial-gradient(circle at 10% 15%, transparent 1.8%, transparent 2%),
-                radial-gradient(circle at 35% 8%, transparent 2.5%, transparent 3%),
-                radial-gradient(circle at 65% 25%, transparent 1.2%, transparent 1.5%),
-                radial-gradient(circle at 88% 12%, transparent 3%, transparent 3.5%),
-                radial-gradient(circle at 15% 42%, transparent 2.2%, transparent 2.5%),
-                radial-gradient(circle at 48% 35%, transparent 1.5%, transparent 2%),
-                radial-gradient(circle at 78% 45%, transparent 2.8%, transparent 3%),
-                radial-gradient(circle at 25% 68%, transparent 1.8%, transparent 2%),
-                radial-gradient(circle at 52% 62%, transparent 2.5%, transparent 3%),
-                radial-gradient(circle at 85% 72%, transparent 1.3%, transparent 1.5%),
-                radial-gradient(circle at 8% 85%, transparent 3.2%, transparent 3.5%),
-                radial-gradient(circle at 38% 88%, transparent 1.6%, transparent 2%),
-                radial-gradient(circle at 72% 92%, transparent 2.3%, transparent 2.8%),
-                radial-gradient(circle at 92% 88%, transparent 1.9%, transparent 2.2%);
+            background-image:
+                /* Top row - scattered chickens */
+                url('/chicken'), url('/chicken'), url('/chicken'), url('/chicken'),
+                /* Middle rows - more scattered chickens */
+                url('/chicken'), url('/chicken'), url('/chicken'), url('/chicken'),
+                url('/chicken'), url('/chicken'), url('/chicken'), url('/chicken'),
+                /* Bottom rows - scattered chickens */
+                url('/chicken'), url('/chicken'), url('/chicken'), url('/chicken'),
+                url('/chicken'), url('/chicken'), url('/chicken'), url('/chicken');
+            background-size:
+                80px, 120px, 60px, 100px,
+                90px, 70px, 110px, 85px,
+                75px, 95px, 65px, 105px,
+                88px, 72px, 115px, 68px,
+                82px, 98px, 78px, 92px;
+            background-position:
+                8% 12%, 28% 8%, 52% 15%, 78% 10%,
+                15% 32%, 42% 28%, 68% 35%, 88% 30%,
+                12% 52%, 38% 48%, 62% 55%, 85% 50%,
+                18% 72%, 48% 68%, 72% 75%, 92% 70%,
+                25% 88%, 55% 85%, 80% 90%, 95% 88%;
+            background-repeat: no-repeat;
         }
-        
+
         body::after {
-            content: '🐔 🐔 🐔 🐔 🐔 🐔 🐔 🐔 🐔 🐔 🐔 🐔 🐔 🐔 🐔 🐔 🐔 🐔 🐔 🐔 🐔 🐔 🐔 🐔 🐔 🐔 🐔 🐔 🐔 🐔 🐔 🐔 🐔 🐔 🐔 🐔';
+            content: '';
             position: fixed;
             top: 0;
             left: 0;
-            width: 200%;
-            height: 200%;
-            font-size: 40px;
-            line-height: 80px;
-            opacity: 0.06;
+            width: 100%;
+            height: 100%;
+            opacity: 0.12;
             z-index: 0;
             pointer-events: none;
-            transform: rotate(-15deg);
-            word-spacing: 50px;
-            letter-spacing: 60px;
+            background-image:
+                /* More scattered chickens with rotations (via different positioning) */
+                url('/chicken'), url('/chicken'), url('/chicken'), url('/chicken'),
+                url('/chicken'), url('/chicken'), url('/chicken'), url('/chicken'),
+                url('/chicken'), url('/chicken'), url('/chicken'), url('/chicken'),
+                url('/chicken'), url('/chicken'), url('/chicken'), url('/chicken');
+            background-size:
+                110px, 65px, 95px, 85px,
+                102px, 78px, 88px, 73px,
+                92px, 70px, 108px, 83px,
+                76px, 98px, 87px, 105px;
+            background-position:
+                18% 18%, 45% 12%, 72% 20%, 95% 15%,
+                5% 42%, 32% 38%, 58% 45%, 82% 40%,
+                22% 62%, 50% 58%, 75% 65%, 98% 60%,
+                10% 82%, 40% 78%, 65% 85%, 88% 80%;
+            background-repeat: no-repeat;
         }
         
         .header, .controls, .video-grid, .metrics-grid {
