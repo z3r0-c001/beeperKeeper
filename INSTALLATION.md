@@ -2,6 +2,27 @@
 
 Complete step-by-step installation guide for deploying beeperKeeper on Raspberry Pi.
 
+## ⚠️ CRITICAL: Placeholder Values Must Be Changed
+
+**This repository contains placeholder values that WILL NOT WORK without customization.**
+
+Before starting installation, understand that you'll need to replace these placeholders:
+
+### Required Customization Summary:
+
+| File | Placeholder | What You Need |
+|------|-------------|---------------|
+| `config.py` | `RASPBERRY_PI_IP = "192.168.1.100"` | Your Pi's actual IP address |
+| `docker-compose.yml` | `CHANGE_ME_influxdb_password` | Strong InfluxDB password |
+| `docker-compose.yml` | `CHANGE_ME_influxdb_admin_token_min_32_chars` | Secure token (32+ characters) |
+| `docker-compose.yml` | `CHANGE_ME_grafana_password` | Grafana admin password |
+| `docker/telegraf/telegraf.conf` | Token placeholder | MUST match InfluxDB token above |
+| `docker/grafana/provisioning/alerting/contactpoints.yaml` | `your-email@example.com` | Your actual email for alerts |
+
+**These changes are covered in detail in each installation step below.**
+
+---
+
 ## Table of Contents
 
 1. [Hardware Setup](#hardware-setup)

@@ -17,6 +17,34 @@ beeperKeeper is a complete surveillance solution designed for Raspberry Pi that 
 - **Responsive Web Interface**: Modern, mobile-friendly monitoring dashboard
 - **Docker Deployment**: One-command setup for complete monitoring stack
 
+## ⚠️ IMPORTANT: Configuration Required
+
+**This repository uses placeholder values.** Before deploying, you MUST update the following files with your actual values:
+
+### Files Requiring Customization:
+
+1. **`config.py`** (copy from `config.example.py`):
+   - `RASPBERRY_PI_IP = "192.168.1.100"` → Change to your Pi's actual IP address
+
+2. **`docker-compose.yml`** (copy from `docker-compose.example.yml`):
+   - `DOCKER_INFLUXDB_INIT_PASSWORD=CHANGE_ME_influxdb_password` → Set strong password
+   - `DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=CHANGE_ME_influxdb_admin_token_min_32_chars` → Set secure token (32+ chars)
+   - `GF_SECURITY_ADMIN_PASSWORD=CHANGE_ME_grafana_password` → Set Grafana admin password
+
+3. **`docker/telegraf/telegraf.conf`**:
+   - `token = "CHANGE_ME_influxdb_admin_token_min_32_chars"` → Must match token from docker-compose.yml
+
+4. **`docker/grafana/provisioning/alerting/contactpoints.yaml`**:
+   - `addresses: your-email@example.com` → Change to your actual email for alerts
+
+5. **`scripts/mediamtx.yml`** (optional, if paths differ):
+   - Update camera device paths if not `/dev/video0` and `/dev/video1`
+   - Update audio device if not `hw:2,0`
+
+**DO NOT skip this step or your deployment will fail!**
+
+---
+
 ## Hardware Requirements
 
 ### Minimum
