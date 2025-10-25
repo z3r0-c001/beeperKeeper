@@ -85,7 +85,8 @@
             "drawStyle": "line",
             "lineWidth": 2,
             "fillOpacity": 10
-          }
+          },
+          "displayName": "Temperature"
         }
       }
     },
@@ -119,7 +120,8 @@
             "drawStyle": "line",
             "lineWidth": 2,
             "fillOpacity": 10
-          }
+          },
+          "displayName": "Humidity"
         }
       }
     },
@@ -153,7 +155,8 @@
             "drawStyle": "line",
             "lineWidth": 2,
             "fillOpacity": 10
-          }
+          },
+          "displayName": "Pressure"
         }
       }
     },
@@ -187,7 +190,8 @@
             "drawStyle": "line",
             "lineWidth": 2,
             "fillOpacity": 10
-          }
+          },
+          "displayName": "Gas Resistance"
         }
       }
     },
@@ -289,7 +293,8 @@
             ]
           },
           "min": 0,
-          "max": 100
+          "max": 100,
+          "displayName": "CPU Usage"
         }
       }
     },
@@ -334,7 +339,8 @@
             ]
           },
           "min": 0,
-          "max": 100
+          "max": 100,
+          "displayName": "Memory Usage"
         }
       }
     },
@@ -378,7 +384,8 @@
             ]
           },
           "min": 0,
-          "max": 100
+          "max": 100,
+          "displayName": "Disk Usage"
         }
       }
     },
