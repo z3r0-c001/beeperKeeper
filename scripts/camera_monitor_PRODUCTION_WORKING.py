@@ -7,7 +7,7 @@ BEEPER KEEPER 10000 - Dual Camera Monitoring System
 - Real-time sensor monitoring
 """
 
-from flask import Flask, Response, jsonify, render_template_string, send_file
+from flask import Flask, Response, jsonify, render_template_string, send_file, redirect
 import time
 import threading
 import psutil
@@ -449,6 +449,16 @@ def chicken_image():
     """Serve the chicken of despair mascot image"""
     image_path = os.path.join(os.path.dirname(__file__), 'chicken_of_despair.png')
     return send_file(image_path, mimetype='image/png')
+
+@app.route('/csi_camera')
+def csi_camera():
+    """Proxy/redirect to MediaMTX CSI camera stream"""
+    return redirect('http://172.16.0.28:8889/csi_camera/', code=302)
+
+@app.route('/usb_camera')
+def usb_camera():
+    """Proxy/redirect to MediaMTX USB camera stream"""
+    return redirect('http://172.16.0.28:8889/usb_camera/', code=302)
 
 @app.route('/')
 def index():
