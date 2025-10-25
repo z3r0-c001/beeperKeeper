@@ -22,7 +22,7 @@
       },
       "options": {
         "mode": "html",
-        "content": "\n<div style=\"text-align: center; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\">\n    <div style=\"margin-bottom: 5px;\">\n        <img src=\"/public/img/chicken_of_despair.png\" style=\"height: 120px;\">\n    </div>\n    <div style=\"font-size: 48px; font-weight: bold; color: white; line-height: 1.2; margin: 5px 0;\">\n        BEEPER KEEPER 10000\n    </div>\n    <div style=\"margin: 8px 0;\">\n        <img src=\"/public/img/tinyWaxer.png\" style=\"height: 50px;\">\n    </div>\n    <div style=\"font-size: 18px; color: #fff; opacity: 0.95;\">\n        Good Supply Farm - Chicken Monitoring System\n    </div>\n</div>\n"
+        "content": "\n<div style=\"text-align: center; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\">\n    <div style=\"margin-bottom: 5px;\">\n        <img src=\"/public/img/chicken_of_despair.png\" style=\"height: 120px;\">\n    </div>\n    <div style=\"font-size: 48px; font-weight: bold; color: white; line-height: 1.2; margin: 5px 0;\">\n        BEEPER KEEPER 10000\n    </div>\n    <div style=\"margin: 8px 0;\">\n        <img src=\"/public/img/tinyWaxer.png\" style=\"height: 100px;\">\n    </div>\n    <div style=\"font-size: 18px; color: #fff; opacity: 0.95;\">\n        Good Supply Farm - Chicken Monitoring System\n    </div>\n</div>\n"
       }
     },
     {
