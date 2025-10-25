@@ -385,6 +385,22 @@ def publish_mqtt_data():
             mqtt_client.publish("beeper/sensors/cpu/temperature",
                               json.dumps({"value": sensor_data['cpu_temp'], "timestamp": timestamp}))
 
+        # Camera sensor data
+        camera_data = sensor_data.get('camera', {})
+        if camera_data:
+            if camera_data.get('exposure_time'):
+                mqtt_client.publish("beeper/sensors/camera/exposure_time",
+                                  json.dumps({"value": camera_data['exposure_time'], "timestamp": timestamp}))
+            if camera_data.get('analogue_gain'):
+                mqtt_client.publish("beeper/sensors/camera/analogue_gain",
+                                  json.dumps({"value": camera_data['analogue_gain'], "timestamp": timestamp}))
+            if camera_data.get('lux'):
+                mqtt_client.publish("beeper/sensors/camera/lux",
+                                  json.dumps({"value": camera_data['lux'], "timestamp": timestamp}))
+            if camera_data.get('color_temperature'):
+                mqtt_client.publish("beeper/sensors/camera/color_temperature",
+                                  json.dumps({"value": camera_data['color_temperature'], "timestamp": timestamp}))
+
         # System stats
         sys_data = sensor_data.get('system', {})
         if sys_data:
