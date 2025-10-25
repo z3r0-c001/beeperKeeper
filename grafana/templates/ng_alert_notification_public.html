@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ .Title }}</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px 20px;
+      text-align: center;
+    }
+    .logo {
+      margin-bottom: 15px;
+    }
+    .logo img {
+      max-width: 120px;
+      height: auto;
+    }
+    .alert-title {
+      font-size: 24px;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+    .content {
+      padding: 30px 20px;
+    }
+    .alert-status {
+      display: inline-block;
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-weight: bold;
+      text-transform: uppercase;
+      font-size: 12px;
+      margin-bottom: 20px;
+    }
+    .firing {
+      background-color: #dc3545;
+      color: white;
+    }
+    .resolved {
+      background-color: #28a745;
+      color: white;
+    }
+    .alert-info {
+      background-color: #f8f9fa;
+      padding: 20px;
+      border-radius: 4px;
+      border-left: 4px solid #667eea;
+      margin: 20px 0;
+    }
+    .alert-info p {
+      margin: 8px 0;
+      color: #333;
+    }
+    .alert-info strong {
+      color: #667eea;
+    }
+    .footer {
+      background-color: #2d2d2d;
+      color: #ffffff;
+      padding: 30px 20px;
+      text-align: center;
+      font-size: 14px;
+    }
+    .footer a {
+      color: #667eea;
+      text-decoration: none;
+    }
+    .footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">
+        <img src="https://raw.githubusercontent.com/z3r0-c001/beeperKeeper/main/chicken_of_despair.png" alt="Beeper Keeper" style="height: 150px;">
+      </div>
+      <div class="alert-title">🐔 Beeper Keeper Alert 🐔</div>
+    </div>
+
+    <div class="content">
+      <span class="alert-status {{ .Status }}">{{ .Status | upper }}</span>
+
+      <h2 style="color: #333; margin-top: 0;">{{ .CommonLabels.alertname }}</h2>
+
+      <div class="alert-info">
+        {{ if .CommonAnnotations.summary }}
+        <p><strong>Alert:</strong> {{ .CommonAnnotations.summary }}</p>
+        {{ end }}
+
+        {{ if .CommonAnnotations.description }}
+        <p><strong>Summary:</strong> {{ .CommonAnnotations.description }}</p>
+        {{ end }}
+
+        {{ range .CommonLabels.SortedPairs }}
+        <p><strong>{{ .Name }}:</strong> {{ .Value }}</p>
+        {{ end }}
+      </div>
+
+      <p style="color: #666; font-size: 14px;">
+        This alert was triggered by the Beeper Keeper 10000 monitoring system.
+      </p>
+    </div>
+
+    <div class="footer">
+      <p><strong>🐔 Beeper Keeper 10000</strong> - Chicken Monitoring System</p>
+      <div style="margin: 15px 0;">
+        <img src="https://raw.githubusercontent.com/z3r0-c001/beeperKeeper/main/assets/tinyWaxer.png" alt="Good Supply Farm" style="height: 60px;">
+      </div>
+      <p>Good Supply Farm</p>
+      <p><a href="http://172.16.0.7:3000">View Dashboard</a></p>
+    </div>
+  </div>
+</body>
+</html>

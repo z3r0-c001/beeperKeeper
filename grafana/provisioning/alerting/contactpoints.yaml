@@ -1,0 +1,11 @@
+apiVersion: 1
+
+contactPoints:
+  - orgId: 1
+    name: Email Alerts
+    receivers:
+      - uid: email_alerts
+        type: email
+        settings:
+          addresses: farmer@goodsupply.farm;orange_dot@goodsupply.farm;super_fun@goodsupply.farm
+        disableResolveMessage: false

@@ -1,0 +1,58 @@
+[Unit]
+Description=motionOne Production IR Camera Server - Critical 24/7 Monitoring
+Documentation=https://github.com/user/motioneye-setup
+After=network-online.target
+Wants=network-online.target
+
+# Critical service - always restart
+PartOf=multi-user.target
+OnFailure=
+
+[Service]
+Type=simple
+User=binhex
+Group=video
+WorkingDirectory=/home/binhex
+
+# Resource limits (prevent runaway but allow camera to function)
+CPUQuota=85%
+MemoryMax=300M
+MemoryHigh=256M
+TasksMax=100
+LimitNOFILE=2048
+
+# Execution
+ExecStart=/home/binhex/start_camera.sh
+ExecStopPost=/usr/bin/pkill -9 -f camera_server.py
+
+# AGGRESSIVE RESTART POLICY FOR 24/7 CRITICAL MONITORING
+# Restart on ANY failure or unexpected exit
+Restart=always
+RestartSec=10s
+
+# Rate limiting - allow many restarts in short time for critical service
+StartLimitIntervalSec=300s
+StartLimitBurst=10
+
+# If we hit the rate limit, wait and reset the counter
+StartLimitAction=none
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=camera-server
+
+# Environment
+Environment="PYTHONUNBUFFERED=1"
+
+# Shutdown handling
+TimeoutStopSec=15s
+TimeoutStartSec=60s
+KillMode=mixed
+KillSignal=SIGTERM
+
+# Watchdog (systemd will restart if service doesn't respond)
+WatchdogSec=180s
+
+[Install]
+WantedBy=multi-user.target

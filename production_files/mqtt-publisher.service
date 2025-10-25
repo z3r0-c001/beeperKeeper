@@ -1,0 +1,28 @@
+[Unit]
+Description=MQTT Publisher for Beeper Keeper Sensors
+Documentation=https://github.com/motionOne
+After=network.target mosquitto.service
+Wants=mosquitto.service
+Requires=camera-monitor.service
+
+[Service]
+Type=simple
+User=binhex
+Group=binhex
+WorkingDirectory=/home/binhex
+ExecStart=/usr/bin/python3 /home/binhex/mqtt_publisher.py
+Restart=always
+RestartSec=10
+
+# Resource limits
+CPUQuota=10%
+MemoryMax=128M
+TasksMax=25
+
+# Logging
+StandardOutput=append:/home/binhex/mqtt_publisher_service.log
+StandardError=append:/home/binhex/mqtt_publisher_service.log
+SyslogIdentifier=mqtt-publisher
+
+[Install]
+WantedBy=multi-user.target

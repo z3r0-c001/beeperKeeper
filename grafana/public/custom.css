@@ -1,0 +1,60 @@
+/* Beeper Keeper 10000 - Custom Grafana Branding */
+
+/* Add chicken logo to login page */
+.login-page::before {
+  content: '';
+  display: block;
+  width: 200px;
+  height: 200px;
+  margin: 0 auto 20px;
+  background-image: url('/public/img/chicken_of_despair.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* Add chicken logo to side nav */
+.sidemenu__logo::after {
+  content: '';
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  margin-left: 10px;
+  background-image: url('/public/img/chicken_of_despair.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  vertical-align: middle;
+}
+
+/* Add chicken emoji to page titles */
+.page-header__title::before {
+  content: '🐔 ';
+}
+
+/* Custom footer */
+.footer::after {
+  content: ' | Good Supply Farm - Chicken Monitoring';
+  color: #999;
+}
+
+/* Make Grafana logo area show chicken */
+[class*=css-] img[src*=grafana_icon.svg] {
+  display: none;
+}
+
+.sidemenu__logo {
+  background-image: url('/public/img/chicken_of_despair.png') !important;
+  background-size: 32px 32px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* Add chicken watermark to dashboards */
+.react-grid-layout {
+  background-image: url('/public/img/chicken_of_despair.png');
+  background-repeat: no-repeat;
+  background-position: bottom right;
+  background-size: 150px 150px;
+  background-attachment: fixed;
+  opacity: 0.95;
+}

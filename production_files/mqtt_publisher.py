@@ -39,7 +39,6 @@ import json
 import psutil
 from datetime import datetime
 import os
-import math
 
 # Load configuration
 try:
@@ -56,15 +55,6 @@ except ImportError:
 # Initialize MQTT client
 mqtt_client = None
 bme680 = None
-
-# BME680 Air Quality Configuration
-BME680_BASELINE_FILE = '/tmp/bme680_baseline.json'
-bme680_baseline = {
-    'gas_baseline': None,
-    'hum_baseline': 40.0,
-    'calibration_time': None,
-    'samples_collected': 0
-}
 
 def on_connect(client, userdata, flags, rc):
     """Callback for when the client connects to the MQTT broker."""
@@ -119,99 +109,6 @@ def init_bme680():
         print(f"✗ BME680 initialization failed: {e}")
         return False
 
-    # Load baseline calibration
-    load_bme680_baseline()
-    if bme680_baseline['gas_baseline'] is None:
-        print("⚠ BME680: No baseline found. Starting 30-minute calibration...")
-    else:
-        print(f"✓ BME680: Baseline loaded - Gas: {bme680_baseline['gas_baseline']:.0f}Ω")
-
-def load_bme680_baseline():
-    """Load BME680 baseline calibration from file"""
-    global bme680_baseline
-    try:
-        if os.path.exists(BME680_BASELINE_FILE):
-            with open(BME680_BASELINE_FILE, 'r') as f:
-                saved_baseline = json.load(f)
-                bme680_baseline.update(saved_baseline)
-                return True
-    except Exception as e:
-        print(f"⚠ Could not load BME680 baseline: {e}")
-    return False
-
-def save_bme680_baseline():
-    """Save BME680 baseline calibration to file"""
-    try:
-        with open(BME680_BASELINE_FILE, 'w') as f:
-            json.dump(bme680_baseline, f)
-        return True
-    except Exception as e:
-        print(f"✗ Could not save BME680 baseline: {e}")
-    return False
-
-def calculate_gas_resistance_compensated(gas_raw, humidity):
-    """Calculate humidity-compensated gas resistance"""
-    if gas_raw <= 0:
-        return 0
-    try:
-        log_gas = math.log(gas_raw)
-        hum_offset = 0.04 * log_gas * humidity
-        comp_gas = log_gas + hum_offset
-        return comp_gas
-    except:
-        return 0
-
-def calculate_iaq(gas_raw, humidity):
-    """Calculate Indoor Air Quality (IAQ) index from 0-500"""
-    global bme680_baseline
-
-    if bme680_baseline['gas_baseline'] is None:
-        if bme680_baseline['samples_collected'] < 180:  # 30 min at 10s intervals
-            bme680_baseline['samples_collected'] += 1
-            return None
-        else:
-            bme680_baseline['gas_baseline'] = gas_raw
-            bme680_baseline['hum_baseline'] = humidity
-            bme680_baseline['calibration_time'] = time.time()
-            save_bme680_baseline()
-            print(f"✓ BME680: Baseline calibrated! Gas={gas_raw:.0f}Ω, Hum={humidity:.1f}%")
-            return 50
-
-    gas_comp = calculate_gas_resistance_compensated(gas_raw, humidity)
-    baseline_comp = calculate_gas_resistance_compensated(
-        bme680_baseline['gas_baseline'],
-        bme680_baseline['hum_baseline']
-    )
-
-    if baseline_comp == 0:
-        return None
-
-    gas_ratio = baseline_comp / gas_comp if gas_comp > 0 else 1.0
-    iaq = 50 + (1.0 - gas_ratio) * 450
-    iaq = max(0, min(500, iaq))
-
-    return round(iaq, 1)
-
-def estimate_co2_equivalent(iaq):
-    """Estimate CO2 equivalent in ppm from IAQ"""
-    if iaq is None:
-        return None
-
-    if iaq <= 50:
-        co2 = 400 + (iaq / 50) * 200
-    elif iaq <= 100:
-        co2 = 600 + ((iaq - 50) / 50) * 200
-    elif iaq <= 150:
-        co2 = 800 + ((iaq - 100) / 50) * 200
-    elif iaq <= 200:
-        co2 = 1000 + ((iaq - 150) / 50) * 500
-    elif iaq <= 300:
-        co2 = 1500 + ((iaq - 200) / 100) * 1000
-    else:
-        co2 = 2500 + ((iaq - 300) / 200) * 2500
-
-    return round(co2, 0)
-
 def get_cpu_temp():
     """Read CPU temperature from thermal zone."""
     try:
@@ -227,25 +124,11 @@ def publish_sensor_data():
     # BME680 Environmental Sensor
     if bme680:
         try:
-            # Read raw sensor values
-            temperature = round(bme680.temperature, 2)
-            humidity = round(bme680.humidity, 2)
-            pressure = round(bme680.pressure, 2)
-            gas_raw = int(bme680.gas)
-
-            # Calculate air quality metrics
-            gas_compensated = calculate_gas_resistance_compensated(gas_raw, humidity)
-            iaq = calculate_iaq(gas_raw, humidity)
-            co2_equivalent = estimate_co2_equivalent(iaq)
-
             data = {
-                "temperature": temperature,
-                "humidity": humidity,
-                "pressure": pressure,
-                "gas_raw": gas_raw,
-                "gas_compensated": round(gas_compensated, 3) if gas_compensated else None,
-                "iaq": iaq,
-                "co2_equivalent": co2_equivalent,
+                "temperature": round(bme680.temperature, 2),
+                "humidity": round(bme680.humidity, 2),
+                "pressure": round(bme680.pressure, 2),
+                "gas": int(bme680.gas),
                 "timestamp": timestamp,
                 "sensor_type": "bme680",
                 "location": "raspberry_pi"
@@ -253,32 +136,18 @@ def publish_sensor_data():
 
             # Publish to individual topics
             mqtt_client.publish("beeper/sensors/bme680/temperature",
-                              json.dumps({"value": temperature, "timestamp": timestamp}))
+                              json.dumps({"value": data["temperature"], "timestamp": timestamp}))
             mqtt_client.publish("beeper/sensors/bme680/humidity",
-                              json.dumps({"value": humidity, "timestamp": timestamp}))
+                              json.dumps({"value": data["humidity"], "timestamp": timestamp}))
             mqtt_client.publish("beeper/sensors/bme680/pressure",
-                              json.dumps({"value": pressure, "timestamp": timestamp}))
+                              json.dumps({"value": data["pressure"], "timestamp": timestamp}))
             mqtt_client.publish("beeper/sensors/bme680/gas",
-                              json.dumps({"value": gas_raw, "timestamp": timestamp}))
-            mqtt_client.publish("beeper/sensors/bme680/gas_compensated",
-                              json.dumps({"value": gas_compensated, "timestamp": timestamp}))
-
-            # Publish air quality metrics
-            if iaq is not None:
-                mqtt_client.publish("beeper/sensors/bme680/iaq",
-                                  json.dumps({"value": iaq, "timestamp": timestamp}))
-            if co2_equivalent is not None:
-                mqtt_client.publish("beeper/sensors/bme680/co2_equivalent",
-                                  json.dumps({"value": co2_equivalent, "timestamp": timestamp}))
+                              json.dumps({"value": data["gas"], "timestamp": timestamp}))
 
             # Publish combined data
             mqtt_client.publish("beeper/sensors/bme680/all", json.dumps(data))
 
-            # Enhanced logging
-            if iaq is not None:
-                print(f"📤 BME680: {temperature}°C, {humidity}%, {pressure}hPa, IAQ: {iaq}, CO₂: {co2_equivalent}ppm")
-            else:
-                print(f"📤 BME680: {temperature}°C, {humidity}%, {pressure}hPa, Gas: {gas_raw}Ω (Calibrating...)")
+            print(f"📤 BME680: {data['temperature']}°C, {data['humidity']}%, {data['pressure']}hPa, {data['gas']}Ω")
         except Exception as e:
             print(f"✗ BME680 read error: {e}")
 
