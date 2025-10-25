@@ -48,7 +48,7 @@ groups:
         execErrState: OK
         for: 1m
         annotations:
-          summary: Test email with optimized base64 images
+          summary: '🧪 BEEPER KEEPER: Test Email Alert'
           description: 'Temperature is {{ $values.A.Value }}°C. This is a test alert to verify the optimized chicken logo (120x120px, 10.7KB) and farm logo (80x80px, 14.4KB) display correctly in emails.'
         labels:
           severity: info
@@ -96,7 +96,7 @@ groups:
         execErrState: OK
         for: 2m
         annotations:
-          summary: Temperature is too high
+          summary: '🌡️ BEEPER KEEPER ALERT: High Temperature {{ printf "%.1f" $values.A.Value }}°C'
           description: 'Temperature is {{ $values.A.Value }}°C (threshold: 35°C)'
         labels:
           severity: warning
@@ -144,7 +144,7 @@ groups:
         execErrState: OK
         for: 2m
         annotations:
-          summary: Temperature is too low
+          summary: '❄️ BEEPER KEEPER ALERT: Low Temperature {{ printf "%.1f" $values.A.Value }}°C'
           description: 'Temperature is {{ $values.A.Value }}°C (threshold: 10°C)'
         labels:
           severity: warning
@@ -192,7 +192,7 @@ groups:
         execErrState: OK
         for: 5m
         annotations:
-          summary: Humidity is too high
+          summary: '💧 BEEPER KEEPER ALERT: High Humidity {{ printf "%.0f" $values.A.Value }}%'
           description: 'Humidity is {{ $values.A.Value }}% (threshold: 80%)'
         labels:
           severity: warning
@@ -240,7 +240,7 @@ groups:
         execErrState: OK
         for: 5m
         annotations:
-          summary: Humidity is too low
+          summary: '🏜️ BEEPER KEEPER INFO: Low Humidity {{ printf "%.0f" $values.A.Value }}%'
           description: 'Humidity is {{ $values.A.Value }}% (threshold: 20%)'
         labels:
           severity: info
@@ -288,7 +288,7 @@ groups:
         execErrState: OK
         for: 1m
         annotations:
-          summary: CPU temperature is critical
+          summary: '🔥 BEEPER KEEPER CRITICAL: CPU Overheating {{ printf "%.0f" $values.A.Value }}°C'
           description: 'CPU temperature is {{ $values.A.Value }}°C (threshold: 80°C)'
         labels:
           severity: critical
@@ -335,7 +335,7 @@ groups:
         execErrState: OK
         for: 30s
         annotations:
-          summary: Light has been turned ON
+          summary: '💡 BEEPER KEEPER: Coop Light Turned ON ({{ printf "%.0f" $values.A.Value }} lux)'
           description: 'Light level is {{ $values.A.Value }} lux (threshold: 100 lux). A light source has been detected in the chicken coop.'
         labels:
           severity: info
@@ -382,7 +382,7 @@ groups:
         execErrState: OK
         for: 30s
         annotations:
-          summary: Light has been turned OFF
+          summary: '🌙 BEEPER KEEPER: Coop Light Turned OFF ({{ printf "%.0f" $values.A.Value }} lux)'
           description: 'Light level is {{ $values.A.Value }} lux (threshold: 50 lux). The light in the chicken coop has been turned off or it is now dark.'
         labels:
           severity: info
@@ -430,7 +430,7 @@ groups:
         execErrState: Error
         for: 10m
         annotations:
-          summary: No sensor data received
+          summary: '⚠️ BEEPER KEEPER CRITICAL: Sensor Offline - No Data'
           description: 'No data from BME680 sensor in the last 10 minutes. Check MQTT publisher and sensor connection.'
         labels:
           severity: critical
