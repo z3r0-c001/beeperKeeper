@@ -31,7 +31,7 @@
       "type": "text",
       "gridPos": {
         "h": 10,
-        "w": 12,
+        "w": 6,
         "x": 0,
         "y": 10
       },
@@ -46,8 +46,8 @@
       "type": "text",
       "gridPos": {
         "h": 10,
-        "w": 12,
-        "x": 12,
+        "w": 6,
+        "x": 6,
         "y": 10
       },
       "options": {
@@ -196,10 +196,10 @@
       "title": "CPU Temperature",
       "type": "gauge",
       "gridPos": {
-        "h": 8,
+        "h": 5,
         "w": 6,
-        "x": 0,
-        "y": 36
+        "x": 12,
+        "y": 10
       },
       "targets": [
         {
@@ -246,10 +246,10 @@
       "title": "CPU Usage",
       "type": "gauge",
       "gridPos": {
-        "h": 8,
+        "h": 5,
         "w": 6,
-        "x": 8,
-        "y": 36
+        "x": 18,
+        "y": 10
       },
       "targets": [
         {
@@ -291,10 +291,10 @@
       "title": "Memory Usage",
       "type": "gauge",
       "gridPos": {
-        "h": 8,
+        "h": 5,
         "w": 6,
-        "x": 16,
-        "y": 36
+        "x": 12,
+        "y": 15
       },
       "targets": [
         {
@@ -336,10 +336,10 @@
       "title": "Disk Usage",
       "type": "gauge",
       "gridPos": {
-        "h": 8,
+        "h": 5,
         "w": 6,
         "x": 18,
-        "y": 36
+        "y": 15
       },
       "targets": [
         {
