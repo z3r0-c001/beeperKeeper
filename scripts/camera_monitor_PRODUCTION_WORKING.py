@@ -13,6 +13,9 @@ import threading
 import psutil
 from datetime import datetime
 import os
+import math
+import json
+import paho.mqtt.client as mqtt
 
 app = Flask(__name__)
 
@@ -27,6 +30,32 @@ sensor_data = {
 
 # Sensor instances
 bme680 = None
+
+# MQTT Configuration
+MQTT_BROKER = "172.16.0.7"
+MQTT_PORT = 1883
+MQTT_CLIENT_ID = "beeper_camera_monitor"
+mqtt_client = None
+
+# BME680 Air Quality Configuration
+BME680_BASELINE_FILE = '/tmp/bme680_baseline.json'
+bme680_baseline = {
+    'gas_baseline': None,  # Baseline gas resistance in clean air
+    'hum_baseline': 40.0,  # Baseline humidity (40% is typical indoor)
+    'calibration_time': None,
+    'samples_collected': 0
+}
+
+# Air Quality thresholds (based on compensated gas resistance)
+IAQ_THRESHOLDS = {
+    'excellent': (0, 50),      # Excellent air quality
+    'good': (51, 100),         # Good air quality
+    'lightly_polluted': (101, 150),  # Lightly polluted
+    'moderately_polluted': (151, 200),  # Moderately polluted
+    'heavily_polluted': (201, 250),  # Heavily polluted
+    'severely_polluted': (251, 350),  # Severely polluted
+    'extremely_polluted': (351, 500)  # Extremely polluted
+}
 
 # ============= SENSOR INITIALIZATION =============
 
@@ -44,8 +73,168 @@ def init_i2c_sensors():
         except:
             bme680 = adafruit_bme680.Adafruit_BME680_I2C(i2c, address=0x77)
             print("✓ BME680 sensor detected at 0x77")
+
+        # Load baseline calibration if available
+        load_bme680_baseline()
+
+        # Start baseline calibration if needed
+        if bme680_baseline['gas_baseline'] is None:
+            print("⚠ BME680: No baseline found. Calibrating in clean air...")
+            print("  - Ensure sensor is in clean air environment")
+            print("  - Calibration will complete after 30 minutes")
+            print("  - IAQ readings will be available after calibration")
+        else:
+            print(f"✓ BME680: Loaded baseline from {BME680_BASELINE_FILE}")
+            print(f"  - Gas baseline: {bme680_baseline['gas_baseline']:.0f} Ω")
+
     except Exception as e:
         print(f"✗ I2C initialization failed: {e}")
+
+def load_bme680_baseline():
+    """Load BME680 baseline calibration from file"""
+    global bme680_baseline
+    try:
+        if os.path.exists(BME680_BASELINE_FILE):
+            with open(BME680_BASELINE_FILE, 'r') as f:
+                saved_baseline = json.load(f)
+                bme680_baseline.update(saved_baseline)
+                return True
+    except Exception as e:
+        print(f"⚠ Could not load BME680 baseline: {e}")
+    return False
+
+def save_bme680_baseline():
+    """Save BME680 baseline calibration to file"""
+    try:
+        with open(BME680_BASELINE_FILE, 'w') as f:
+            json.dump(bme680_baseline, f)
+        return True
+    except Exception as e:
+        print(f"✗ Could not save BME680 baseline: {e}")
+    return False
+
+def calculate_gas_resistance_compensated(gas_raw, humidity):
+    """
+    Calculate humidity-compensated gas resistance.
+    Formula: comp_gas = log(R_gas[Ω]) + 0.04 × log(Ω)/(%rh) × hum[%rh]
+
+    Args:
+        gas_raw: Raw gas resistance in Ohms
+        humidity: Relative humidity in %
+
+    Returns:
+        Compensated gas resistance value
+    """
+    if gas_raw <= 0:
+        return 0
+
+    try:
+        log_gas = math.log(gas_raw)
+        hum_offset = 0.04 * log_gas * humidity
+        comp_gas = log_gas + hum_offset
+        return comp_gas
+    except:
+        return 0
+
+def calculate_iaq(gas_raw, humidity):
+    """
+    Calculate Indoor Air Quality (IAQ) index from 0-500.
+    Lower values = better air quality.
+
+    Based on compensated gas resistance relative to baseline.
+    Requires baseline calibration in clean air.
+
+    Args:
+        gas_raw: Raw gas resistance in Ohms
+        humidity: Relative humidity in %
+
+    Returns:
+        IAQ index (0-500), or None if not calibrated
+    """
+    global bme680_baseline
+
+    # Check if we have a baseline
+    if bme680_baseline['gas_baseline'] is None:
+        # Collect samples for baseline (30 minutes = 900 samples at 2s intervals)
+        if bme680_baseline['samples_collected'] < 900:
+            bme680_baseline['samples_collected'] += 1
+            return None
+        else:
+            # Set baseline after 30 minutes
+            bme680_baseline['gas_baseline'] = gas_raw
+            bme680_baseline['hum_baseline'] = humidity
+            bme680_baseline['calibration_time'] = time.time()
+            save_bme680_baseline()
+            print(f"✓ BME680: Baseline calibrated! Gas={gas_raw:.0f}Ω, Hum={humidity:.1f}%")
+            return 50  # Start with "excellent" after calibration
+
+    # Calculate compensated values
+    gas_comp = calculate_gas_resistance_compensated(gas_raw, humidity)
+    baseline_comp = calculate_gas_resistance_compensated(
+        bme680_baseline['gas_baseline'],
+        bme680_baseline['hum_baseline']
+    )
+
+    if baseline_comp == 0:
+        return None
+
+    # Calculate IAQ: ratio of baseline to current (inverted scale)
+    # Higher gas resistance = better air quality = lower IAQ
+    gas_ratio = baseline_comp / gas_comp if gas_comp > 0 else 1.0
+
+    # Map to 0-500 scale (exponential mapping for sensitivity)
+    # gas_ratio: 1.0 = baseline (IAQ 50)
+    # gas_ratio: 0.5 = half baseline (IAQ ~200)
+    # gas_ratio: 0.25 = quarter baseline (IAQ ~400)
+    iaq = 50 + (1.0 - gas_ratio) * 450
+
+    # Clamp to 0-500 range
+    iaq = max(0, min(500, iaq))
+
+    return round(iaq, 1)
+
+def get_iaq_classification(iaq):
+    """Get air quality classification from IAQ value"""
+    if iaq is None:
+        return "Calibrating..."
+
+    for classification, (min_val, max_val) in IAQ_THRESHOLDS.items():
+        if min_val <= iaq <= max_val:
+            return classification.replace('_', ' ').title()
+
+    return "Unknown"
+
+def estimate_co2_equivalent(iaq):
+    """
+    Estimate CO2 equivalent in ppm from IAQ.
+    This is a rough approximation, not precise measurement.
+
+    IAQ mapping (approximate):
+    0-50: 400-600 ppm (outdoor/excellent)
+    50-100: 600-800 ppm (good)
+    100-150: 800-1000 ppm (acceptable)
+    150-200: 1000-1500 ppm (moderate)
+    200-300: 1500-2500 ppm (poor)
+    300-500: 2500-5000 ppm (very poor)
+    """
+    if iaq is None:
+        return None
+
+    # Piecewise linear mapping
+    if iaq <= 50:
+        co2 = 400 + (iaq / 50) * 200  # 400-600 ppm
+    elif iaq <= 100:
+        co2 = 600 + ((iaq - 50) / 50) * 200  # 600-800 ppm
+    elif iaq <= 150:
+        co2 = 800 + ((iaq - 100) / 50) * 200  # 800-1000 ppm
+    elif iaq <= 200:
+        co2 = 1000 + ((iaq - 150) / 50) * 500  # 1000-1500 ppm
+    elif iaq <= 300:
+        co2 = 1500 + ((iaq - 200) / 100) * 1000  # 1500-2500 ppm
+    else:
+        co2 = 2500 + ((iaq - 300) / 200) * 2500  # 2500-5000 ppm
+
+    return round(co2, 0)
 
 # ============= DATA COLLECTION =============
 
@@ -92,20 +281,42 @@ def get_camera_metadata():
         return {}
 
 def get_i2c_sensor_data():
-    """Read BME680 sensor"""
+    """Read BME680 sensor with air quality calculations"""
     if not bme680:
         return {}
     try:
+        # Read raw sensor values
+        temperature = round(bme680.temperature, 2)
+        humidity = round(bme680.humidity, 2)
+        pressure = round(bme680.pressure, 2)
+        gas_raw = round(bme680.gas, 2)
+        altitude = round(bme680.altitude, 2)
+
+        # Calculate compensated gas resistance
+        gas_compensated = calculate_gas_resistance_compensated(gas_raw, humidity)
+
+        # Calculate IAQ
+        iaq = calculate_iaq(gas_raw, humidity)
+        iaq_classification = get_iaq_classification(iaq)
+        co2_equivalent = estimate_co2_equivalent(iaq)
+
         return {
             'bme680': {
-                'temperature': round(bme680.temperature, 2),
-                'humidity': round(bme680.humidity, 2),
-                'pressure': round(bme680.pressure, 2),
-                'gas': round(bme680.gas, 2),
-                'altitude': round(bme680.altitude, 2)
+                'temperature': temperature,
+                'humidity': humidity,
+                'pressure': pressure,
+                'gas_raw': gas_raw,  # Raw gas resistance in Ω
+                'gas_compensated': round(gas_compensated, 3) if gas_compensated else None,
+                'iaq': iaq,  # Indoor Air Quality index (0-500)
+                'iaq_classification': iaq_classification,  # Text classification
+                'co2_equivalent': co2_equivalent,  # Estimated CO2 in ppm
+                'altitude': altitude,
+                'calibration_status': 'calibrated' if bme680_baseline['gas_baseline'] else 'calibrating',
+                'calibration_progress': min(100, int((bme680_baseline['samples_collected'] / 900) * 100))
             }
         }
-    except:
+    except Exception as e:
+        print(f"Error reading BME680: {e}")
         return {}
 
 def get_system_stats():
@@ -125,6 +336,67 @@ def get_system_stats():
         'uptime_seconds': int(time.time() - psutil.boot_time())
     }
 
+def init_mqtt():
+    """Initialize MQTT client connection"""
+    global mqtt_client
+    try:
+        mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=MQTT_CLIENT_ID)
+        mqtt_client.connect(MQTT_BROKER, MQTT_PORT, 60)
+        mqtt_client.loop_start()
+        print(f"✓ Connected to MQTT broker at {MQTT_BROKER}:{MQTT_PORT}")
+        return True
+    except Exception as e:
+        print(f"✗ MQTT connection failed: {e}")
+        return False
+
+def publish_mqtt_data():
+    """Publish sensor data to MQTT"""
+    if not mqtt_client:
+        return
+
+    timestamp = int(time.time())
+
+    try:
+        # BME680 sensor data
+        i2c_data = sensor_data.get('i2c_sensors', {}).get('bme680', {})
+        if i2c_data:
+            mqtt_client.publish("beeper/sensors/bme680/temperature",
+                              json.dumps({"value": i2c_data.get('temperature'), "timestamp": timestamp}))
+            mqtt_client.publish("beeper/sensors/bme680/humidity",
+                              json.dumps({"value": i2c_data.get('humidity'), "timestamp": timestamp}))
+            mqtt_client.publish("beeper/sensors/bme680/pressure",
+                              json.dumps({"value": i2c_data.get('pressure'), "timestamp": timestamp}))
+            mqtt_client.publish("beeper/sensors/bme680/gas_raw",
+                              json.dumps({"value": i2c_data.get('gas_raw'), "timestamp": timestamp}))
+
+            # New air quality metrics
+            if i2c_data.get('gas_compensated') is not None:
+                mqtt_client.publish("beeper/sensors/bme680/gas_compensated",
+                                  json.dumps({"value": i2c_data.get('gas_compensated'), "timestamp": timestamp}))
+            if i2c_data.get('iaq') is not None:
+                mqtt_client.publish("beeper/sensors/bme680/iaq",
+                                  json.dumps({"value": i2c_data.get('iaq'), "timestamp": timestamp}))
+            if i2c_data.get('co2_equivalent') is not None:
+                mqtt_client.publish("beeper/sensors/bme680/co2_equivalent",
+                                  json.dumps({"value": i2c_data.get('co2_equivalent'), "timestamp": timestamp}))
+
+        # CPU temperature
+        if sensor_data.get('cpu_temp'):
+            mqtt_client.publish("beeper/sensors/cpu/temperature",
+                              json.dumps({"value": sensor_data['cpu_temp'], "timestamp": timestamp}))
+
+        # System stats
+        sys_data = sensor_data.get('system', {})
+        if sys_data:
+            mqtt_client.publish("beeper/system/cpu_percent",
+                              json.dumps({"value": sys_data.get('cpu_percent'), "timestamp": timestamp}))
+            mqtt_client.publish("beeper/system/memory_percent",
+                              json.dumps({"value": sys_data.get('memory_percent'), "timestamp": timestamp}))
+            mqtt_client.publish("beeper/system/disk_percent",
+                              json.dumps({"value": sys_data.get('disk_percent'), "timestamp": timestamp}))
+    except Exception as e:
+        print(f"✗ MQTT publish error: {e}")
+
 def update_sensor_data():
     """Update all sensor data (background thread)"""
     while True:
@@ -134,6 +406,10 @@ def update_sensor_data():
             sensor_data['system'] = get_system_stats()
             sensor_data['i2c_sensors'] = get_i2c_sensor_data()
             sensor_data['last_update'] = time.time()
+
+            # Publish to MQTT every 10 seconds
+            if int(time.time()) % 10 == 0:
+                publish_mqtt_data()
         except Exception as e:
             print(f"Error updating sensor data: {e}")
         time.sleep(2)
@@ -568,6 +844,13 @@ def index():
                     if (Object.keys(env).length === 0) {
                         envHtml = '<div class="metric status-warn">No sensor data</div>';
                     } else {
+                        // Determine IAQ status color
+                        let iaq_class = 'status-good';
+                        if (env.iaq !== null && env.iaq !== undefined) {
+                            if (env.iaq > 250) iaq_class = 'status-error';
+                            else if (env.iaq > 150) iaq_class = 'status-warn';
+                        }
+
                         envHtml = `
                             <div class="metric">
                                 <span class="metric-label">Temperature</span>
@@ -581,11 +864,40 @@ def index():
                                 <span class="metric-label">Pressure</span>
                                 <span class="metric-value">${env.pressure} hPa</span>
                             </div>
-                            <div class="metric">
-                                <span class="metric-label">Gas (Air Quality)</span>
-                                <span class="metric-value">${env.gas} Ω</span>
-                            </div>
                         `;
+
+                        // Show calibration status or air quality data
+                        if (env.calibration_status === 'calibrating') {
+                            envHtml += `
+                                <div class="metric">
+                                    <span class="metric-label">IAQ Status</span>
+                                    <span class="metric-value status-warn">Calibrating ${env.calibration_progress}%</span>
+                                </div>
+                                <div class="metric">
+                                    <span class="metric-label">Gas (Raw)</span>
+                                    <span class="metric-value">${env.gas_raw} Ω</span>
+                                </div>
+                            `;
+                        } else {
+                            envHtml += `
+                                <div class="metric">
+                                    <span class="metric-label">Air Quality (IAQ)</span>
+                                    <span class="metric-value ${iaq_class}">${env.iaq !== null ? env.iaq : 'N/A'}</span>
+                                </div>
+                                <div class="metric">
+                                    <span class="metric-label">IAQ Level</span>
+                                    <span class="metric-value ${iaq_class}">${env.iaq_classification}</span>
+                                </div>
+                                <div class="metric">
+                                    <span class="metric-label">CO₂ Equiv.</span>
+                                    <span class="metric-value">${env.co2_equivalent !== null ? env.co2_equivalent + ' ppm' : 'N/A'}</span>
+                                </div>
+                                <div class="metric">
+                                    <span class="metric-label">Gas (Raw)</span>
+                                    <span class="metric-value">${env.gas_raw} Ω</span>
+                                </div>
+                            `;
+                        }
                     }
                     document.getElementById('envSensors').innerHTML = envHtml;
                     
@@ -625,24 +937,36 @@ def index():
 
         // Auto-unmute USB camera after autoplay starts
         const usbFrame = document.getElementById("usbFrame");
-        usbFrame.addEventListener("load", function() {
-            setTimeout(() => {
-                try {
-                    const iframeDoc = usbFrame.contentDocument || usbFrame.contentWindow.document;
-                    const video = iframeDoc.querySelector("video");
-                    if (video) {
-                        // Listen for video to start playing (autoplay with muted=true)
-                        video.addEventListener("playing", function() {
-                            // Once playing, unmute it
-                            video.muted = false;
-                            video.volume = 1.0;
-                            console.log("USB camera audio unmuted after autoplay");
-                        });
+
+        function attemptUnmute() {
+            try {
+                const iframeDoc = usbFrame.contentDocument || usbFrame.contentWindow.document;
+                const video = iframeDoc.querySelector("video");
+                if (video) {
+                    // Check if video is already playing
+                    if (!video.paused && !video.ended && video.readyState > 2) {
+                        video.muted = false;
+                        video.volume = 1.0;
+                        console.log("USB camera audio unmuted (already playing)");
                     }
-                } catch(e) {
-                    console.log("Could not access iframe content (cross-origin)", e);
+
+                    // Also listen for playing event in case it hasn't started yet
+                    video.addEventListener("playing", function() {
+                        video.muted = false;
+                        video.volume = 1.0;
+                        console.log("USB camera audio unmuted (on playing event)");
+                    });
                 }
-            }, 1000);
+            } catch(e) {
+                console.log("Could not access iframe content (cross-origin)", e);
+            }
+        }
+
+        // Try to unmute after iframe loads
+        usbFrame.addEventListener("load", function() {
+            setTimeout(attemptUnmute, 1000);
+            // Try again after 3 seconds in case video wasn't ready
+            setTimeout(attemptUnmute, 3000);
         });
     </script>
 </body>
@@ -653,17 +977,20 @@ def index():
 
 if __name__ == '__main__':
     print("\n=== BEEPER KEEPER 10000 - Dual Camera System ===\n")
-    
+
     # Initialize sensors
     init_i2c_sensors()
-    
+
+    # Initialize MQTT
+    init_mqtt()
+
     # Start background data collection
     sensor_thread = threading.Thread(target=update_sensor_data, daemon=True)
     sensor_thread.start()
-    
+
     print("\n✓ Monitoring server starting on http://0.0.0.0:8080")
     print("  IR Camera: /csi_camera")
     print("  USB Camera: /usb_camera")
     print("  Web UI: http://172.16.0.28:8080\n")
-    
+
     app.run(host='0.0.0.0', port=8080, threaded=True)
