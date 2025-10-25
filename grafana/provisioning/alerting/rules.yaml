@@ -294,14 +294,14 @@ groups:
           severity: critical
           sensor: System
 
-      # Light Turned ON Alert
-      - uid: light_turned_on
-        title: Light Turned ON
+      # Light Turned ON Alert (Abrupt Increase)
+      - uid: light_sudden_increase
+        title: Sudden Light Increase Detected
         condition: C
         data:
           - refId: A
             relativeTimeRange:
-              from: 300
+              from: 120
               to: 0
             datasourceUid: InfluxDB_Beeper
             model:
@@ -309,10 +309,11 @@ groups:
                 from(bucket: "sensors")
                   |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
                   |> filter(fn: (r) => r["topic"] == "beeper/sensors/camera/lux")
-                  |> aggregateWindow(every: 30s, fn: mean, createEmpty: false)
+                  |> aggregateWindow(every: 10s, fn: mean, createEmpty: false)
+                  |> derivative(unit: 1s, nonNegative: false)
           - refId: C
             relativeTimeRange:
-              from: 300
+              from: 120
               to: 0
             datasourceUid: __expr__
             model:
@@ -320,7 +321,7 @@ groups:
               conditions:
                 - evaluator:
                     params:
-                      - 100  # Alert if lux > 100 (light detected)
+                      - 20  # Alert if rate of change > 20 lux/sec
                     type: gt
                   operator:
                     type: and
@@ -333,22 +334,22 @@ groups:
                   type: query
         noDataState: OK
         execErrState: OK
-        for: 30s
+        for: 10s
         annotations:
-          summary: '💡 BEEPER KEEPER: Coop Light Turned ON ({{ printf "%.0f" $values.A.Value }} lux)'
-          description: 'Light level is {{ $values.A.Value }} lux (threshold: 100 lux). A light source has been detected in the chicken coop.'
+          summary: '💡 BEEPER KEEPER: Coop Light Turned ON (sudden increase detected)'
+          description: 'Light level increased abruptly at a rate of {{ printf "%.1f" $values.A.Value }} lux/sec. This indicates someone turned on a light or opened the door.'
         labels:
           severity: info
           sensor: Camera
 
-      # Light Turned OFF Alert
-      - uid: light_turned_off
-        title: Light Turned OFF
+      # Light Turned OFF Alert (Abrupt Decrease)
+      - uid: light_sudden_decrease
+        title: Sudden Light Decrease Detected
         condition: C
         data:
           - refId: A
             relativeTimeRange:
-              from: 300
+              from: 120
               to: 0
             datasourceUid: InfluxDB_Beeper
             model:
@@ -356,10 +357,11 @@ groups:
                 from(bucket: "sensors")
                   |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
                   |> filter(fn: (r) => r["topic"] == "beeper/sensors/camera/lux")
-                  |> aggregateWindow(every: 30s, fn: mean, createEmpty: false)
+                  |> aggregateWindow(every: 10s, fn: mean, createEmpty: false)
+                  |> derivative(unit: 1s, nonNegative: false)
           - refId: C
             relativeTimeRange:
-              from: 300
+              from: 120
               to: 0
             datasourceUid: __expr__
             model:
@@ -367,7 +369,7 @@ groups:
               conditions:
                 - evaluator:
                     params:
-                      - 50  # Alert if lux < 50 (light turned off/dark)
+                      - -20  # Alert if rate of change < -20 lux/sec (negative = decrease)
                     type: lt
                   operator:
                     type: and
@@ -380,10 +382,10 @@ groups:
                   type: query
         noDataState: OK
         execErrState: OK
-        for: 30s
+        for: 10s
         annotations:
-          summary: '🌙 BEEPER KEEPER: Coop Light Turned OFF ({{ printf "%.0f" $values.A.Value }} lux)'
-          description: 'Light level is {{ $values.A.Value }} lux (threshold: 50 lux). The light in the chicken coop has been turned off or it is now dark.'
+          summary: '🌙 BEEPER KEEPER: Coop Light Turned OFF (sudden decrease detected)'
+          description: 'Light level decreased abruptly at a rate of {{ printf "%.1f" $values.A.Value }} lux/sec. This indicates someone turned off a light or closed the door.'
         labels:
           severity: info
           sensor: Camera

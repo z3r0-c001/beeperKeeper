@@ -1,310 +1,157 @@
 {
-  "title": "Beeper Keeper - Sensor Monitoring",
-  "uid": "beeper-sensors",
-  "timezone": "browser",
-  "schemaVersion": 38,
-  "version": 1,
-  "refresh": "5s",
-  "time": {
-    "from": "now-1h",
-    "to": "now"
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
   },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 2,
+  "links": [],
   "panels": [
     {
-      "id": 100,
-      "title": "",
-      "type": "text",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
       "gridPos": {
         "h": 13,
         "w": 24,
         "x": 0,
         "y": 0
       },
+      "id": 100,
       "options": {
-        "mode": "html",
-        "content": "\n<div style=\"text-align: center; padding: 2px 5px 10px 5px; background: linear-gradient(135deg, #6495ED 0%, #4169E1 100%);\">\n    <div style=\"margin-bottom: 0;\">\n        <img src=\"/public/img/chicken_of_despair.png\" style=\"height: 240px;\">\n    </div>\n    <div style=\"font-size: 48px; font-weight: bold; color: white; line-height: 1.2; margin: -5px 0 5px 0;\">\n        BEEPER KEEPER 10000\n    </div>\n    <div style=\"margin: 8px 0;\">\n        <img src=\"/public/img/tinyWaxer.png\" style=\"height: 100px;\">\n    </div>\n    <div style=\"font-size: 18px; color: #fff; opacity: 0.95;\">\n        Good Supply Farm - Chicken Monitoring System\n    </div>\n</div>\n"
-      }
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "\n<div style=\"text-align: center; padding: 2px 5px 10px 5px; background: linear-gradient(135deg, #6495ED 0%, #4169E1 100%);\">\n    <div style=\"margin-bottom: 0;\">\n        <img src=\"/public/img/chicken_of_despair.png\" style=\"height: 240px;\">\n    </div>\n    <div style=\"font-size: 48px; font-weight: bold; color: white; line-height: 1.2; margin: -5px 0 5px 0;\">\n        BEEPER KEEPER 10000\n    </div>\n    <div style=\"margin: 8px 0;\">\n        <img src=\"/public/img/tinyWaxer.png\" style=\"height: 100px;\">\n    </div>\n    <div style=\"font-size: 18px; color: #fff; opacity: 0.95;\">\n        Good Supply Farm - Chicken Monitoring System\n    </div>\n</div>\n",
+        "mode": "html"
+      },
+      "pluginVersion": "12.2.1",
+      "title": "",
+      "type": "text"
     },
     {
-      "id": 101,
-      "title": "",
-      "type": "text",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
       "gridPos": {
         "h": 11,
         "w": 6,
         "x": 0,
         "y": 13
       },
+      "id": 101,
       "options": {
-        "mode": "html",
-        "content": "<div style=\"height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); padding: 20px;\"><a href=\"http://172.16.0.28:8889/csi_camera/\" target=\"_blank\" style=\"text-decoration: none; color: white; text-align: center; width: 100%; display: flex; flex-direction: column; align-items: center;\"><div style=\"font-size: 80px; line-height: 1; margin-bottom: 5px;\">\ud83c\udf19</div><div style=\"font-size: 32px; font-weight: bold; line-height: 1.2; margin-bottom: 12px;\">IR Night Vision</div><div style=\"font-size: 16px; opacity: 0.9; line-height: 1.4; margin-bottom: 25px;\">OV5647 CSI Camera<br>1280x720 @ 30fps \u2022 H.264</div><div style=\"background: white; color: #1e40af; padding: 15px 40px; border-radius: 8px; font-weight: bold; font-size: 18px;\">\ud83d\udcf9 Open Stream</div></a></div>"
-      }
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "<div style=\"height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); padding: 20px;\"><a href=\"http://172.16.0.28:8889/csi_camera/\" target=\"_blank\" style=\"text-decoration: none; color: white; text-align: center; width: 100%; display: flex; flex-direction: column; align-items: center;\"><div style=\"font-size: 80px; line-height: 1; margin-bottom: 5px;\">🌙</div><div style=\"font-size: 32px; font-weight: bold; line-height: 1.2; margin-bottom: 12px;\">IR Night Vision</div><div style=\"font-size: 16px; opacity: 0.9; line-height: 1.4; margin-bottom: 25px;\">OV5647 CSI Camera<br>1280x720 @ 30fps • H.264</div><div style=\"background: white; color: #1e40af; padding: 15px 40px; border-radius: 8px; font-weight: bold; font-size: 18px;\">📹 Open Stream</div></a></div>",
+        "mode": "html"
+      },
+      "pluginVersion": "12.2.1",
+      "title": "",
+      "type": "text"
     },
     {
-      "id": 102,
-      "title": "",
-      "type": "text",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
       "gridPos": {
         "h": 11,
         "w": 6,
         "x": 6,
         "y": 13
       },
+      "id": 102,
       "options": {
-        "mode": "html",
-        "content": "<div style=\"height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%); border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); padding: 20px;\"><a href=\"http://172.16.0.28:8889/usb_camera/\" target=\"_blank\" style=\"text-decoration: none; color: white; text-align: center; width: 100%; display: flex; flex-direction: column; align-items: center;\"><div style=\"font-size: 80px; line-height: 1; margin-bottom: 5px;\">\ud83d\udd0a</div><div style=\"font-size: 32px; font-weight: bold; line-height: 1.2; margin-bottom: 12px;\">USB Webcam + Audio</div><div style=\"font-size: 16px; opacity: 0.9; line-height: 1.4; margin-bottom: 25px;\">Logitech C270<br>640x480 @ 15fps \u2022 VP8 + Opus</div><div style=\"background: white; color: #0f766e; padding: 15px 40px; border-radius: 8px; font-weight: bold; font-size: 18px;\">\ud83c\udfa5 Open Stream</div></a></div>"
-      }
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "<div style=\"height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%); border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); padding: 20px;\"><a href=\"http://172.16.0.28:8889/usb_camera/\" target=\"_blank\" style=\"text-decoration: none; color: white; text-align: center; width: 100%; display: flex; flex-direction: column; align-items: center;\"><div style=\"font-size: 80px; line-height: 1; margin-bottom: 5px;\">🔊</div><div style=\"font-size: 32px; font-weight: bold; line-height: 1.2; margin-bottom: 12px;\">USB Webcam + Audio</div><div style=\"font-size: 16px; opacity: 0.9; line-height: 1.4; margin-bottom: 25px;\">Logitech C270<br>640x480 @ 15fps • VP8 + Opus</div><div style=\"background: white; color: #0f766e; padding: 15px 40px; border-radius: 8px; font-weight: bold; font-size: 18px;\">🎥 Open Stream</div></a></div>",
+        "mode": "html"
+      },
+      "pluginVersion": "12.2.1",
+      "title": "",
+      "type": "text"
     },
     {
-      "id": 1,
-      "title": "BME680 - Temperature",
-      "type": "timeseries",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 23
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "InfluxDB_Beeper"
-          },
-          "query": "from(bucket: \"sensors\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"topic\"] == \"beeper/sensors/bme680/temperature\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
-          "refId": "A"
-        }
-      ],
       "fieldConfig": {
         "defaults": {
-          "unit": "celsius",
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "drawStyle": "line",
-            "lineWidth": 2,
-            "fillOpacity": 10
-          },
-          "displayName": "Temperature",
+          "displayName": "CPU Temp",
+          "mappings": [],
+          "max": 100,
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "value": -10,
-                "color": "dark-blue"
+                "color": "green",
+                "value": 0
               },
               {
-                "value": 10,
-                "color": "blue"
+                "color": "yellow",
+                "value": 60
               },
               {
-                "value": 18,
-                "color": "green"
+                "color": "orange",
+                "value": 70
               },
               {
-                "value": 24,
-                "color": "yellow"
-              },
-              {
-                "value": 30,
-                "color": "orange"
-              },
-              {
-                "value": 35,
-                "color": "red"
+                "color": "red",
+                "value": 80
               }
             ]
-          }
-        }
-      }
-    },
-    {
-      "id": 2,
-      "title": "BME680 - Humidity",
-      "type": "timeseries",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 23
+          },
+          "unit": "celsius"
+        },
+        "overrides": []
       },
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "InfluxDB_Beeper"
-          },
-          "query": "from(bucket: \"sensors\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"topic\"] == \"beeper/sensors/bme680/humidity\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
-          "refId": "A"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "drawStyle": "line",
-            "lineWidth": 2,
-            "fillOpacity": 10
-          },
-          "displayName": "Humidity",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "value": 0,
-                "color": "red"
-              },
-              {
-                "value": 30,
-                "color": "orange"
-              },
-              {
-                "value": 40,
-                "color": "green"
-              },
-              {
-                "value": 70,
-                "color": "yellow"
-              },
-              {
-                "value": 80,
-                "color": "orange"
-              },
-              {
-                "value": 90,
-                "color": "red"
-              }
-            ]
-          }
-        }
-      }
-    },
-    {
-      "id": 3,
-      "title": "BME680 - Pressure",
-      "type": "timeseries",
       "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 31
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "InfluxDB_Beeper"
-          },
-          "query": "from(bucket: \"sensors\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"topic\"] == \"beeper/sensors/bme680/pressure\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
-          "refId": "A"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "pressurehpa",
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "drawStyle": "line",
-            "lineWidth": 2,
-            "fillOpacity": 10
-          },
-          "displayName": "Pressure",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "value": 950,
-                "color": "blue"
-              },
-              {
-                "value": 980,
-                "color": "green"
-              },
-              {
-                "value": 1050,
-                "color": "green"
-              },
-              {
-                "value": 1070,
-                "color": "blue"
-              }
-            ]
-          }
-        }
-      }
-    },
-    {
-      "id": 4,
-      "title": "BME680 - Gas Resistance (Air Quality)",
-      "type": "timeseries",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 31
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "InfluxDB_Beeper"
-          },
-          "query": "from(bucket: \"sensors\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"topic\"] == \"beeper/sensors/bme680/gas_raw\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
-          "refId": "A"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "ohm",
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "drawStyle": "line",
-            "lineWidth": 2,
-            "fillOpacity": 10
-          },
-          "displayName": "Gas Resistance",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "value": 0,
-                "color": "red"
-              },
-              {
-                "value": 50,
-                "color": "orange"
-              },
-              {
-                "value": 150,
-                "color": "yellow"
-              },
-              {
-                "value": 300,
-                "color": "green"
-              }
-            ]
-          }
-        }
-      }
-    },
-    {
-      "id": 5,
-      "title": "CPU Temperature",
-      "type": "gauge",
-      "gridPos": {
-        "h": 5,
+        "h": 11,
         "w": 6,
         "x": 12,
         "y": 13
       },
+      "id": 5,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto",
+        "text": {}
+      },
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
@@ -315,57 +162,64 @@
           "refId": "A"
         }
       ],
+      "title": "CPU Temperature",
+      "type": "gauge"
+    },
+    {
       "fieldConfig": {
         "defaults": {
-          "unit": "celsius",
+          "displayName": "CPU Usage",
+          "mappings": [],
+          "max": 100,
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "value": 0,
-                "color": "green"
+                "color": "green",
+                "value": 0
               },
               {
-                "value": 60,
-                "color": "yellow"
+                "color": "yellow",
+                "value": 50
               },
               {
-                "value": 70,
-                "color": "orange"
+                "color": "orange",
+                "value": 80
               },
               {
-                "value": 80,
-                "color": "red"
+                "color": "red",
+                "value": 95
               }
             ]
           },
-          "min": 0,
-          "max": 100,
-          "displayName": "CPU Temp"
-        }
+          "unit": "percent"
+        },
+        "overrides": []
       },
-      "options": {
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "text": {},
-        "reduceOptions": {
-          "values": false,
-          "calcs": [
-            "lastNotNull"
-          ]
-        }
-      }
-    },
-    {
-      "id": 6,
-      "title": "CPU Usage",
-      "type": "gauge",
       "gridPos": {
-        "h": 5,
+        "h": 11,
         "w": 6,
         "x": 18,
         "y": 13
       },
+      "id": 6,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
@@ -376,46 +230,64 @@
           "refId": "A"
         }
       ],
+      "title": "CPU Usage",
+      "type": "gauge"
+    },
+    {
       "fieldConfig": {
         "defaults": {
-          "unit": "percent",
+          "displayName": "Memory Usage",
+          "mappings": [],
+          "max": 100,
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "value": 0,
-                "color": "green"
+                "color": "green",
+                "value": 0
               },
               {
-                "value": 50,
-                "color": "yellow"
+                "color": "yellow",
+                "value": 60
               },
               {
-                "value": 80,
-                "color": "orange"
+                "color": "orange",
+                "value": 80
               },
               {
-                "value": 95,
-                "color": "red"
+                "color": "red",
+                "value": 90
               }
             ]
           },
-          "min": 0,
-          "max": 100,
-          "displayName": "CPU Usage"
-        }
-      }
-    },
-    {
-      "id": 7,
-      "title": "Memory Usage",
-      "type": "gauge",
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 12,
-        "y": 18
+          "unit": "percent"
+        },
+        "overrides": []
       },
+      "gridPos": {
+        "h": 11,
+        "w": 6,
+        "x": 0,
+        "y": 24
+      },
+      "id": 7,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
@@ -426,46 +298,64 @@
           "refId": "A"
         }
       ],
+      "title": "Memory Usage",
+      "type": "gauge"
+    },
+    {
       "fieldConfig": {
         "defaults": {
-          "unit": "percent",
+          "displayName": "Disk Usage",
+          "mappings": [],
+          "max": 100,
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "value": 0,
-                "color": "green"
+                "color": "green",
+                "value": 0
               },
               {
-                "value": 60,
-                "color": "yellow"
+                "color": "yellow",
+                "value": 75
               },
               {
-                "value": 80,
-                "color": "orange"
+                "color": "orange",
+                "value": 85
               },
               {
-                "value": 90,
-                "color": "red"
+                "color": "red",
+                "value": 90
               }
             ]
           },
-          "min": 0,
-          "max": 100,
-          "displayName": "Memory Usage"
-        }
-      }
-    },
-    {
-      "id": 11,
-      "title": "Disk Usage",
-      "type": "gauge",
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 18,
-        "y": 18
+          "unit": "percent"
+        },
+        "overrides": []
       },
+      "gridPos": {
+        "h": 11,
+        "w": 6,
+        "x": 6,
+        "y": 24
+      },
+      "id": 11,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
@@ -476,137 +366,58 @@
           "refId": "A"
         }
       ],
+      "title": "Disk Usage",
+      "type": "gauge"
+    },
+    {
       "fieldConfig": {
         "defaults": {
-          "unit": "percent",
+          "displayName": "Exposure",
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "value": 0,
-                "color": "green"
+                "color": "green",
+                "value": 0
               },
               {
-                "value": 75,
-                "color": "yellow"
+                "color": "yellow",
+                "value": 50000
               },
               {
-                "value": 85,
-                "color": "orange"
-              },
-              {
-                "value": 90,
-                "color": "red"
+                "color": "red",
+                "value": 100000
               }
             ]
           },
-          "min": 0,
-          "max": 100,
-          "displayName": "Disk Usage"
-        }
-      }
-    },
-    {
-      "id": 103,
-      "title": "BME680 - Indoor Air Quality (IAQ)",
-      "type": "timeseries",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 27
+          "unit": "µs"
+        },
+        "overrides": []
       },
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "InfluxDB_Beeper"
-          },
-          "query": "from(bucket: \"sensors\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"topic\"] == \"beeper/sensors/bme680/iaq\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)",
-          "refId": "A"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "displayName": "IAQ",
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "drawStyle": "line",
-            "lineWidth": 2,
-            "fillOpacity": 10
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "value": 0,
-                "color": "green"
-              },
-              {
-                "value": 100,
-                "color": "yellow"
-              },
-              {
-                "value": 200,
-                "color": "orange"
-              },
-              {
-                "value": 300,
-                "color": "red"
-              }
-            ]
-          }
-        }
-      }
-    },
-    {
-      "id": 104,
-      "title": "BME680 - CO\u2082 Equivalent",
-      "type": "timeseries",
       "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 27
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "InfluxDB_Beeper"
-          },
-          "query": "from(bucket: \"sensors\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"topic\"] == \"beeper/sensors/bme680/co2_equivalent\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)",
-          "refId": "A"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "ppm",
-          "displayName": "CO\u2082 Equiv.",
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "drawStyle": "line",
-            "lineWidth": 2,
-            "fillOpacity": 10
-          }
-        }
-      }
-    },
-    {
-      "id": 105,
-      "title": "Camera - Exposure Time",
-      "type": "gauge",
-      "gridPos": {
-        "h": 7,
+        "h": 11,
         "w": 6,
-        "x": 0,
-        "y": 43
+        "x": 12,
+        "y": 24
       },
+      "id": 105,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
@@ -617,43 +428,60 @@
           "refId": "A"
         }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "\u00b5s",
-          "displayName": "Exposure",
-          "thresholds": {
-            "steps": [
-              {
-                "value": 0,
-                "color": "green"
-              },
-              {
-                "value": 50000,
-                "color": "yellow"
-              },
-              {
-                "value": 100000,
-                "color": "red"
-              }
-            ]
-          }
-        }
-      },
-      "options": {
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true
-      }
+      "title": "Camera - Exposure Time",
+      "type": "gauge"
     },
     {
-      "id": 106,
-      "title": "Camera - Analogue Gain",
-      "type": "gauge",
-      "gridPos": {
-        "h": 7,
-        "w": 6,
-        "x": 6,
-        "y": 43
+      "fieldConfig": {
+        "defaults": {
+          "displayName": "Gain",
+          "mappings": [],
+          "max": 16,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 4
+              },
+              {
+                "color": "red",
+                "value": 8
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
       },
+      "gridPos": {
+        "h": 11,
+        "w": 6,
+        "x": 18,
+        "y": 24
+      },
+      "id": 106,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
@@ -664,45 +492,276 @@
           "refId": "A"
         }
       ],
+      "title": "Camera - Analogue Gain",
+      "type": "gauge"
+    },
+    {
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
-          "displayName": "Gain",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "displayName": "Temperature",
+          "mappings": [],
           "thresholds": {
+            "mode": "absolute",
             "steps": [
               {
-                "value": 0,
-                "color": "green"
+                "color": "dark-blue",
+                "value": 0
               },
               {
-                "value": 4,
-                "color": "yellow"
+                "color": "blue",
+                "value": 10
               },
               {
-                "value": 8,
-                "color": "red"
+                "color": "green",
+                "value": 18
+              },
+              {
+                "color": "yellow",
+                "value": 24
+              },
+              {
+                "color": "orange",
+                "value": 30
+              },
+              {
+                "color": "red",
+                "value": 35
               }
             ]
           },
-          "min": 0,
-          "max": 16
+          "unit": "celsius"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 6,
+        "x": 0,
+        "y": 35
+      },
+      "id": 1,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
         }
       },
-      "options": {
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true
-      }
+      "pluginVersion": "12.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB_Beeper"
+          },
+          "query": "from(bucket: \"sensors\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"topic\"] == \"beeper/sensors/bme680/temperature\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
+          "refId": "A"
+        }
+      ],
+      "title": "BME680 - Temperature",
+      "type": "timeseries"
     },
     {
-      "id": 107,
-      "title": "Camera - Lux",
-      "type": "gauge",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "displayName": "Humidity",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "orange",
+                "value": 30
+              },
+              {
+                "color": "green",
+                "value": 40
+              },
+              {
+                "color": "yellow",
+                "value": 70
+              },
+              {
+                "color": "orange",
+                "value": 80
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
       "gridPos": {
-        "h": 7,
+        "h": 11,
+        "w": 6,
+        "x": 6,
+        "y": 35
+      },
+      "id": 2,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB_Beeper"
+          },
+          "query": "from(bucket: \"sensors\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"topic\"] == \"beeper/sensors/bme680/humidity\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
+          "refId": "A"
+        }
+      ],
+      "title": "BME680 - Humidity",
+      "type": "timeseries"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {
+          "displayName": "Lux",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 50
+              },
+              {
+                "color": "yellow",
+                "value": 200
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 11,
         "w": 6,
         "x": 12,
-        "y": 43
+        "y": 35
       },
+      "id": 107,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
@@ -713,43 +772,75 @@
           "refId": "A"
         }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "displayName": "Lux",
-          "thresholds": {
-            "steps": [
-              {
-                "value": 0,
-                "color": "blue"
-              },
-              {
-                "value": 50,
-                "color": "green"
-              },
-              {
-                "value": 200,
-                "color": "yellow"
-              }
-            ]
-          }
-        }
-      },
-      "options": {
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true
-      }
+      "title": "Camera - Lux",
+      "type": "gauge"
     },
     {
-      "id": 108,
-      "title": "Camera - Color Temperature",
-      "type": "gauge",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "displayName": "Color Temp",
+          "mappings": [],
+          "max": 10000,
+          "min": 2000,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#ff6600",
+                "value": 0
+              },
+              {
+                "color": "#ffaa00",
+                "value": 3000
+              },
+              {
+                "color": "#ffdd88",
+                "value": 4500
+              },
+              {
+                "color": "#ffffff",
+                "value": 5500
+              },
+              {
+                "color": "#ccddff",
+                "value": 6500
+              },
+              {
+                "color": "#88bbff",
+                "value": 8000
+              }
+            ]
+          },
+          "unit": "kelvin"
+        },
+        "overrides": []
+      },
       "gridPos": {
-        "h": 7,
+        "h": 11,
         "w": 6,
         "x": 18,
-        "y": 43
+        "y": 35
       },
+      "id": 108,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
@@ -760,50 +851,420 @@
           "refId": "A"
         }
       ],
+      "title": "Camera - Color Temperature",
+      "type": "gauge"
+    },
+    {
       "fieldConfig": {
         "defaults": {
-          "unit": "kelvin",
-          "displayName": "Color Temp",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "displayName": "IAQ",
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "value": 0,
-                "color": "#ff6600"
+                "color": "green",
+                "value": 0
               },
               {
-                "value": 3000,
-                "color": "#ffaa00"
+                "color": "yellow",
+                "value": 100
               },
               {
-                "value": 4500,
-                "color": "#ffdd88"
+                "color": "orange",
+                "value": 200
               },
               {
-                "value": 5500,
-                "color": "#ffffff"
-              },
-              {
-                "value": 6500,
-                "color": "#ccddff"
-              },
-              {
-                "value": 8000,
-                "color": "#88bbff"
+                "color": "red",
+                "value": 300
               }
             ]
           },
-          "min": 2000,
-          "max": 10000,
-          "color": {
-            "mode": "thresholds"
-          }
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 46
+      },
+      "id": 103,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
         }
       },
+      "pluginVersion": "12.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB_Beeper"
+          },
+          "query": "from(bucket: \"sensors\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"topic\"] == \"beeper/sensors/bme680/iaq\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)",
+          "refId": "A"
+        }
+      ],
+      "title": "BME680 - Indoor Air Quality (IAQ)",
+      "type": "timeseries"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "displayName": "CO₂ Equiv.",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "ppm"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 46
+      },
+      "id": 104,
       "options": {
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true
-      }
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB_Beeper"
+          },
+          "query": "from(bucket: \"sensors\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"topic\"] == \"beeper/sensors/bme680/co2_equivalent\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)",
+          "refId": "A"
+        }
+      ],
+      "title": "BME680 - CO₂ Equivalent",
+      "type": "timeseries"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "displayName": "Pressure",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 980
+              },
+              {
+                "color": "green",
+                "value": 1050
+              },
+              {
+                "color": "blue",
+                "value": 1070
+              }
+            ]
+          },
+          "unit": "pressurehpa"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 54
+      },
+      "id": 3,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB_Beeper"
+          },
+          "query": "from(bucket: \"sensors\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"topic\"] == \"beeper/sensors/bme680/pressure\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
+          "refId": "A"
+        }
+      ],
+      "title": "BME680 - Pressure",
+      "type": "timeseries"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "displayName": "Gas Resistance",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "orange",
+                "value": 50
+              },
+              {
+                "color": "yellow",
+                "value": 150
+              },
+              {
+                "color": "green",
+                "value": 300
+              }
+            ]
+          },
+          "unit": "ohm"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 54
+      },
+      "id": 4,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB_Beeper"
+          },
+          "query": "from(bucket: \"sensors\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"topic\"] == \"beeper/sensors/bme680/gas_raw\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
+          "refId": "A"
+        }
+      ],
+      "title": "BME680 - Gas Resistance (Air Quality)",
+      "type": "timeseries"
     }
-  ]
+  ],
+  "preload": false,
+  "refresh": "5s",
+  "schemaVersion": 42,
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Beeper Keeper - Sensor Monitoring",
+  "uid": "beeper-sensors",
+  "version": 52
 }
