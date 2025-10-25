@@ -15,14 +15,14 @@
       "title": "",
       "type": "text",
       "gridPos": {
-        "h": 9,
+        "h": 10,
         "w": 24,
         "x": 0,
         "y": 0
       },
       "options": {
         "mode": "html",
-        "content": "\n<div style=\"text-align: center; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\">\n    <div style=\"margin-bottom: 5px;\">\n        <img src=\"/public/img/chicken_of_despair.png\" style=\"height: 120px;\">\n    </div>\n    <div style=\"font-size: 48px; font-weight: bold; color: white; line-height: 1.2; margin: 5px 0;\">\n        BEEPER KEEPER 10000\n    </div>\n    <div style=\"margin: 8px 0;\">\n        <img src=\"/public/img/tinyWaxer.png\" style=\"height: 100px;\">\n    </div>\n    <div style=\"font-size: 18px; color: #fff; opacity: 0.95;\">\n        Good Supply Farm - Chicken Monitoring System\n    </div>\n</div>\n"
+        "content": "\n<div style=\"text-align: center; padding: 15px; background: linear-gradient(135deg, #6495ED 0%, #4169E1 100%);\">\n    <div style=\"margin-bottom: 5px;\">\n        <img src=\"/public/img/chicken_of_despair.png\" style=\"height: 120px;\">\n    </div>\n    <div style=\"font-size: 48px; font-weight: bold; color: white; line-height: 1.2; margin: 5px 0;\">\n        BEEPER KEEPER 10000\n    </div>\n    <div style=\"margin: 8px 0;\">\n        <img src=\"/public/img/tinyWaxer.png\" style=\"height: 100px;\">\n    </div>\n    <div style=\"font-size: 18px; color: #fff; opacity: 0.95;\">\n        Good Supply Farm - Chicken Monitoring System\n    </div>\n</div>\n"
       }
     },
     {
@@ -33,7 +33,7 @@
         "h": 10,
         "w": 12,
         "x": 0,
-        "y": 9
+        "y": 10
       },
       "options": {
         "mode": "html",
@@ -48,7 +48,7 @@
         "h": 10,
         "w": 12,
         "x": 12,
-        "y": 9
+        "y": 10
       },
       "options": {
         "mode": "html",
@@ -63,7 +63,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 19
+        "y": 20
       },
       "targets": [
         {
@@ -97,7 +97,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 19
+        "y": 20
       },
       "targets": [
         {
@@ -131,7 +131,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 27
+        "y": 28
       },
       "targets": [
         {
@@ -165,7 +165,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 27
+        "y": 28
       },
       "targets": [
         {
@@ -199,7 +199,7 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 35
+        "y": 36
       },
       "targets": [
         {
@@ -249,7 +249,7 @@
         "h": 8,
         "w": 6,
         "x": 8,
-        "y": 35
+        "y": 36
       },
       "targets": [
         {
@@ -294,7 +294,7 @@
         "h": 8,
         "w": 6,
         "x": 16,
-        "y": 35
+        "y": 36
       },
       "targets": [
         {
@@ -339,7 +339,7 @@
         "h": 8,
         "w": 6,
         "x": 18,
-        "y": 35
+        "y": 36
       },
       "targets": [
         {
