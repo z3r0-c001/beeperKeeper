@@ -232,8 +232,14 @@
             ]
           },
           "min": 0,
-          "max": 100
+          "max": 100,
+          "displayName": "CPU 1 CPU 2"
         }
+      },
+      "options": {
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "text": {}
       }
     },
     {
