@@ -15,14 +15,14 @@
       "title": "",
       "type": "text",
       "gridPos": {
-        "h": 12,
+        "h": 13,
         "w": 24,
         "x": 0,
         "y": 0
       },
       "options": {
         "mode": "html",
-        "content": "\n<div style=\"text-align: center; padding: 15px; background: linear-gradient(135deg, #6495ED 0%, #4169E1 100%);\">\n    <div style=\"margin-bottom: 0;\">\n        <img src=\"/public/img/chicken_of_despair.png\" style=\"height: 240px;\">\n    </div>\n    <div style=\"font-size: 48px; font-weight: bold; color: white; line-height: 1.2; margin: 5px 0;\">\n        BEEPER KEEPER 10000\n    </div>\n    <div style=\"margin: 8px 0;\">\n        <img src=\"/public/img/tinyWaxer.png\" style=\"height: 100px;\">\n    </div>\n    <div style=\"font-size: 18px; color: #fff; opacity: 0.95;\">\n        Good Supply Farm - Chicken Monitoring System\n    </div>\n</div>\n"
+        "content": "\n<div style=\"text-align: center; padding: 2px 5px 10px 5px; background: linear-gradient(135deg, #6495ED 0%, #4169E1 100%);\">\n    <div style=\"margin-bottom: 0;\">\n        <img src=\"/public/img/chicken_of_despair.png\" style=\"height: 240px;\">\n    </div>\n    <div style=\"font-size: 48px; font-weight: bold; color: white; line-height: 1.2; margin: -5px 0 5px 0;\">\n        BEEPER KEEPER 10000\n    </div>\n    <div style=\"margin: 8px 0;\">\n        <img src=\"/public/img/tinyWaxer.png\" style=\"height: 100px;\">\n    </div>\n    <div style=\"font-size: 18px; color: #fff; opacity: 0.95;\">\n        Good Supply Farm - Chicken Monitoring System\n    </div>\n</div>\n"
       }
     },
     {
@@ -30,14 +30,14 @@
       "title": "",
       "type": "text",
       "gridPos": {
-        "h": 10,
+        "h": 11,
         "w": 6,
         "x": 0,
-        "y": 12
+        "y": 13
       },
       "options": {
         "mode": "html",
-        "content": "<div style=\"height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); padding: 20px;\"><a href=\"http://172.16.0.28:8889/csi_camera/\" target=\"_blank\" style=\"text-decoration: none; color: white; text-align: center; width: 100%;\"><div style=\"font-size: 80px; margin-bottom: 20px;\">\ud83c\udf19</div><div style=\"font-size: 32px; font-weight: bold; margin-bottom: 12px;\">IR Night Vision</div><div style=\"font-size: 16px; opacity: 0.9; margin-bottom: 25px;\">OV5647 CSI Camera<br>1280x720 @ 30fps \u2022 H.264</div><div style=\"background: white; color: #1e40af; padding: 15px 40px; border-radius: 8px; font-weight: bold; display: inline-block; font-size: 18px;\">\ud83d\udcf9 Open Stream</div></a></div>"
+        "content": "<div style=\"height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); padding: 20px;\"><a href=\"http://172.16.0.28:8889/csi_camera/\" target=\"_blank\" style=\"text-decoration: none; color: white; text-align: center; width: 100%; display: flex; flex-direction: column; align-items: center;\"><div style=\"font-size: 80px; line-height: 1; margin-bottom: 5px;\">\ud83c\udf19</div><div style=\"font-size: 32px; font-weight: bold; line-height: 1.2; margin-bottom: 12px;\">IR Night Vision</div><div style=\"font-size: 16px; opacity: 0.9; line-height: 1.4; margin-bottom: 25px;\">OV5647 CSI Camera<br>1280x720 @ 30fps \u2022 H.264</div><div style=\"background: white; color: #1e40af; padding: 15px 40px; border-radius: 8px; font-weight: bold; font-size: 18px;\">\ud83d\udcf9 Open Stream</div></a></div>"
       }
     },
     {
@@ -45,14 +45,14 @@
       "title": "",
       "type": "text",
       "gridPos": {
-        "h": 10,
+        "h": 11,
         "w": 6,
         "x": 6,
-        "y": 12
+        "y": 13
       },
       "options": {
         "mode": "html",
-        "content": "<div style=\"height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%); border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); padding: 20px;\"><a href=\"http://172.16.0.28:8889/usb_camera/\" target=\"_blank\" style=\"text-decoration: none; color: white; text-align: center; width: 100%;\"><div style=\"font-size: 80px; margin-bottom: 20px;\">\ud83d\udd0a</div><div style=\"font-size: 32px; font-weight: bold; margin-bottom: 12px;\">USB Webcam + Audio</div><div style=\"font-size: 16px; opacity: 0.9; margin-bottom: 25px;\">Logitech C270<br>640x480 @ 15fps \u2022 VP8 + Opus</div><div style=\"background: white; color: #0f766e; padding: 15px 40px; border-radius: 8px; font-weight: bold; display: inline-block; font-size: 18px;\">\ud83c\udfa5 Open Stream</div></a></div>"
+        "content": "<div style=\"height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%); border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); padding: 20px;\"><a href=\"http://172.16.0.28:8889/usb_camera/\" target=\"_blank\" style=\"text-decoration: none; color: white; text-align: center; width: 100%; display: flex; flex-direction: column; align-items: center;\"><div style=\"font-size: 80px; line-height: 1; margin-bottom: 5px;\">\ud83d\udd0a</div><div style=\"font-size: 32px; font-weight: bold; line-height: 1.2; margin-bottom: 12px;\">USB Webcam + Audio</div><div style=\"font-size: 16px; opacity: 0.9; line-height: 1.4; margin-bottom: 25px;\">Logitech C270<br>640x480 @ 15fps \u2022 VP8 + Opus</div><div style=\"background: white; color: #0f766e; padding: 15px 40px; border-radius: 8px; font-weight: bold; font-size: 18px;\">\ud83c\udfa5 Open Stream</div></a></div>"
       }
     },
     {
@@ -63,7 +63,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 22
+        "y": 23
       },
       "targets": [
         {
@@ -86,7 +86,36 @@
             "lineWidth": 2,
             "fillOpacity": 10
           },
-          "displayName": "Temperature"
+          "displayName": "Temperature",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": -10,
+                "color": "dark-blue"
+              },
+              {
+                "value": 10,
+                "color": "blue"
+              },
+              {
+                "value": 18,
+                "color": "green"
+              },
+              {
+                "value": 24,
+                "color": "yellow"
+              },
+              {
+                "value": 30,
+                "color": "orange"
+              },
+              {
+                "value": 35,
+                "color": "red"
+              }
+            ]
+          }
         }
       }
     },
@@ -98,7 +127,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 22
+        "y": 23
       },
       "targets": [
         {
@@ -121,7 +150,36 @@
             "lineWidth": 2,
             "fillOpacity": 10
           },
-          "displayName": "Humidity"
+          "displayName": "Humidity",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": 0,
+                "color": "red"
+              },
+              {
+                "value": 30,
+                "color": "orange"
+              },
+              {
+                "value": 40,
+                "color": "green"
+              },
+              {
+                "value": 70,
+                "color": "yellow"
+              },
+              {
+                "value": 80,
+                "color": "orange"
+              },
+              {
+                "value": 90,
+                "color": "red"
+              }
+            ]
+          }
         }
       }
     },
@@ -133,7 +191,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 30
+        "y": 31
       },
       "targets": [
         {
@@ -156,7 +214,28 @@
             "lineWidth": 2,
             "fillOpacity": 10
           },
-          "displayName": "Pressure"
+          "displayName": "Pressure",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": 950,
+                "color": "blue"
+              },
+              {
+                "value": 980,
+                "color": "green"
+              },
+              {
+                "value": 1050,
+                "color": "green"
+              },
+              {
+                "value": 1070,
+                "color": "blue"
+              }
+            ]
+          }
         }
       }
     },
@@ -168,7 +247,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 30
+        "y": 31
       },
       "targets": [
         {
@@ -191,7 +270,28 @@
             "lineWidth": 2,
             "fillOpacity": 10
           },
-          "displayName": "Gas Resistance"
+          "displayName": "Gas Resistance",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": 0,
+                "color": "red"
+              },
+              {
+                "value": 50,
+                "color": "orange"
+              },
+              {
+                "value": 150,
+                "color": "yellow"
+              },
+              {
+                "value": 300,
+                "color": "green"
+              }
+            ]
+          }
         }
       }
     },
@@ -203,7 +303,7 @@
         "h": 5,
         "w": 6,
         "x": 12,
-        "y": 12
+        "y": 13
       },
       "targets": [
         {
@@ -228,6 +328,10 @@
               {
                 "value": 60,
                 "color": "yellow"
+              },
+              {
+                "value": 70,
+                "color": "orange"
               },
               {
                 "value": 80,
@@ -260,7 +364,7 @@
         "h": 5,
         "w": 6,
         "x": 18,
-        "y": 12
+        "y": 13
       },
       "targets": [
         {
@@ -283,11 +387,15 @@
                 "color": "green"
               },
               {
-                "value": 70,
+                "value": 50,
                 "color": "yellow"
               },
               {
-                "value": 90,
+                "value": 80,
+                "color": "orange"
+              },
+              {
+                "value": 95,
                 "color": "red"
               }
             ]
@@ -306,7 +414,7 @@
         "h": 5,
         "w": 6,
         "x": 12,
-        "y": 17
+        "y": 18
       },
       "targets": [
         {
@@ -329,8 +437,12 @@
                 "color": "green"
               },
               {
-                "value": 70,
+                "value": 60,
                 "color": "yellow"
+              },
+              {
+                "value": 80,
+                "color": "orange"
               },
               {
                 "value": 90,
@@ -352,7 +464,7 @@
         "h": 5,
         "w": 6,
         "x": 18,
-        "y": 17
+        "y": 18
       },
       "targets": [
         {
@@ -368,14 +480,19 @@
         "defaults": {
           "unit": "percent",
           "thresholds": {
+            "mode": "absolute",
             "steps": [
               {
                 "value": 0,
                 "color": "green"
               },
               {
-                "value": 70,
+                "value": 75,
                 "color": "yellow"
+              },
+              {
+                "value": 85,
+                "color": "orange"
               },
               {
                 "value": 90,
