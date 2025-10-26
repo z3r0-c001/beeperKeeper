@@ -1,0 +1,10 @@
+# Internal documentation - DO NOT push to GitHub
+SANITIZATION_SUMMARY.md
+CLAUDE.md
+
+# Sensitive files
+CREDENTIALS.md
+.env
+
+# Local development
+.claude/
