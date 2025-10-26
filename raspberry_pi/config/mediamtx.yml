@@ -1,0 +1,42 @@
+# MediaMTX Configuration for Beeper Keeper v2.0
+# Optimized for HLS streaming with both cameras at native resolutions
+
+# API
+api: yes
+apiAddress: :9997
+
+# WebRTC - Ultra low latency streaming (0.5-2 seconds)
+webrtc: yes
+webrtcAddress: :8889
+webrtcICEServers2: []
+
+# HLS - Primary streaming method
+hls: yes
+hlsAddress: :8888
+hlsAlwaysRemux: yes
+hlsVariant: lowLatency
+hlsSegmentCount: 7
+hlsSegmentDuration: 1s
+hlsPartDuration: 200ms
+hlsSegmentMaxSize: 50M
+
+# RTSP backend
+rtspAddress: :8554
+protocols: [tcp]
+encryption: "no"
+
+# Performance tuning
+readTimeout: 20s
+writeTimeout: 20s
+
+# Camera streams
+paths:
+  # CSI Camera (OV5647 IR) - 800x600 @ 15fps with hardware H.264
+  csi_camera:
+    runOnInit: /opt/beeperKeeper/start_csi_with_metadata.sh
+    runOnInitRestart: yes
+
+  # USB Webcam (Logitech C270) - 640x480 @ 15fps with H.264 and audio
+  usb_camera:
+    runOnInit: /opt/beeperKeeper/config/start_usb_camera.sh
+    runOnInitRestart: yes

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }
+    .container { background-color: white; border-radius: 8px; padding: 30px; max-width: 600px; margin: 0 auto; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .logo { text-align: center; margin-bottom: 20px; }
+    .logo img { max-width: 200px; height: auto; }
+    .header { background-color: #f8f9fa; padding: 15px; border-radius: 4px; margin-bottom: 20px; }
+    .alert-title { color: #333; font-size: 24px; font-weight: bold; margin: 0; }
+    .alert-state { display: inline-block; padding: 4px 12px; border-radius: 4px; font-weight: bold; margin-top: 10px; }
+    .state-firing { background-color: #dc3545; color: white; }
+    .state-resolved { background-color: #28a745; color: white; }
+    .content { margin: 20px 0; }
+    .label { font-weight: bold; color: #666; }
+    .value { color: #333; margin-bottom: 10px; }
+    .footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #999; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <img src="http://YOUR_MQTT_BROKER_IP:3000/public/img/chicken_of_despair.png" alt="Beeper Keeper" />
+    </div>
+    
+    <div class="header">
+      <h1 class="alert-title">{{ .Title }}</h1>
+      <span class="alert-state {{ if eq .Status "firing" }}state-firing{{ else }}state-resolved{{ end }}">
+        {{ .Status | upper }}
+      </span>
+    </div>
+    
+    <div class="content">
+      <p class="value">{{ .Message }}</p>
+      
+      {{ if gt (len .Alerts) 0 }}
+      <h3>Alert Details:</h3>
+      {{ range .Alerts }}
+        <div style="background-color: #f8f9fa; padding: 15px; border-radius: 4px; margin-bottom: 10px;">
+          <p><span class="label">Alert:</span> <span class="value">{{ .Labels.alertname }}</span></p>
+          {{ range .Annotations.SortedPairs }}
+            <p><span class="label">{{ .Name }}:</span> <span class="value">{{ .Value }}</span></p>
+          {{ end }}
+        </div>
+      {{ end }}
+      {{ end }}
+    </div>
+    
+    <div class="footer">
+      <p>Beeper Keeper 10000 - Chicken Monitoring System</p>
+      <p>Good Supply Farm</p>
+    </div>
+  </div>
+</body>
+</html>

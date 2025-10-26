@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beeper Keeper v2.0 - Local Preview</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
+    <style>
+        /* EXACT V1 STYLING */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            color: #fff;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* BACKGROUND CHICKENS - EXACT V1 LAYOUT */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 0;
+            opacity: 0.08;
+            pointer-events: none;
+            background-image:
+                url('static/images/chicken_of_despair.png'),
+                url('static/images/chicken_of_despair.png'),
+                url('static/images/chicken_of_despair.png'),
+                url('static/images/chicken_of_despair.png'),
+                url('static/images/chicken_of_despair.png'),
+                url('static/images/chicken_of_despair.png'),
+                url('static/images/chicken_of_despair.png'),
+                url('static/images/chicken_of_despair.png'),
+                url('static/images/chicken_of_despair.png'),
+                url('static/images/chicken_of_despair.png'),
+                url('static/images/chicken_of_despair.png'),
+                url('static/images/chicken_of_despair.png'),
+                url('static/images/chicken_of_despair.png'),
+                url('static/images/chicken_of_despair.png'),
+                url('static/images/chicken_of_despair.png'),
+                url('static/images/chicken_of_despair.png'),
+                url('static/images/chicken_of_despair.png'),
+                url('static/images/chicken_of_despair.png'),
+                url('static/images/chicken_of_despair.png'),
+                url('static/images/chicken_of_despair.png');
+            background-size: 80px, 120px, 60px, 100px, 90px, 110px, 70px, 95px, 85px, 75px,
+                             105px, 65px, 88px, 78px, 92px, 68px, 82px, 98px, 72px, 115px;
+            background-position: 8% 12%, 28% 8%, 15% 25%, 45% 15%, 68% 10%, 85% 22%,
+                                 12% 45%, 38% 40%, 62% 38%, 78% 52%, 5% 68%, 25% 72%,
+                                 50% 65%, 72% 75%, 90% 70%, 18% 88%, 42% 90%, 65% 85%,
+                                 82% 92%, 35% 55%;
+            background-repeat: no-repeat;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 0;
+            opacity: 0.05;
+            pointer-events: none;
+            background-image:
+                url('static/images/chicken_of_despair.png'),
+                url('static/images/chicken_of_despair.png'),
+                url('static/images/chicken_of_despair.png'),
+                url('static/images/chicken_of_despair.png'),
+                url('static/images/chicken_of_despair.png'),
+                url('static/images/chicken_of_despair.png'),
+                url('static/images/chicken_of_despair.png'),
+                url('static/images/chicken_of_despair.png'),
+                url('static/images/chicken_of_despair.png'),
+                url('static/images/chicken_of_despair.png'),
+                url('static/images/chicken_of_despair.png'),
+                url('static/images/chicken_of_despair.png'),
+                url('static/images/chicken_of_despair.png'),
+                url('static/images/chicken_of_despair.png'),
+                url('static/images/chicken_of_despair.png'),
+                url('static/images/chicken_of_despair.png');
+            background-size: 55px, 125px, 95px, 65px, 110px, 75px, 100px, 80px,
+                             90px, 70px, 115px, 85px, 60px, 105px, 77px, 92px;
+            background-position: 22% 18%, 52% 12%, 75% 28%, 10% 58%, 33% 48%, 58% 62%,
+                                 88% 45%, 15% 78%, 48% 82%, 70% 90%, 92% 82%, 5% 35%,
+                                 40% 22%, 65% 48%, 82% 65%, 28% 95%;
+            background-repeat: no-repeat;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px 0 30px;
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+        }
+
+        header img {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .subtitle {
+            color: #a0d8f1;
+            margin-top: 8px;
+            font-size: 1.1em;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .panel h2 {
+            margin: 0 0 15px 0;
+            color: #a0d8f1;
+            font-size: 1.4em;
+            border-bottom: 2px solid rgba(160, 216, 241, 0.3);
+            padding-bottom: 8px;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .metric {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .metric-label {
+            font-size: 0.85em;
+            color: #a0d8f1;
+            margin-bottom: 5px;
+        }
+
+        .metric-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .metric-unit {
+            font-size: 0.7em;
+            color: #ccc;
+            margin-left: 4px;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-indicator.online {
+            background: #4CAF50;
+            box-shadow: 0 0 8px #4CAF50;
+        }
+
+        .status-indicator.offline {
+            background: #f44336;
+            box-shadow: 0 0 8px #f44336;
+        }
+
+        .info-note {
+            background: rgba(160, 216, 241, 0.1);
+            border-left: 4px solid #a0d8f1;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            font-size: 0.95em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <img src="static/images/chicken_of_despair.png" alt="Beeper Keeper">
+            <h1>🐔 BEEPER KEEPER v2.0</h1>
+            <p class="subtitle">HLS Streaming Edition - Local Preview</p>
+        </header>
+
+        <div class="info-note">
+            <strong>📋 Preview Mode:</strong> This is a standalone HTML preview showing the v2.0 interface design.
+            For full functionality (live video streams, real-time sensor data), this needs to be deployed to the Raspberry Pi at YOUR_PI_IP.
+        </div>
+
+        <!-- Camera Streams -->
+        <div class="grid">
+            <div class="panel">
+                <h2><span class="status-indicator offline"></span>CSI Camera (OV5647 IR)</h2>
+                <div class="video-container">
+                    <video id="csiVideo" controls muted></video>
+                </div>
+                <p style="margin-top: 10px; font-size: 0.9em; color: #a0d8f1;">
+                    📹 1920x1080 @ 30fps | Hardware H.264
+                </p>
+            </div>
+
+            <div class="panel">
+                <h2><span class="status-indicator offline"></span>USB Camera (Logitech C270)</h2>
+                <div class="video-container">
+                    <video id="usbVideo" controls></video>
+                </div>
+                <p style="margin-top: 10px; font-size: 0.9em; color: #a0d8f1;">
+                    📹 1280x720 @ 30fps | H.264 + Audio
+                </p>
+            </div>
+        </div>
+
+        <!-- Environmental Sensors -->
+        <div class="panel">
+            <h2>🌡️ Environmental Sensors (BME680)</h2>
+            <div class="metrics-grid">
+                <div class="metric">
+                    <div class="metric-label">Temperature</div>
+                    <div class="metric-value">--<span class="metric-unit">°C</span></div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Humidity</div>
+                    <div class="metric-value">--<span class="metric-unit">%</span></div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Pressure</div>
+                    <div class="metric-value">--<span class="metric-unit">hPa</span></div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Air Quality (IAQ)</div>
+                    <div class="metric-value">--</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Stats -->
+        <div class="panel">
+            <h2>💻 System Statistics</h2>
+            <div class="metrics-grid">
+                <div class="metric">
+                    <div class="metric-label">CPU Temperature</div>
+                    <div class="metric-value">--<span class="metric-unit">°C</span></div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">CPU Usage</div>
+                    <div class="metric-value">--<span class="metric-unit">%</span></div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Memory Usage</div>
+                    <div class="metric-value">--<span class="metric-unit">%</span></div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Disk Usage</div>
+                    <div class="metric-value">--<span class="metric-unit">%</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Camera Metadata -->
+        <div class="panel">
+            <h2>📸 Camera Metadata</h2>
+            <div class="metrics-grid">
+                <div class="metric">
+                    <div class="metric-label">Exposure Time</div>
+                    <div class="metric-value">--<span class="metric-unit">μs</span></div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Analogue Gain</div>
+                    <div class="metric-value">--</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Lux</div>
+                    <div class="metric-value">--</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Color Temperature</div>
+                    <div class="metric-value">--<span class="metric-unit">K</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-note">
+            <strong>✅ v2.0 Features Implemented:</strong>
+            <ul style="margin: 10px 0 0 20px;">
+                <li>✓ Dual camera HLS streaming (CSI 1080p + USB 720p)</li>
+                <li>✓ Real-time BME680 sensor integration</li>
+                <li>✓ System statistics monitoring</li>
+                <li>✓ Camera metadata display</li>
+                <li>✓ MQTT → Telegraf → InfluxDB → Grafana pipeline</li>
+                <li>✓ Exact v1 look and feel (dark blue gradient, scattered chickens)</li>
+                <li>✓ Streamlined architecture (8 files total)</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // HLS Video Player Initialization (would connect to streams when deployed)
+        const HLS_BASE = 'http://YOUR_PI_IP:8888';
+
+        console.log('v2.0 Preview Mode - Video streams would connect to:');
+        console.log('  CSI Camera: ' + HLS_BASE + '/csi_camera/index.m3u8');
+        console.log('  USB Camera: ' + HLS_BASE + '/usb_camera/index.m3u8');
+        console.log('');
+        console.log('Sensor data would be fetched from: /api/metrics');
+        console.log('');
+        console.log('When deployed to the Pi, HLS streams will auto-connect and');
+        console.log('sensor data will update every 2 seconds via MQTT.');
+    </script>
+</body>
+</html>

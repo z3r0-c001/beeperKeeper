@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CSI Camera Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #000;
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            color: #fff;
+            text-align: center;
+        }
+        #video-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        video {
+            width: 100%;
+            height: auto;
+            background: #000;
+        }
+        #status {
+            color: #fff;
+            text-align: center;
+            padding: 10px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <h1>CSI Camera (OV5647 IR Night Vision) - HLS Test</h1>
+    <div id="status">Loading...</div>
+    <div id="video-container">
+        <video id="video" controls autoplay muted></video>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const status = document.getElementById('status');
+        const streamUrl = 'http://YOUR_PI_IP:8080/csi_camera/index.m3u8';
+
+        if (Hls.isSupported()) {
+            status.textContent = 'Initializing HLS player...';
+            const hls = new Hls({
+                lowLatencyMode: true,
+                backBufferLength: 90
+            });
+
+            hls.loadSource(streamUrl);
+            hls.attachMedia(video);
+
+            hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                status.textContent = '✓ Stream loaded! Playing...';
+                video.play().catch(e => {
+                    status.textContent = 'Click video to play (autoplay blocked)';
+                });
+            });
+
+            hls.on(Hls.Events.ERROR, function(event, data) {
+                console.error('HLS Error:', data);
+                if (data.fatal) {
+                    status.textContent = '✗ Fatal error: ' + data.type + ' - ' + data.details;
+                    switch(data.type) {
+                        case Hls.ErrorTypes.NETWORK_ERROR:
+                            status.textContent += ' (Network error - retrying...)';
+                            setTimeout(() => hls.loadSource(streamUrl), 3000);
+                            break;
+                        case Hls.ErrorTypes.MEDIA_ERROR:
+                            status.textContent += ' (Media error - recovering...)';
+                            hls.recoverMediaError();
+                            break;
+                        default:
+                            status.textContent += ' (Unrecoverable error)';
+                            break;
+                    }
+                }
+            });
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            // Native HLS support (Safari)
+            status.textContent = 'Using native HLS support...';
+            video.src = streamUrl;
+            video.addEventListener('loadedmetadata', function() {
+                status.textContent = '✓ Stream loaded! Playing...';
+                video.play();
+            });
+        } else {
+            status.textContent = '✗ HLS is not supported in this browser';
+        }
+    </script>
+</body>
+</html>

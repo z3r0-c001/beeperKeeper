@@ -1,0 +1,11 @@
+apiVersion: 1
+
+contactPoints:
+  - orgId: 1
+    name: Email Alerts
+    receivers:
+      - uid: email_alerts
+        type: email
+        settings:
+          addresses: farmer@YOUR_BASE_DOMAIN;orange_dot@YOUR_BASE_DOMAIN;super_fun@YOUR_BASE_DOMAIN
+        disableResolveMessage: false
