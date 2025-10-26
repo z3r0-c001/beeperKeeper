@@ -7,5 +7,5 @@ contactPoints:
       - uid: email_alerts
         type: email
         settings:
-          addresses: farmer@YOUR_BASE_DOMAIN;orange_dot@YOUR_BASE_DOMAIN;super_fun@YOUR_BASE_DOMAIN
+          addresses: alerts@example.com;user1@example.com;user2@example.com
         disableResolveMessage: false
