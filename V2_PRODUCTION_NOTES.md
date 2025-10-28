@@ -44,7 +44,7 @@
 
 ### The Solution: Smart Protocol Selection
 ```javascript
-const isCloudflare = window.location.hostname.includes('YOUR_BASE_DOMAIN');
+const isCloudflare = window.location.hostname.includes('YOUR_DOMAIN');
 const useWebRTC = !isCloudflare && (window.location.hostname === 'YOUR_PI_IP');
 
 if (useWebRTC) {
@@ -245,7 +245,7 @@ def proxy_csi_camera(subpath):
 ```python
 def get_base_url():
     host = request.host.lower()
-    if 'YOUR_BASE_DOMAIN' in host or 'localhost' in host:
+    if 'YOUR_DOMAIN' in host or 'localhost' in host:
         return ''  # Use relative URLs (stay in tunnel)
     else:
         return f'http://{request.host.split(":")[0]}:{MEDIAMTX_HLS_PORT}'
@@ -261,6 +261,7 @@ beeper/sensors/bme680/all          - All BME680 readings (JSON)
 beeper/sensors/cpu/temperature     - CPU temp
 beeper/system/stats                - CPU%, memory%, disk%
 beeper/camera/csi/metadata         - Exposure, gain, lux, color temp
+beeper/audio/level                 - Audio level in dB from USB microphone
 ```
 
 ### MQTT → InfluxDB → Grafana Pipeline
@@ -268,6 +269,31 @@ beeper/camera/csi/metadata         - Exposure, gain, lux, color temp
 2. **Telegraf** (on .7) subscribes and writes to InfluxDB
 3. **Grafana** queries InfluxDB for dashboards
 4. **Flask app** also subscribes for real-time web display
+
+### Audio Monitoring via ALSA dsnoop
+**Problem:** USB webcam microphone needed to be shared between ffmpeg streaming and audio level monitoring.
+
+**Solution:** ALSA dsnoop plugin allows multiple programs to capture from the same device simultaneously.
+
+**Configuration** (`~/.asoundrc` on Raspberry Pi):
+```
+pcm.dsnoop_usb {
+    type dsnoop
+    ipc_key 5978293
+    ipc_perm 0666
+    slave {
+        pcm "hw:1,0"
+        channels 1
+        rate 48000
+        format S16_LE
+    }
+}
+```
+
+**Files Modified:**
+- `~/.asoundrc` - Added dsnoop device
+- `/opt/beeperKeeper/config/start_usb_camera.sh` - Changed from `hw:1,0` to `dsnoop_usb`
+- `/opt/beeperKeeper/mqtt_publisher.py` - Added `get_audio_level()` function
 
 ---
 
@@ -457,6 +483,81 @@ MAX_CHAT_MESSAGES = 50
 
 ---
 
+## 📈 Grafana Dashboard Optimizations (October 28, 2025)
+
+### Dashboard Enhancements
+
+**Changes Applied:**
+1. **Panel 307 - Complete Environmental Data Timeline**
+   - Added audio level (decibels) with proper legend label "Decibels (dB)"
+   - Added lights on/off status derived from Lux readings (0=off, 1=on)
+   - Legend labels cleaned up to show friendly names instead of technical field names
+
+2. **Panel 501 - Lux Light Level Gauge**
+   - Updated thresholds to match real-world lux values with appropriate colors:
+     - 0-10: Black (complete darkness)
+     - 10-50: Deep purple (moonlight)
+     - 50-100: Purple (dim interior)
+     - 100-300: Orange (typical room)
+     - 300-500: Yellow (bright room)
+     - 500-1000: Bright yellow (office)
+     - 1000-10000: Light yellow (very bright)
+     - 10000+: White (direct sunlight)
+
+3. **All Gauge Panels** (8 total)
+   - Enabled threshold labels on all gauge panels (201, 202, 203, 204, 205, 206, 501, 502, 503, 504)
+   - Improved readability by showing threshold values
+
+4. **Panel 506 - Active Alerts & History**
+   - Repositioned below "Key Metrics at a Glance" section
+   - Fixed overlap issue that was causing display problems
+   - Shifted all panels below it down by 12 units for clean layout
+
+5. **Panel 203 - Air Quality**
+   - Already had correct value mappings (0-50=Excellent, 51-100=Good, etc.)
+   - Mappings match Flask app IAQ classification logic
+
+**Files Modified:**
+- `~/beeperKeeper/grafana/dashboards/beeper_sensors.json` - Dashboard configuration
+- `~/beeperKeeper/telegraf/telegraf.conf` - Audio topic configuration
+
+### Key Learnings
+
+#### Lights Status from Lux Data
+**Discovery:** Instead of creating a separate MQTT topic for lights on/off, we derived it from existing Lux data from camera metadata.
+
+**Implementation:**
+```flux
+from(bucket: "sensors")
+  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
+  |> filter(fn: (r) => r["_measurement"] == "mqtt_consumer")
+  |> filter(fn: (r) => r["topic"] == "beeper/camera/csi/metadata")
+  |> filter(fn: (r) => r["_field"] == "Lux")
+  |> map(fn: (r) => ({ r with _value: if r._value >= 50.0 then 1.0 else 0.0 }))
+  |> map(fn: (r) => ({ r with _field: "Lights (0=Off, 1=On)" }))
+```
+
+**Benefit:** Reused existing data stream instead of adding new MQTT topic, reducing complexity.
+
+#### Panel Overlap Issues
+**Problem:** Panel 506 was positioned at y=28, overlapping with Panel 307 (y=20-37) and Key Metrics section (y=37+).
+
+**Fix:** Moved Panel 506 to y=44 (after Key Metrics gauges), shifted all subsequent panels down by 12 units.
+
+**Lesson:** Always verify gridPos.y coordinates don't overlap when positioning panels. Use a layout visualization tool or check programmatically.
+
+#### Legend Label Cleanup
+**Problem:** Default Grafana legend shows technical field names like `mqtt_consumer level_db {host="beeper_telegraf"...}`
+
+**Solution:** Use Flux `map()` function to rename _field to user-friendly labels:
+```flux
+|> map(fn: (r) => ({ r with _field: "Decibels (dB)" }))
+```
+
+**Result:** Clean, professional legend labels in the UI.
+
+---
+
 ## 📝 Next Steps & Future Enhancements
 
 ### Immediate (Completed)
@@ -485,8 +586,8 @@ MAX_CHAT_MESSAGES = 50
 
 ---
 
-**Document Version:** 2.0
-**Last Updated:** October 25, 2025 @ 18:45 EDT
+**Document Version:** 2.1
+**Last Updated:** October 28, 2025 @ 11:00 EDT
 **Status:** Production Ready ✅
 
 **Latest Features:**
@@ -495,3 +596,5 @@ MAX_CHAT_MESSAGES = 50
 - ✅ Consistent teal UI borders (#14b8a6)
 - ✅ WebRTC/HLS hybrid streaming
 - ✅ Optimized performance (70% CPU, 62-63°C)
+- ✅ Audio monitoring via ALSA dsnoop
+- ✅ Grafana dashboard enhancements (lights tracking, threshold labels, panel repositioning)
