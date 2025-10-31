@@ -18,6 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
+  "id": 16,
   "links": [],
   "panels": [
     {
@@ -27,9 +28,9 @@
       },
       "gridPos": {
         "h": 11,
-        "w": 21,
+        "w": 24,
         "x": 0,
-        "y": 8
+        "y": 0
       },
       "id": 100,
       "options": {
@@ -53,8 +54,8 @@
       "gridPos": {
         "h": 11,
         "w": 3,
-        "x": 21,
-        "y": 8
+        "x": 0,
+        "y": 11
       },
       "id": 505,
       "options": {
@@ -71,12 +72,292 @@
       "type": "text"
     },
     {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "InfluxDB_Beeper"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "0"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "transparent",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "A"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "\ud83d\ude0a Excited/Communicating"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#4cc9f0",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "B"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "\ud83d\ude10 Mild Alerting"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#ffd60a",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "C"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "\u26a0\ufe0f Alerting"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#ff9500",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "D"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "\ud83d\udea8 PROBLEM"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#ff006e",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 12,
+        "x": 3,
+        "y": 11
+      },
+      "id": 600,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {
+          "titleSize": 14,
+          "valueSize": 36
+        },
+        "textMode": "value_and_name",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB_Beeper"
+          },
+          "query": "from(bucket: \"sensors\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"topic\"] == \"beeper/audio/level\")\n  |> filter(fn: (r) => r[\"_field\"] == \"level_db\")\n  |> filter(fn: (r) => r._value >= 35.0 and r._value <= 45.0)\n  |> aggregateWindow(every: 30s, fn: mean, createEmpty: false)\n  |> filter(fn: (r) => r._value >= 35.0 and r._value <= 45.0)\n  |> count()",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB_Beeper"
+          },
+          "query": "from(bucket: \"sensors\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"topic\"] == \"beeper/audio/level\")\n  |> filter(fn: (r) => r[\"_field\"] == \"level_db\")\n  |> filter(fn: (r) => r._value >= 46.0 and r._value <= 55.0)\n  |> aggregateWindow(every: 20s, fn: mean, createEmpty: false)\n  |> filter(fn: (r) => r._value >= 46.0 and r._value <= 55.0)\n  |> count()",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB_Beeper"
+          },
+          "query": "from(bucket: \"sensors\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"topic\"] == \"beeper/audio/level\")\n  |> filter(fn: (r) => r[\"_field\"] == \"level_db\")\n  |> filter(fn: (r) => r._value >= 56.0 and r._value <= 70.0)\n  |> aggregateWindow(every: 15s, fn: mean, createEmpty: false)\n  |> filter(fn: (r) => r._value >= 56.0 and r._value <= 70.0)\n  |> count()",
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB_Beeper"
+          },
+          "query": "from(bucket: \"sensors\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"topic\"] == \"beeper/audio/level\")\n  |> filter(fn: (r) => r[\"_field\"] == \"level_db\")\n  |> filter(fn: (r) => r._value > 70.0)\n  |> aggregateWindow(every: 10s, fn: mean, createEmpty: false)\n  |> filter(fn: (r) => r._value > 70.0)\n  |> count()",
+          "refId": "D"
+        }
+      ],
+      "title": "\ud83d\udc14 Audio Alert Event Counts",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "InfluxDB_Beeper"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "#73BF69",
+                  "text": "\ud83d\ude34 Quiet (Normal)"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "1": {
+                  "color": "#4cc9f0",
+                  "text": "\ud83d\ude0a Active/Excited"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "2": {
+                  "color": "#ff9500",
+                  "text": "\u26a0\ufe0f Alarmed"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "3": {
+                  "color": "#ff006e",
+                  "text": "\ud83d\udea8 DISTRESS!"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#73BF69",
+                "value": 0
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 9,
+        "x": 15,
+        "y": 11
+      },
+      "id": 601,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {
+          "titleSize": 12,
+          "valueSize": 24
+        },
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB_Beeper"
+          },
+          "query": "from(bucket: \"sensors\")\n  |> range(start: -15m)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"topic\"] == \"beeper/audio/events/activity_state\")\n  |> filter(fn: (r) => r[\"_field\"] == \"activity_state\")\n  |> last()\n  |> map(fn: (r) => ({\n      r with\n      _value: if r._value == \"quiet\" then 0.0\n              else if r._value == \"active\" then 1.0\n              else if r._value == \"alarmed\" then 2.0\n              else if r._value == \"distress\" then 3.0\n              else -1.0\n    }))",
+          "refId": "A"
+        }
+      ],
+      "title": "\ud83d\udc14 Chicken Activity State",
+      "type": "stat"
+    },
+    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 19
+        "y": 22
       },
       "id": 306,
       "panels": [],
@@ -325,6 +606,88 @@
                 "value": "Gas Resistance"
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "G"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Audio Level"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#fb8500",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "unit",
+                "value": "dB"
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Sound (dB)"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "H"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Lights (0=OFF, 1=ON)"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#ffea00",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "unit",
+                "value": "short"
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "left"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Lights (0=OFF, 1=ON)"
+              },
+              {
+                "id": "custom.drawStyle",
+                "value": "line"
+              },
+              {
+                "id": "custom.lineInterpolation",
+                "value": "stepAfter"
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 2
+              },
+              {
+                "id": "custom.showPoints",
+                "value": "never"
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 10
+              }
+            ]
           }
         ]
       },
@@ -332,7 +695,7 @@
         "h": 17,
         "w": 24,
         "x": 0,
-        "y": 20
+        "y": 23
       },
       "id": 307,
       "options": {
@@ -404,21 +767,29 @@
           "refId": "F"
         },
         {
-          "refId": "G",
           "datasource": {
             "type": "influxdb",
             "uid": "InfluxDB_Beeper"
           },
+          "hide": false,
           "query": "from(bucket: \"sensors\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"topic\"] == \"beeper/audio/level\")\n  |> filter(fn: (r) => r[\"_field\"] == \"level_db\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> map(fn: (r) => ({ r with _field: \"Decibels (dB)\" }))\n  |> keep(columns: [\"_time\", \"_value\", \"_field\"])",
-          "hide": false
+          "refId": "G"
         },
         {
-          "refId": "H",
           "datasource": {
             "type": "influxdb",
             "uid": "InfluxDB_Beeper"
           },
-          "query": "from(bucket: \"sensors\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"topic\"] == \"beeper/camera/csi/metadata\")\n  |> filter(fn: (r) => r[\"_field\"] == \"Lux\")\n  |> map(fn: (r) => ({ r with _value: if r._value >= 50.0 then 1.0 else 0.0 }))\n  |> aggregateWindow(every: v.windowPeriod, fn: last, createEmpty: false)\n  |> map(fn: (r) => ({ r with _field: \"Lights (0=Off, 1=On)\" }))\n  |> keep(columns: [\"_time\", \"_value\", \"_field\"])"
+          "query": "from(bucket: \"sensors\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"topic\"] == \"beeper/camera/csi/metadata\")\n  |> filter(fn: (r) => r[\"_field\"] == \"Lux\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> map(fn: (r) => ({ r with _field: \"Lux (Light Level)\" }))",
+          "refId": "H"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB_Beeper"
+          },
+          "query": "import \"timezone\"\nimport \"date\"\n\nfrom(bucket: \"sensors\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"topic\"] == \"beeper/sensors/bme680/temperature\")\n  |> filter(fn: (r) => r[\"_field\"] == \"temperature\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> map(fn: (r) => {\n    // Get time in Eastern timezone\n    tz = timezone.location(name: \"America/New_York\")\n    hour = date.hour(t: r._time, location: tz)\n    minute = date.minute(t: r._time, location: tz)\n    \n    // Calculate if lights should be ON (6:30 AM - 7:00 PM)\n    minutesSinceMidnight = hour * 60 + minute\n    lightsOn = minutesSinceMidnight >= 390 and minutesSinceMidnight < 1140\n    \n    return {r with _value: if lightsOn then 1.0 else 0.0, _field: \"Light Schedule (0=Off, 1=On)\"}\n  })",
+          "refId": "I"
         }
       ],
       "title": "\ud83c\udf0d Complete Environmental Data Timeline",
@@ -430,7 +801,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 37
+        "y": 40
       },
       "id": 200,
       "panels": [],
@@ -489,7 +860,7 @@
         "h": 6,
         "w": 4,
         "x": 0,
-        "y": 38
+        "y": 41
       },
       "id": 201,
       "options": {
@@ -575,7 +946,7 @@
         "h": 6,
         "w": 4,
         "x": 4,
-        "y": 38
+        "y": 41
       },
       "id": 202,
       "options": {
@@ -721,7 +1092,7 @@
         "h": 6,
         "w": 4,
         "x": 8,
-        "y": 38
+        "y": 41
       },
       "id": 203,
       "options": {
@@ -772,36 +1143,18 @@
           "mappings": [
             {
               "options": {
-                "from": 0,
-                "result": {
-                  "color": "dark-blue",
-                  "text": "\ud83c\udf19 DARK"
+                "0": {
+                  "color": "red",
+                  "index": 0,
+                  "text": "LIGHTS OUT"
                 },
-                "to": 50
+                "1": {
+                  "color": "green",
+                  "index": 1,
+                  "text": "LIGHTS ON"
+                }
               },
-              "type": "range"
-            },
-            {
-              "options": {
-                "from": 50.1,
-                "result": {
-                  "color": "semi-dark-orange",
-                  "text": "\ud83c\udf05 TWILIGHT"
-                },
-                "to": 100
-              },
-              "type": "range"
-            },
-            {
-              "options": {
-                "from": 100.1,
-                "result": {
-                  "color": "light-yellow",
-                  "text": "\ud83d\udca1 LIGHT ON"
-                },
-                "to": 10000
-              },
-              "type": "range"
+              "type": "value"
             }
           ],
           "thresholds": {
@@ -812,15 +1165,14 @@
                 "value": 0
               },
               {
-                "color": "semi-dark-orange",
-                "value": 50
-              },
-              {
                 "color": "light-yellow",
-                "value": 100
+                "value": 0.5
               }
             ]
-          }
+          },
+          "min": 0,
+          "max": 1,
+          "unit": "none"
         },
         "overrides": []
       },
@@ -828,7 +1180,7 @@
         "h": 6,
         "w": 4,
         "x": 12,
-        "y": 38
+        "y": 41
       },
       "id": 204,
       "options": {
@@ -859,7 +1211,7 @@
             "type": "influxdb",
             "uid": "InfluxDB_Beeper"
           },
-          "query": "from(bucket: \"sensors\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"topic\"] == \"beeper/camera/csi/metadata\")\n  |> filter(fn: (r) => r[\"_field\"] == \"Lux\")\n  |> last()",
+          "query": "import \"timezone\"\nimport \"date\"\n\nfrom(bucket: \"sensors\")\n  |> range(start: -5m)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"topic\"] == \"beeper/sensors/bme680/all\")\n  |> filter(fn: (r) => r[\"_field\"] == \"temperature\")\n  |> aggregateWindow(every: 30s, fn: mean, createEmpty: false)\n  |> map(fn: (r) => {\n    // Get time in Eastern timezone\n    tz = timezone.location(name: \"America/New_York\")\n    hour = date.hour(t: r._time, location: tz)\n    minute = date.minute(t: r._time, location: tz)\n    \n    // Calculate if lights should be ON (6:30 AM - 7:00 PM)\n    minutesSinceMidnight = hour * 60 + minute\n    lightsOn = minutesSinceMidnight >= 390 and minutesSinceMidnight < 1140\n    \n    return {r with _value: if lightsOn then 1.0 else 0.0, _field: \"Lights\"}\n  })\n  |> last()",
           "refId": "A"
         }
       ],
@@ -912,7 +1264,7 @@
         "h": 6,
         "w": 4,
         "x": 16,
-        "y": 38
+        "y": 41
       },
       "id": 205,
       "options": {
@@ -984,7 +1336,7 @@
         "h": 6,
         "w": 4,
         "x": 20,
-        "y": 38
+        "y": 41
       },
       "id": 206,
       "options": {
@@ -1015,6 +1367,403 @@
       ],
       "title": "\ud83c\udf2b\ufe0f CO2 EQUIV",
       "type": "gauge"
+    },
+    {
+      "collapsed": false,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 46
+      },
+      "id": 606,
+      "panels": [],
+      "title": "\ud83d\udca7 WATER MANAGEMENT STATUS",
+      "type": "row"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "State"
+            },
+            "properties": []
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 5,
+        "x": 0,
+        "y": 48
+      },
+      "id": 506,
+      "options": {
+        "alertInstanceLabelFilter": "",
+        "alertName": "",
+        "dashboardAlerts": false,
+        "dashboardTitle": "",
+        "groupBy": [],
+        "groupMode": "default",
+        "maxItems": 20,
+        "showInactiveAlerts": false,
+        "showOptions": "current",
+        "sortOrder": 3,
+        "stateFilter": {
+          "error": true,
+          "firing": true,
+          "noData": false,
+          "normal": false,
+          "pending": true,
+          "recovering": true
+        },
+        "tags": [],
+        "viewMode": "list"
+      },
+      "pluginVersion": "12.2.1",
+      "title": "\ud83d\udea8 Active Alerts & History",
+      "type": "alertlist"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "InfluxDB_Beeper"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 1,
+          "mappings": [],
+          "max": 28,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "orange",
+                "value": 5
+              },
+              {
+                "color": "yellow",
+                "value": 14
+              },
+              {
+                "color": "green",
+                "value": 22
+              }
+            ]
+          },
+          "unit": "cm"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 5,
+        "y": 48
+      },
+      "id": 603,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "text": {},
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB_Beeper"
+          },
+          "query": "from(bucket: \"sensors\")\n  |> range(start: -5m)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"topic\"] == \"beeper/water/tank\")\n  |> filter(fn: (r) => r[\"_field\"] == \"water_level_cm\")\n  |> last()",
+          "refId": "A"
+        }
+      ],
+      "title": "Water Level (cm)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "InfluxDB_Beeper"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "scheme",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "showValues": false,
+            "spanNulls": 300000,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 9,
+        "x": 11,
+        "y": 48
+      },
+      "id": 605,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB_Beeper"
+          },
+          "query": "from(bucket: \"sensors\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"topic\"] == \"beeper/water/tank\")\n  |> filter(fn: (r) => r[\"_field\"] == \"percent_full\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> map(fn: (r) => ({ r with _field: \"Water Level (%)\" }))",
+          "refId": "A"
+        }
+      ],
+      "title": "Water Level Timeline",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "InfluxDB_Beeper"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 1,
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "orange",
+                "value": 20
+              },
+              {
+                "color": "yellow",
+                "value": 50
+              },
+              {
+                "color": "green",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 4,
+        "x": 20,
+        "y": 48
+      },
+      "id": 602,
+      "options": {
+        "displayMode": "gradient",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "maxVizHeight": 300,
+        "minVizHeight": 10,
+        "minVizWidth": 0,
+        "namePlacement": "auto",
+        "orientation": "vertical",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "sizing": "auto",
+        "text": {},
+        "valueMode": "color"
+      },
+      "pluginVersion": "12.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB_Beeper"
+          },
+          "query": "from(bucket: \"sensors\")\n  |> range(start: -5m)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"topic\"] == \"beeper/water/tank\")\n  |> filter(fn: (r) => r[\"_field\"] == \"percent_full\")\n  |> last()",
+          "refId": "A"
+        }
+      ],
+      "title": "\ud83d\udca7 Water Level",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "InfluxDB_Beeper"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "options": {
+                "1": {
+                  "color": "green",
+                  "text": "\u2713 Online"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "0": {
+                  "color": "red",
+                  "text": "\u2717 Error"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "noValue": "\u26a0 Offline",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 5,
+        "y": 52
+      },
+      "id": 604,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "showThresholdLabels": false,
+        "showThresholdMarkers": false,
+        "text": {},
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB_Beeper"
+          },
+          "query": "from(bucket: \"sensors\")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"topic\"] == \"beeper/water/status\")\n  |> filter(fn: (r) => r[\"_field\"] == \"status\")\n  |> last()\n  |> map(fn: (r) => ({\n      r with\n      _value: if r._value == \"online\" then 1.0\n              else if r._value == \"error\" then 0.0\n              else -1.0\n    }))",
+          "refId": "A"
+        }
+      ],
+      "title": "Water Sensor Status",
+      "type": "stat"
     },
     {
       "collapsed": false,
@@ -2023,6 +2772,8 @@
             "mode": "thresholds"
           },
           "mappings": [],
+          "max": 20000,
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -2060,9 +2811,7 @@
               }
             ]
           },
-          "unit": "short",
-          "min": 0,
-          "max": 20000
+          "unit": "short"
         },
         "overrides": []
       },
@@ -2335,102 +3084,6 @@
       ],
       "title": "\u23f1\ufe0f EXPOSURE TIME",
       "type": "gauge"
-    },
-    {
-      "datasource": {
-        "type": "datasource",
-        "uid": "-- Grafana --"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "custom": {
-            "align": "left",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "inspect": false
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "State"
-            },
-            "properties": [
-              {
-                "id": "mappings",
-                "value": [
-                  {
-                    "options": {
-                      "Alerting": {
-                        "color": "red",
-                        "index": 0
-                      },
-                      "Normal": {
-                        "color": "green",
-                        "index": 1
-                      },
-                      "Pending": {
-                        "color": "yellow",
-                        "index": 2
-                      }
-                    },
-                    "type": "value"
-                  }
-                ]
-              },
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "type": "color-background"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 12,
-        "w": 24,
-        "x": 0,
-        "y": 44
-      },
-      "id": 506,
-      "options": {
-        "showOptions": "current",
-        "maxItems": 20,
-        "sortOrder": 3,
-        "dashboardAlerts": false,
-        "alertName": "",
-        "dashboardTitle": "",
-        "tags": [],
-        "stateFilter": {
-          "firing": true,
-          "pending": true,
-          "noData": false,
-          "normal": false,
-          "error": true
-        },
-        "alertInstanceLabelFilter": ""
-      },
-      "pluginVersion": "12.2.1",
-      "targets": [],
-      "title": "\ud83d\udea8 Active Alerts & History",
-      "type": "alertlist"
     }
   ],
   "preload": false,
@@ -2452,5 +3105,5 @@
   "timezone": "browser",
   "title": "Beeper Test Board - Complete",
   "uid": "beeperTestBoard",
-  "id": null
+  "version": 1
 }
