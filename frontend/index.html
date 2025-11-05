@@ -360,7 +360,7 @@
         const WEBRTC_BASE = '{{ webrtc_base }}';
 
         // Detect if we're on Cloudflare tunnel or local network
-        const isCloudflare = window.location.hostname.includes('goodsupply.farm') ||
+        const isCloudflare = window.location.hostname.includes('YOUR_DOMAIN.com') ||
                             window.location.hostname.includes('cloudflare');
         const useWebRTC = !isCloudflare && (window.location.hostname === 'FLASK_SERVER_IP' ||
                                            window.location.hostname === 'localhost');
@@ -845,10 +845,10 @@
     </script>
 
     <footer>
-        <p>Brought to you by the good folks at Good Supply Farm</p>
+        <p>BeeperKeeper - Open Source Chicken Coop Monitoring</p>
         <div style="display: flex; gap: 30px; justify-content: center; align-items: center;">
-            <a href="https://goodsupply.farm" target="_blank">
-                <img src="/static/images/tinyWaxer.png" alt="Good Supply Farm">
+            <a href="https://github.com/YOUR_USERNAME/beeperKeeper" target="_blank">
+                <img src="/static/images/tinyWaxer.png" alt="BeeperKeeper">
             </a>
             <div style="width: 1px; height: 80px; background: gold;"></div>
             <a href="https://chickenmatrix.work" target="_blank">

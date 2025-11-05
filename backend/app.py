@@ -6,7 +6,7 @@ BEEPER KEEPER v2.0 - Streamlined Camera Monitoring System
 HLS-based dual camera streaming with BME680 sensor integration
 and real-time metrics via MQTT.
 
-Author: z3r0-c001
+Author: BeeperKeeper Contributors
 """
 
 from flask import Flask, render_template, jsonify, Response, request
@@ -194,7 +194,7 @@ def get_base_url():
     """Dynamically determine base URL based on request"""
     # If accessing via Cloudflare domain or localhost, use relative URLs
     host = request.host.lower()
-    if 'goodsupply.farm' in host or 'localhost' in host or '127.0.0.1' in host:
+    if 'YOUR_DOMAIN.com' in host or 'localhost' in host or '127.0.0.1' in host:
         # Return empty string to use relative URLs (which stay within Cloudflare tunnel)
         return ''
     else:
