@@ -8,7 +8,7 @@ import json
 import re
 
 STREAM_FILE = '/tmp/camera_metadata_stream.txt'
-OUTPUT_FILE = '/tmp/camera_metadata.json'
+OUTPUT_FILE = '/var/tmp/camera_metadata.json'
 
 print("📷 Camera metadata updater started")
 print(f"Reading from: {STREAM_FILE}")

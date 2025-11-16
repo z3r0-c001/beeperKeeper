@@ -1,0 +1,41 @@
+# /etc/systemd/system/mediamtx.service
+# BeeperKeeper MediaMTX Streaming Server
+# Handles RTSP/HLS/WebRTC camera streams
+#
+# FIXED: 2025-11-05 - Ordering cycle resolution
+# Changed from network.target to network-online.target to fix boot-time ordering cycle
+# Reference: SERVICE_STARTUP_FAILURE_ANALYSIS_2025-11-05.md
+
+[Unit]
+Description=MediaMTX RTSP/HLS/WebRTC Server for Beeper Keeper
+Documentation=https://github.com/bluenviron/mediamtx
+# CRITICAL: Use network-online.target instead of network.target
+# This waits for actual network connectivity, not just network subsystem init
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi_user
+Group=video
+WorkingDirectory=/opt/beeperKeeper/config
+ExecStart=/usr/local/bin/mediamtx /opt/beeperKeeper/config/mediamtx.yml
+Restart=always
+RestartSec=5
+
+# Resource limits
+CPUQuota=80%
+MemoryMax=512M
+TasksMax=100
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=mediamtx
+
+# Environment
+Environment="MEDIAMTX_LOGLEVEL=info"
+
+[Install]
+# WantedBy=multi-user.target is fine here - network-online.target breaks the cycle
+WantedBy=multi-user.target

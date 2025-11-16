@@ -41,7 +41,7 @@
     <script>
         const video = document.getElementById('video');
         const status = document.getElementById('status');
-        const streamUrl = 'http://YOUR_PI_IP:8080/csi_camera/index.m3u8';
+        const streamUrl = 'http://10.10.10.28:8080/csi_camera/index.m3u8';
 
         if (Hls.isSupported()) {
             status.textContent = 'Initializing HLS player...';

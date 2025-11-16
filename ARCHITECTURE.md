@@ -24,7 +24,7 @@ Complete rebuild of camera monitoring system using HLS streaming protocol for ma
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────────┐
-│                    RASPBERRY PI 3B+ (YOUR_PI_IP)                            │
+│                    RASPBERRY PI 3B+ (10.10.10.28)                            │
 ├──────────────────────────────────────────────────────────────────────────────┤
 │                                                                              │
 │  ┌─────────────┐        ┌─────────────┐        ┌──────────────┐           │
@@ -53,10 +53,10 @@ Complete rebuild of camera monitoring system using HLS streaming protocol for ma
 └───────────────────────────────────────────────────────┼────────────────────┘
                                                         │
                            ┌────────────────────────────┘
-                           │ MQTT Topics (tcp://YOUR_MQTT_BROKER_IP:1883)
+                           │ MQTT Topics (tcp://10.10.10.7:1883)
                            ▼
 ┌──────────────────────────────────────────────────────────────────────────────┐
-│                       MONITORING SERVER (YOUR_MQTT_BROKER_IP)                         │
+│                       MONITORING SERVER (10.10.10.7)                         │
 ├──────────────────────────────────────────────────────────────────────────────┤
 │                                                                              │
 │  ┌─────────────────┐      ┌──────────────┐      ┌──────────────┐           │
@@ -98,12 +98,12 @@ Complete rebuild of camera monitoring system using HLS streaming protocol for ma
 - ✗ Higher latency (2-6 seconds vs WebRTC's 200-500ms)
 
 ### HLS Endpoints
-- CSI Camera: `http://YOUR_PI_IP:8888/csi_camera/index.m3u8`
-- USB Camera: `http://YOUR_PI_IP:8888/usb_camera/index.m3u8`
+- CSI Camera: `http://10.10.10.28:8888/csi_camera/index.m3u8`
+- USB Camera: `http://10.10.10.28:8888/usb_camera/index.m3u8`
 
 ## Application Stack
 
-### Backend (Raspberry Pi YOUR_PI_IP)
+### Backend (Raspberry Pi 10.10.10.28)
 - **MediaMTX**: RTSP → HLS transcoding
 - **rpicam-vid**: CSI camera capture
 - **ffmpeg**: USB camera capture & encoding
@@ -118,7 +118,7 @@ Complete rebuild of camera monitoring system using HLS streaming protocol for ma
 
 ## Sensor Data Integration
 
-### MQTT Topics (Published to YOUR_MQTT_BROKER_IP:1883)
+### MQTT Topics (Published to 10.10.10.7:1883)
 
 **Environmental (BME680):**
 - `beeper/sensors/bme680/temperature` - Temperature (°C)
@@ -211,4 +211,4 @@ ffmpeg \
 
 ## Deployment
 
-The application will be deployed on Raspberry Pi 3B+ at YOUR_PI_IP and served via Cloudflare tunnel for external access.
+The application will be deployed on Raspberry Pi 3B+ at 10.10.10.28 and served via Cloudflare tunnel for external access.

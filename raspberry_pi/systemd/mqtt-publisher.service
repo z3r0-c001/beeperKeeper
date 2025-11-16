@@ -1,0 +1,38 @@
+# /etc/systemd/system/mqtt-publisher.service
+# BeeperKeeper MQTT Publisher Service
+# Publishes sensor data from BME680 to MQTT broker
+#
+# FIXED: 2025-11-05 - Ordering cycle resolution
+# Changed from network.target to network-online.target to fix boot-time ordering cycle
+# Reference: SERVICE_STARTUP_FAILURE_ANALYSIS_2025-11-05.md
+
+[Unit]
+Description=MQTT Publisher for Beeper Keeper Sensors
+Documentation=https://github.com/your_github_username/beeperKeeper
+# CRITICAL: Use network-online.target instead of network.target
+# This waits for actual network connectivity, not just network subsystem init
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi_user
+Group=pi_user
+WorkingDirectory=/opt/beeperKeeper
+ExecStart=/usr/bin/python3 -u /opt/beeperKeeper/mqtt_publisher.py
+Restart=always
+RestartSec=10
+
+# Resource limits
+CPUQuota=15%
+MemoryMax=128M
+TasksMax=25
+
+# Logging
+StandardOutput=append:/opt/beeperKeeper/logs/mqtt_publisher.log
+StandardError=append:/opt/beeperKeeper/logs/mqtt_publisher.log
+SyslogIdentifier=mqtt-publisher
+
+[Install]
+# WantedBy=multi-user.target is fine here - network-online.target breaks the cycle
+WantedBy=multi-user.target

@@ -1,0 +1,43 @@
+# /etc/systemd/system/flask-app.service
+# BeeperKeeper Flask Web Application
+# Web interface for camera streams and system status
+#
+# FIXED: 2025-11-05 - Ordering cycle resolution
+# Changed from network.target to network-online.target to fix boot-time ordering cycle
+# Reference: SERVICE_STARTUP_FAILURE_ANALYSIS_2025-11-05.md
+
+[Unit]
+Description=Beeper Keeper Flask Web Application
+Documentation=https://github.com/your_github_username/beeperKeeper
+# CRITICAL: Use network-online.target instead of network.target
+# This waits for actual network connectivity, not just network subsystem init
+# Depends on mediamtx being started first for camera stream integration
+After=network-online.target mediamtx.service
+Wants=network-online.target mediamtx.service
+
+[Service]
+Type=simple
+User=pi_user
+Group=pi_user
+WorkingDirectory=/opt/beeperKeeper
+ExecStart=/usr/bin/python3 -u /opt/beeperKeeper/app.py
+Restart=always
+RestartSec=10
+
+# Resource limits
+CPUQuota=50%
+MemoryMax=256M
+TasksMax=50
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=flask-app
+
+# Environment
+Environment="PYTHONUNBUFFERED=1"
+Environment="FLASK_ENV=production"
+
+[Install]
+# WantedBy=multi-user.target is fine here - network-online.target breaks the cycle
+WantedBy=multi-user.target

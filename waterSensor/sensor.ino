@@ -24,10 +24,10 @@
 
 // WiFi Configuration
 const char* ssid = "YOUR_WIFI_SSID";
-const char* password = "(*U_2181Kha@!";
+const char* password = "YOUR_WIFI_PASSWORD";
 
 // MQTT Configuration
-const char* mqtt_server = "YOUR_MQTT_BROKER_IP";
+const char* mqtt_server = "10.10.10.7";
 const int mqtt_port = 1883;
 const char* mqtt_client_id = "ESP32_WaterLevel";
 
@@ -55,6 +55,8 @@ WiFiClient espClient;
 PubSubClient client(espClient);
 
 unsigned long lastMsg = 0;
+const long statusPublishInterval = 300000;  // Status heartbeat every 5 minutes
+unsigned long lastStatusMsg = 0;
 int consecutiveErrors = 0;
 unsigned long bootCount = 0;
 
@@ -178,6 +180,12 @@ void loop() {
       }
     }
   }
+
+  // Periodic status heartbeat (every 5 minutes)
+  if (now - lastStatusMsg > statusPublishInterval) {
+    lastStatusMsg = now;
+    publishStatusHeartbeat();
+  }
 }
 
 void setupWiFi() {
@@ -216,7 +224,7 @@ void setupOTA() {
   ArduinoOTA.setHostname("ESP32-WaterLevel");
 
   // Password for OTA (CHANGE THIS!)
-  ArduinoOTA.setPassword("YOUR_OTA_PASSWORD");
+  ArduinoOTA.setPassword("beeper2025");
 
   // Port for OTA (default 3232)
   ArduinoOTA.setPort(3232);
@@ -273,14 +281,16 @@ void reconnectMQTT() {
       Serial.println(" ✓ connected");
 
       // Publish online status
-      StaticJsonDocument<128> statusDoc;
+      StaticJsonDocument<192> statusDoc;  // Increased buffer for additional fields
       statusDoc["status"] = "online";
       statusDoc["boot_count"] = bootCount;
       statusDoc["rssi"] = WiFi.RSSI();
       statusDoc["ip"] = WiFi.localIP().toString();
       statusDoc["timestamp"] = getUnixTime();
+      statusDoc["sensor_type"] = "water_level";  // ADD - for tag consistency
+      statusDoc["location"] = "coop_main";        // ADD - for tag consistency
 
-      char buffer[128];
+      char buffer[192];  // Match buffer size
       serializeJson(statusDoc, buffer);
       client.publish(topic_status, buffer, true);  // retained=true
 
@@ -335,6 +345,24 @@ void publishError(const char* errorType) {
   char buffer[256];
   serializeJson(doc, buffer);
   client.publish(topic_status, buffer);
+}
+
+void publishStatusHeartbeat() {
+  StaticJsonDocument<192> statusDoc;
+  statusDoc["status"] = "online";
+  statusDoc["boot_count"] = bootCount;
+  statusDoc["rssi"] = WiFi.RSSI();
+  statusDoc["ip"] = WiFi.localIP().toString();
+  statusDoc["timestamp"] = getUnixTime();
+  statusDoc["sensor_type"] = "water_level";
+  statusDoc["location"] = "coop_main";
+
+  char buffer[192];
+  serializeJson(statusDoc, buffer);
+
+  if (client.publish(topic_status, buffer, true)) {
+    Serial.println("📡 Status heartbeat published");
+  }
 }
 
 float measureDistanceAverage() {

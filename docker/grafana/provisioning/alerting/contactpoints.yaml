@@ -7,5 +7,8 @@ contactPoints:
       - uid: email_alerts
         type: email
         settings:
-          addresses: alerts@example.com;user1@example.com;user2@example.com
+          addresses: farmer@YOUR_WEBSITE
         disableResolveMessage: false
+  - orgId: 1
+    name: No Notifications
+    receivers: []

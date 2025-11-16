@@ -26,7 +26,7 @@ services:
     environment:
       - DOCKER_INFLUXDB_INIT_MODE=setup
       - DOCKER_INFLUXDB_INIT_USERNAME=admin
-      - DOCKER_INFLUXDB_INIT_PASSWORD=beeperkeeper2024
+      - DOCKER_INFLUXDB_INIT_PASSWORD=${INFLUXDB_PASSWORD:-change-this-password}
       - DOCKER_INFLUXDB_INIT_ORG=beeperkeeper
       - DOCKER_INFLUXDB_INIT_BUCKET=sensors
       - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=beeper-admin-token-change-this-in-production
@@ -61,7 +61,7 @@ services:
       - "3000:3000"
     environment:
       - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=beeperkeeper
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-change-this-password}
       - GF_INSTALL_PLUGINS=
       # SMTP / Email Configuration
       - GF_SMTP_ENABLED=${GF_SMTP_ENABLED:-false}

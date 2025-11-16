@@ -11,7 +11,7 @@ datasources:
       defaultBucket: sensors
       tlsSkipVerify: true
     secureJsonData:
-      token: beeper-admin-token-change-this-in-production
+      token: ${INFLUXDB_ADMIN_TOKEN}
     uid: InfluxDB_Beeper
     isDefault: true
-    editable: false
+    editable: true

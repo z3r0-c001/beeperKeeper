@@ -1,0 +1,26 @@
+# ALSA Configuration for eMeet C980 Pro 4K
+# Enables shared microphone access for ffmpeg streaming + MQTT audio monitoring
+
+pcm.dsnoop_emeet {
+    type dsnoop
+    ipc_key 5978294
+    ipc_perm 0666
+    slave {
+        pcm "hw:1,0"  # eMeet is card 1
+        channels 1     # eMeet mic reports 1 channel
+        rate 16000     # eMeet native sample rate
+        format S16_LE
+    }
+}
+
+# Make dsnoop_emeet the default capture device for ease of use
+pcm.!default {
+    type asym
+    playback.pcm "hw:1,0"  # eMeet speakers
+    capture.pcm "dsnoop_emeet"
+}
+
+ctl.!default {
+    type hw
+    card 1  # eMeet control
+}

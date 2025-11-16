@@ -1,12 +1,11 @@
 #!/bin/bash
-# BEEPER KEEPER v2.0 - CSI Camera Capture Script with Metadata
+# BEEPER KEEPER v2.0 - CSI Camera Capture Script
 # OV5647 Camera Module @ 1920x1080 30fps with hardware H.264 encoding
-# Exports metadata to /tmp/camera_metadata_stream.txt for MQTT publishing
 
-echo "[CSI Camera v2.0] Starting OV5647 camera stream with metadata..." >&2
+echo "[CSI Camera v2.0] Starting OV5647 camera stream..." >&2
 
 # Use rpicam-vid (libcamera) for Pi 4 with hardware H.264 encoding
-# Output video to stdout, metadata to file
+# Output to stdout, then pipe to ffmpeg for RTSP publishing
 exec rpicam-vid \
     --timeout 0 \
     --width 1920 \
@@ -20,8 +19,6 @@ exec rpicam-vid \
     --inline \
     --flush \
     --nopreview \
-    --metadata /tmp/camera_metadata_stream.txt \
-    --metadata-format json \
     -o - | \
 ffmpeg \
     -use_wallclock_as_timestamps 1 \
