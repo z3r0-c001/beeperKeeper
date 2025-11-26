@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -359,12 +360,30 @@
             }
         }
 
+        /* Info Cards Container (Countdown + Weather side by side) */
+        .info-cards-wrapper {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 0 auto 25px;
+            max-width: 1200px;
+            position: relative;
+            z-index: 1;
+        }
+
+        @media (max-width: 1024px) {
+            .info-cards-wrapper {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
         /* Countdown Timer Styles */
         .countdown-container {
             position: relative;
             z-index: 1;
-            max-width: 600px;
-            margin: 0 auto 25px;
+            flex: 1;
+            max-width: 550px;
         }
 
         .countdown-card {
@@ -464,6 +483,138 @@
             font-size: 0.9rem;
             color: #cbd5e1;
             margin-top: 10px;
+        }
+
+        /* Weather Card Styles */
+        .weather-container {
+            position: relative;
+            z-index: 1;
+            flex: 1;
+            max-width: 550px;
+        }
+
+        .weather-card {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+            border: 2px solid #60a5fa;
+            background: rgba(96, 165, 250, 0.08);
+            height: 100%;
+        }
+
+        .weather-label {
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+            color: #60a5fa;
+        }
+
+        .weather-current {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .weather-temp-main {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #60a5fa;
+            line-height: 1;
+        }
+
+        .weather-icon {
+            font-size: 3.75rem;
+        }
+
+        .weather-condition {
+            text-align: center;
+            color: #cbd5e1;
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+
+        .weather-details {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            font-size: 0.9rem;
+            color: #94a3b8;
+            margin-bottom: 15px;
+        }
+
+        .weather-forecast {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .forecast-day {
+            flex: 1;
+            text-align: center;
+            padding: 12px 6px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+        }
+
+        .forecast-day-name {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .forecast-icon {
+            font-size: 48px;
+            line-height: 1;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .forecast-temp {
+            font-size: 0.9rem;
+            color: #f1f5f9;
+            font-weight: 600;
+        }
+
+        .forecast-temp-low {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        .weather-loading {
+            text-align: center;
+            color: #64748b;
+            padding: 40px 20px;
+        }
+
+        .weather-updated {
+            text-align: center;
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 480px) {
+            .weather-temp-main {
+                font-size: 2.5rem;
+            }
+
+            .weather-forecast {
+                flex-wrap: wrap;
+            }
+
+            .forecast-day {
+                min-width: 60px;
+            }
         }
 
         /* Email Alert Subscription Form */
@@ -720,56 +871,71 @@
         <img src="/static/images/beeperKeeper.png" alt="Beeper Keeper 10000" class="header-logo">
     </div>
 
-    <!-- Countdown Timer -->
-    <div class="countdown-container">
-        <div id="countdownCard" class="countdown-card phase-day">
-            <div id="countdownLabel" class="countdown-label">
-                <span id="countdownEmoji">🌙</span> COUNTDOWN TO LIGHTS OUT
-            </div>
-            <div class="countdown-display">
-                <div class="countdown-unit">
-                    <div id="countdownHours" class="countdown-number">--</div>
-                    <div class="countdown-text">Hours</div>
+    <!-- Info Cards: Countdown Timer + Weather -->
+    <div class="info-cards-wrapper">
+        <!-- Countdown Timer -->
+        <div class="countdown-container">
+            <div id="countdownCard" class="countdown-card phase-day">
+                <div id="countdownLabel" class="countdown-label">
+                    <span id="countdownEmoji">🌙</span> COUNTDOWN TO LIGHTS OUT
                 </div>
-                <div class="countdown-unit">
-                    <div id="countdownMinutes" class="countdown-number">--</div>
-                    <div class="countdown-text">Minutes</div>
-                </div>
-                <div class="countdown-unit">
-                    <div id="countdownSeconds" class="countdown-number">--</div>
-                    <div class="countdown-text">Seconds</div>
-                </div>
-            </div>
-            <div class="countdown-progress-container">
-                <div id="countdownProgressBar" class="countdown-progress-bar" style="width: 0%"></div>
-            </div>
-            <div id="countdownTarget" class="countdown-target">Target: 7:00 PM</div>
-
-            <!-- Email Alert Subscription Form -->
-            <div class="alert-subscription">
-                <h3>Get Email Alerts</h3>
-                <form class="alert-form" id="alertSubscriptionForm" onsubmit="handleAlertSubscription(event)">
-                    <input
-                        type="email"
-                        id="alertEmail"
-                        placeholder="Enter your email address"
-                        required
-                    >
-                    <div class="checkbox-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="alertLightsOn" name="alert_on">
-                            <span>Alert 15 min before lights ON (6:15 AM)</span>
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="alertLightsOff" name="alert_off">
-                            <span>Alert 15 min before lights OFF (6:45 PM)</span>
-                        </label>
+                <div class="countdown-display">
+                    <div class="countdown-unit">
+                        <div id="countdownHours" class="countdown-number">--</div>
+                        <div class="countdown-text">Hours</div>
                     </div>
-                    <button type="submit" class="btn-subscribe" id="subscribeBtn">
-                        Subscribe to Alerts
-                    </button>
-                    <div id="alertMessage" class="alert-message" style="display: none;"></div>
-                </form>
+                    <div class="countdown-unit">
+                        <div id="countdownMinutes" class="countdown-number">--</div>
+                        <div class="countdown-text">Minutes</div>
+                    </div>
+                    <div class="countdown-unit">
+                        <div id="countdownSeconds" class="countdown-number">--</div>
+                        <div class="countdown-text">Seconds</div>
+                    </div>
+                </div>
+                <div class="countdown-progress-container">
+                    <div id="countdownProgressBar" class="countdown-progress-bar" style="width: 0%"></div>
+                </div>
+                <div id="countdownTarget" class="countdown-target">Target: 7:00 PM</div>
+
+                <!-- Email Alert Subscription Form -->
+                <div class="alert-subscription">
+                    <h3>Get Email Alerts</h3>
+                    <form class="alert-form" id="alertSubscriptionForm" onsubmit="handleAlertSubscription(event)">
+                        <input
+                            type="email"
+                            id="alertEmail"
+                            placeholder="Enter your email address"
+                            required
+                        >
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="alertLightsOn" name="alert_on">
+                                <span>Alert 15 min before lights ON (6:15 AM)</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="alertLightsOff" name="alert_off">
+                                <span>Alert 15 min before lights OFF (6:45 PM)</span>
+                            </label>
+                        </div>
+                        <button type="submit" class="btn-subscribe" id="subscribeBtn">
+                            Subscribe to Alerts
+                        </button>
+                        <div id="alertMessage" class="alert-message" style="display: none;"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weather Card -->
+        <div class="weather-container">
+            <div class="weather-card">
+                <div class="weather-label">
+                    <span>🌤️</span> WEATHER FORECAST
+                </div>
+                <div id="weatherContent">
+                    <div class="weather-loading">Loading weather data...</div>
+                </div>
             </div>
         </div>
     </div>
@@ -828,7 +994,7 @@
         </div>
 
         <div class="card">
-            <h2>Water Tank</h2>
+            <h2>Food and Water Monitor</h2>
             <div id="waterTank">Loading...</div>
         </div>
     </div>
@@ -844,13 +1010,13 @@
         console.log('[BeeperKeeper] Loading v2.0-HYBRID (2024-11-06)');
 
         let currentView = 'dual';
-        const HLS_BASE = '{{ hls_base }}';
-        const WEBRTC_BASE = '{{ webrtc_base }}';
+        const HLS_BASE = '';
+        const WEBRTC_BASE = 'http://10.10.10.28:8889';
         let autoplayBlocked = false; // Track if autoplay was blocked
         let streamsInitialized = false; // Track if streams were initialized
 
         // Detect if we're on Cloudflare tunnel or local network
-        const isCloudflare = window.location.hostname.includes('YOUR_WEBSITE') ||
+        const isCloudflare = window.location.hostname.includes('YOUR_DOMAIN') ||
                             window.location.hostname.includes('cloudflare');
         const useWebRTC = !isCloudflare && (window.location.hostname === '10.10.10.28' ||
                                            window.location.hostname === 'localhost');
@@ -897,6 +1063,54 @@
         }
 
 
+        // Show warning when browser blocks audio auto-unmute (HTTP restriction)
+        function showAudioBlockedWarning() {
+            const usbContainer = document.getElementById('usbContainer');
+            const usbVideo = document.getElementById('usbVideo');
+
+            // Create warning banner
+            const warning = document.createElement('div');
+            warning.id = 'audioBlockedWarning';
+            warning.innerHTML = '🔇 Audio is muted. Click the video to enable sound.';
+            warning.style.cssText = `
+                position: absolute;
+                top: 50px;
+                left: 10px;
+                right: 10px;
+                background: rgba(239, 68, 68, 0.95);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                font-weight: 600;
+                font-size: 0.95em;
+                z-index: 20;
+                text-align: center;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+                cursor: pointer;
+            `;
+
+            usbContainer.appendChild(warning);
+            console.log('⚠ Audio auto-unmute blocked by browser (HTTP restriction)');
+
+            // Click video to unmute
+            const unmuteHandler = () => {
+                usbVideo.muted = false;
+                warning.remove();
+                usbVideo.removeEventListener('click', unmuteHandler);
+                console.log('✓ Audio unmuted via user click');
+            };
+
+            usbVideo.addEventListener('click', unmuteHandler);
+
+            // Click warning banner to unmute
+            warning.addEventListener('click', () => {
+                usbVideo.muted = false;
+                warning.remove();
+                usbVideo.removeEventListener('click', unmuteHandler);
+                console.log('✓ Audio unmuted via banner click');
+            });
+        }
+
         // Initialize streams based on access method
         async function initStreams() {
             if (useWebRTC) {
@@ -940,13 +1154,14 @@
                     xhrSetup: function(xhr, url) {
                         xhr.withCredentials = true;
                         xhr.setRequestHeader('CF-Access-Client-Id', 'cb5a20abf');
-                        xhr.setRequestHeader('CF-Access-Client-Secret', 'a9244fcf740620e7838607af43b46149b0f042f052211a11ee85fce719e9710fca77fa17572d1a329b3ef59.access');
+                        xhr.setRequestHeader('CF-Access-Client-Secret', 'YOUR_CF_ACCESS_CLIENT_SECRET');
                         xhr.timeout = isMobile ? 15000 : 10000;  // Longer timeout on mobile (cellular latency)
                     }
                 };
 
                 console.log('HLS config:', isMobile ? 'Mobile-optimized' : 'Desktop');
-                const csiHls = new Hls(hlsConfig);
+                window.csiHls = new Hls(hlsConfig);
+                const csiHls = window.csiHls;
                 csiHls.loadSource(HLS_BASE + '/csi_camera/index.m3u8');
                 csiHls.attachMedia(csiVideo);
 
@@ -969,7 +1184,8 @@
 
                 // USB camera uses same mobile-optimized config + audio auto-load
                 const usbHlsConfig = {...hlsConfig, autoStartLoad: true};  // Ensure audio track loads automatically
-                const usbHls = new Hls(usbHlsConfig);
+                window.usbHls = new Hls(usbHlsConfig);
+                const usbHls = window.usbHls;
                 usbHls.loadSource(HLS_BASE + '/usb_camera/index.m3u8');
                 usbHls.attachMedia(usbVideo);
 
@@ -992,7 +1208,17 @@
                         // Try to unmute after successful play
                         setTimeout(() => {
                             usbVideo.muted = false;
-                            console.log('✓ USB video unmuted (audio should play)');
+                            console.log('✓ USB video auto-unmute attempted');
+
+                            // Verify unmute succeeded (browser may block on HTTP)
+                            setTimeout(() => {
+                                if (usbVideo.muted) {
+                                    // Auto-unmute was blocked - show warning
+                                    showAudioBlockedWarning();
+                                } else {
+                                    console.log('✓ Audio unmuted successfully (audio should play)');
+                                }
+                            }, 100);
                         }, 500);
                     }).catch(err => {
                         console.log('USB autoplay prevented:', err);
@@ -1013,6 +1239,7 @@
                 });
 
                 console.log('✓ HLS streams initialized');
+                startStreamSync();  // Start sync for HLS mode too
             } else if (csiVideo.canPlayType('application/vnd.apple.mpegurl')) {
                 csiVideo.src = HLS_BASE + '/csi_camera/index.m3u8';
                 usbVideo.src = HLS_BASE + '/usb_camera/index.m3u8';
@@ -1025,6 +1252,50 @@
             await startWebRTC('csiVideo', WEBRTC_BASE + '/csi_camera/whep', false);  // CSI: video only
             await startWebRTC('usbVideo', WEBRTC_BASE + '/usb_camera/whep', true);   // USB: video + audio (enabled)
             console.log('✓ WebRTC streams initialized');
+
+            // Start stream sync checker
+            startStreamSync();
+        }
+
+        // Sync both video streams to minimize drift
+        function startStreamSync() {
+            const csiVideo = document.getElementById('csiVideo');
+            const usbVideo = document.getElementById('usbVideo');
+
+            // Sync every 30 seconds - reset both streams to live edge
+            setInterval(() => {
+                if (csiVideo.readyState >= 2 && usbVideo.readyState >= 2) {
+                    // For WebRTC, we can't seek, but we can check buffered range
+                    // Just ensure both are playing and not stalled
+                    if (csiVideo.paused) csiVideo.play().catch(() => {});
+                    if (usbVideo.paused) usbVideo.play().catch(() => {});
+                }
+            }, 30000);
+
+            // For HLS, sync to live edge more aggressively
+            if (typeof Hls !== 'undefined') {
+                setInterval(() => {
+                    // Sync HLS streams to live edge if drift detected
+                    if (window.csiHls && window.usbHls) {
+                        const csiLatency = window.csiHls.latency || 0;
+                        const usbLatency = window.usbHls.latency || 0;
+                        const drift = Math.abs(csiLatency - usbLatency);
+
+                        if (drift > 3) {  // More than 3 seconds drift
+                            console.log(`Stream drift detected: ${drift.toFixed(1)}s - resyncing`);
+                            // Jump both to live edge
+                            if (csiVideo.duration && isFinite(csiVideo.duration)) {
+                                csiVideo.currentTime = csiVideo.duration - 0.5;
+                            }
+                            if (usbVideo.duration && isFinite(usbVideo.duration)) {
+                                usbVideo.currentTime = usbVideo.duration - 0.5;
+                            }
+                        }
+                    }
+                }, 10000);
+            }
+
+            console.log('✓ Stream sync started');
         }
 
         async function startWebRTC(videoElementId, whepUrl, hasAudio = true) {
@@ -1216,22 +1487,22 @@
                                 <span style="color: #3b82f6; font-weight: bold;">${msg.username}</span>
                                 <span style="color: #64748b; font-size: 0.85em; margin-left: 8px;">${timeStr}</span>
                                 ${deleteBtn}
-                                <div style="color: #f1f5f9; margin-left: 20px;">${escapeHtml(msg.message)}</div>
+                                <div style="color: #f1f5f9; margin-left: 20px;">${msg.message}</div>
                             </div>
                         `;
                     });
 
+                    // Check if user was scrolled near bottom before updating (within 100px)
+                    const wasAtBottom = messagesDiv.scrollHeight - messagesDiv.scrollTop - messagesDiv.clientHeight < 100;
+
                     messagesDiv.innerHTML = html;
-                    // Auto-scroll to bottom
-                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+                    // Only auto-scroll if user was already at bottom
+                    if (wasAtBottom) {
+                        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                    }
                 })
                 .catch(error => console.error('Error fetching messages:', error));
-        }
-
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
         }
 
         function getCurrentUsername() {
@@ -1384,10 +1655,30 @@
 
                         if (env.calibration_status === 'calibrating') {
                             const progress = env.calibration_progress || 0;
+                            const accuracy = env.iaq_accuracy || 0;
+                            const dayLabel = env.calibration_day_label || 'Calibrating';
+
+                            // Map accuracy to visual indicators (stars)
+                            const accuracyStars = '★'.repeat(accuracy) + '☆'.repeat(3 - accuracy);
+
+                            // Determine accuracy level text
+                            let accuracyText = 'Stabilizing';
+                            if (accuracy === 1) accuracyText = 'Low';
+                            else if (accuracy === 2) accuracyText = 'Medium';
+                            else if (accuracy === 3) accuracyText = 'High';
+
                             envHtml += `
                                 <div class="metric">
-                                    <span class="metric-label">IAQ Status</span>
-                                    <span class="metric-value status-warn">Calibrating ${progress}%</span>
+                                    <span class="metric-label">🔄 BSEC Calibration</span>
+                                    <span class="metric-value status-warn">${dayLabel}</span>
+                                </div>
+                                <div class="metric">
+                                    <span class="metric-label">Time Progress</span>
+                                    <span class="metric-value status-warn">${progress}%</span>
+                                </div>
+                                <div class="metric">
+                                    <span class="metric-label">Accuracy Level</span>
+                                    <span class="metric-value status-warn">${accuracyStars} ${accuracyText}</span>
                                 </div>
                                 <div class="metric">
                                     <span class="metric-label">Gas (Raw)</span>
@@ -1395,7 +1686,15 @@
                                 </div>
                             `;
                         } else {
+                            // Calibration complete - show full IAQ data
+                            const accuracy = env.iaq_accuracy || 3;
+                            const accuracyStars = '★'.repeat(3);
+
                             envHtml += `
+                                <div class="metric">
+                                    <span class="metric-label">✓ BSEC Status</span>
+                                    <span class="metric-value status-good">Calibrated ${accuracyStars}</span>
+                                </div>
                                 <div class="metric">
                                     <span class="metric-label">Air Quality (IAQ)</span>
                                     <span class="metric-value ${iaq_class}">${env.iaq !== null ? env.iaq : 'N/A'}</span>
@@ -1436,51 +1735,97 @@
                     }
                     document.getElementById('envSensors').innerHTML = envHtml;
 
-                    // Water Tank
+                    // Food and Water Monitor
                     const water = data.water || {};
+                    const food = data.food || {};
                     let waterHtml = '';
-                    if (Object.keys(water).length === 0 || !water.percent_full) {
-                        waterHtml = '<div class="metric status-warn">No water data</div>';
-                    } else {
-                        const percent = water.percent_full || 0;
-                        const status = water.status || 'unknown';
 
-                        // Determine status class and bar class
-                        let status_class = 'status-good';
-                        let bar_class = '';
-                        if (status === 'error' || status === 'offline') {
-                            status_class = 'status-error';
-                        } else if (percent < 20) {
-                            bar_class = 'low';
-                            status_class = 'status-error';
-                        } else if (percent < 50) {
-                            bar_class = 'medium';
-                            status_class = 'status-warn';
+                    // Check if we have any data at all
+                    const hasWaterData = Object.keys(water).length > 0 && water.percent_full !== undefined;
+                    const hasFoodData = Object.keys(food).length > 0 && food.percentage !== undefined;
+
+                    if (!hasWaterData && !hasFoodData) {
+                        waterHtml = '<div class="metric status-warn">No sensor data available</div>';
+                    } else {
+                        // Food Level Section
+                        if (hasFoodData) {
+                            const foodPercent = food.percentage || 0;
+                            const foodStatus = food.level || 'unknown';
+
+                            let foodBarClass = '';
+                            let foodStatusClass = 'status-good';
+                            if (foodPercent < 20 || foodStatus === 'EMPTY') {
+                                foodBarClass = 'low';
+                                foodStatusClass = 'status-error';
+                            } else if (foodPercent < 50 || foodStatus === 'LOW') {
+                                foodBarClass = 'medium';
+                                foodStatusClass = 'status-warn';
+                            }
+
+                            waterHtml += `
+                                <div style="margin-bottom: 20px;">
+                                    <div style="font-weight: bold; color: #60a5fa; margin-bottom: 8px;">🌾 Food Level</div>
+                                    <div class="water-level-bar">
+                                        <div class="water-level-fill ${foodBarClass}" style="width: ${foodPercent}%">
+                                            ${foodPercent.toFixed(1)}%
+                                        </div>
+                                    </div>
+                                    <div class="metric">
+                                        <span class="metric-label">Level Status</span>
+                                        <span class="metric-value ${foodStatusClass}">${foodStatus}</span>
+                                    </div>
+                                </div>
+                            `;
+                        } else {
+                            waterHtml += '<div class="metric status-warn">Food sensor: No data</div>';
                         }
 
-                        waterHtml = `
-                            <div class="water-level-bar">
-                                <div class="water-level-fill ${bar_class}" style="width: ${percent}%">
-                                    ${percent.toFixed(1)}%
+                        // Water Level Section
+                        if (hasWaterData) {
+                            const waterPercent = water.percent_full || 0;
+                            const waterStatus = water.status || 'unknown';
+
+                            let waterBarClass = '';
+                            let waterStatusClass = 'status-good';
+                            if (waterStatus === 'error' || waterStatus === 'offline') {
+                                waterStatusClass = 'status-error';
+                            } else if (waterPercent < 20) {
+                                waterBarClass = 'low';
+                                waterStatusClass = 'status-error';
+                            } else if (waterPercent < 50) {
+                                waterBarClass = 'medium';
+                                waterStatusClass = 'status-warn';
+                            }
+
+                            waterHtml += `
+                                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
+                                    <div style="font-weight: bold; color: #60a5fa; margin-bottom: 8px;">💧 Water Level</div>
+                                    <div class="water-level-bar">
+                                        <div class="water-level-fill ${waterBarClass}" style="width: ${waterPercent}%">
+                                            ${waterPercent.toFixed(1)}%
+                                        </div>
+                                    </div>
+                                    <div class="metric">
+                                        <span class="metric-label">Water Level</span>
+                                        <span class="metric-value">${water.water_level_cm || 0} cm</span>
+                                    </div>
+                                    <div class="metric">
+                                        <span class="metric-label">Distance</span>
+                                        <span class="metric-value">${water.distance_cm || 0} cm</span>
+                                    </div>
+                                    <div class="metric">
+                                        <span class="metric-label">Tank Height</span>
+                                        <span class="metric-value">${water.tank_height_cm || 0} cm</span>
+                                    </div>
+                                    <div class="metric">
+                                        <span class="metric-label">Sensor Status</span>
+                                        <span class="metric-value ${waterStatusClass}">${waterStatus}</span>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="metric">
-                                <span class="metric-label">Water Level</span>
-                                <span class="metric-value">${water.water_level_cm || 0} cm</span>
-                            </div>
-                            <div class="metric">
-                                <span class="metric-label">Distance</span>
-                                <span class="metric-value">${water.distance_cm || 0} cm</span>
-                            </div>
-                            <div class="metric">
-                                <span class="metric-label">Tank Height</span>
-                                <span class="metric-value">${water.tank_height_cm || 0} cm</span>
-                            </div>
-                            <div class="metric">
-                                <span class="metric-label">Sensor Status</span>
-                                <span class="metric-value ${status_class}">${status}</span>
-                            </div>
-                        `;
+                            `;
+                        } else {
+                            waterHtml += '<div class="metric status-warn" style="margin-top: 15px;">Water sensor: No data</div>';
+                        }
                     }
                     document.getElementById('waterTank').innerHTML = waterHtml;
                 })
@@ -1519,6 +1864,117 @@
                     document.getElementById('countdownTarget').textContent = `Target: ${data.target_time}`;
                 })
                 .catch(error => console.error('Error fetching countdown:', error));
+        }
+
+        // Weather Card - Map NWS forecast text to emoji
+        function getWeatherEmoji(forecast) {
+            if (!forecast) return '🌡️';
+            const f = forecast.toLowerCase();
+            if (f.includes('thunder') || f.includes('storm')) return '⛈️';
+            if (f.includes('snow') || f.includes('blizzard')) return '🌨️';
+            if (f.includes('rain') || f.includes('shower') || f.includes('drizzle')) return '🌧️';
+            if (f.includes('cloudy') || f.includes('overcast')) return '☁️';
+            if (f.includes('partly cloudy') || f.includes('mostly sunny')) return '⛅';
+            if (f.includes('sunny') || f.includes('clear')) return '☀️';
+            if (f.includes('fog') || f.includes('mist')) return '🌫️';
+            if (f.includes('wind')) return '💨';
+            if (f.includes('hot')) return '🥵';
+            if (f.includes('cold') || f.includes('freeze')) return '🥶';
+            return '🌡️';
+        }
+
+        function updateWeather() {
+            fetch('/api/metrics')
+                .then(response => response.json())
+                .then(data => {
+                    const weather = data.weather || {};
+                    const weatherContent = document.getElementById('weatherContent');
+
+                    if (!weather.current || Object.keys(weather.current).length === 0) {
+                        weatherContent.innerHTML = '<div class="weather-loading">Weather data unavailable</div>';
+                        return;
+                    }
+
+                    const current = weather.current;
+                    const forecast = weather.forecast || [];
+                    const temp = current.temperature || '--';
+                    const unit = current.temperatureUnit || 'F';
+                    const condition = current.shortForecast || 'Unknown';
+                    const wind = current.windSpeed || '';
+                    const windDir = current.windDirection || '';
+                    const emoji = getWeatherEmoji(condition);
+
+                    // Build current weather section
+                    let html = `
+                        <div class="weather-current">
+                            <span class="weather-icon">${emoji}</span>
+                            <span class="weather-temp-main">${temp}°${unit}</span>
+                        </div>
+                        <div class="weather-condition">${condition}</div>
+                        <div class="weather-details">
+                            <span>💨 ${wind} ${windDir}</span>
+                        </div>
+                    `;
+
+                    // Build 5-day forecast (group day/night into single day)
+                    if (forecast.length > 0) {
+                        html += '<div class="weather-forecast">';
+
+                        // Take first 5 daytime periods for the forecast
+                        let dayCount = 0;
+                        for (let i = 0; i < forecast.length && dayCount < 5; i++) {
+                            const period = forecast[i];
+                            if (period.isDaytime || dayCount === 0) {
+                                // Handle day names - detect holidays
+                                const fullName = period.name;
+                                let dayName;
+                                let holidayIcon = '';
+                                if (fullName.toLowerCase().includes('thanksgiving')) {
+                                    dayName = 'THU';
+                                    holidayIcon = ' 🦃';
+                                } else if (fullName.toLowerCase().includes('christmas')) {
+                                    dayName = fullName.toLowerCase().includes('eve') ? 'TUE' : 'WED';
+                                    holidayIcon = ' 🎄';
+                                } else {
+                                    dayName = fullName.split(' ')[0].slice(0, 3).toUpperCase();
+                                }
+                                const dayEmoji = getWeatherEmoji(period.shortForecast);
+                                const dayTemp = period.temperature;
+
+                                // Find corresponding night temp
+                                let nightTemp = '--';
+                                if (forecast[i + 1] && !forecast[i + 1].isDaytime) {
+                                    nightTemp = forecast[i + 1].temperature;
+                                }
+
+                                html += `
+                                    <div class="forecast-day">
+                                        <div class="forecast-day-name">${dayName}${holidayIcon}</div>
+                                        <div class="forecast-icon">${dayEmoji}</div>
+                                        <div class="forecast-temp">${dayTemp}°</div>
+                                        <div class="forecast-temp-low">${nightTemp}°</div>
+                                    </div>
+                                `;
+                                dayCount++;
+                            }
+                        }
+                        html += '</div>';
+                    }
+
+                    // Add last updated time
+                    if (weather.timestamp) {
+                        const updated = new Date(weather.timestamp * 1000);
+                        const timeStr = updated.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                        html += `<div class="weather-updated">Updated: ${timeStr}</div>`;
+                    }
+
+                    weatherContent.innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Error fetching weather:', error);
+                    document.getElementById('weatherContent').innerHTML =
+                        '<div class="weather-loading">Weather data unavailable</div>';
+                });
         }
 
         // Email Alert Subscription Functions
@@ -1604,6 +2060,7 @@
             updateActiveUsers();
             updateChatMessages();
             updateCountdown();
+            updateWeather();
 
             // Update metrics every 2 seconds
             setInterval(updateMetrics, 2000);
@@ -1620,14 +2077,17 @@
 
             // Update countdown every second
             setInterval(updateCountdown, 1000);
+
+            // Update weather every 5 minutes (API data refreshes every 30 min)
+            setInterval(updateWeather, 300000);
         });
     </script>
 
     <footer>
-        <p>Brought to you by the good folks at Good Supply Farm</p>
+        <p>Brought to you by the good folks at Your Farm Name</p>
         <div style="display: flex; gap: 30px; justify-content: center; align-items: center;">
-            <a href="https://YOUR_WEBSITE" target="_blank">
-                <img src="/static/images/tinyWaxer.png" alt="Good Supply Farm">
+            <a href="https://YOUR_DOMAIN" target="_blank">
+                <img src="/static/images/tinyWaxer.png" alt="Your Farm Name">
             </a>
             <div style="width: 1px; height: 80px; background: gold;"></div>
             <a href="https://chickenmatrix.work" target="_blank">

@@ -10,9 +10,9 @@ services:
       - "1883:1883"  # MQTT
       - "9001:9001"  # WebSocket
     volumes:
-      - ./docker/mosquitto/config:/mosquitto/config
-      - ./docker/mosquitto/data:/mosquitto/data
-      - ./docker/mosquitto/log:/mosquitto/log
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
     networks:
       - beeper-network
 
@@ -21,15 +21,17 @@ services:
     image: influxdb:2.7-alpine
     container_name: beeper_influxdb
     restart: unless-stopped
+    env_file:
+      - .env
     ports:
       - "8086:8086"
     environment:
       - DOCKER_INFLUXDB_INIT_MODE=setup
-      - DOCKER_INFLUXDB_INIT_USERNAME=admin
-      - DOCKER_INFLUXDB_INIT_PASSWORD=${INFLUXDB_PASSWORD:-change-this-password}
-      - DOCKER_INFLUXDB_INIT_ORG=beeperkeeper
-      - DOCKER_INFLUXDB_INIT_BUCKET=sensors
-      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=beeper-admin-token-change-this-in-production
+      - DOCKER_INFLUXDB_INIT_USERNAME=${INFLUXDB_INIT_USERNAME}
+      - DOCKER_INFLUXDB_INIT_PASSWORD=${INFLUXDB_INIT_PASSWORD}
+      - DOCKER_INFLUXDB_INIT_ORG=${INFLUXDB_INIT_ORG}
+      - DOCKER_INFLUXDB_INIT_BUCKET=${INFLUXDB_INIT_BUCKET}
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUXDB_ADMIN_TOKEN}
     volumes:
       - influxdb-data:/var/lib/influxdb2
       - influxdb-config:/etc/influxdb2
@@ -45,7 +47,7 @@ services:
       - influxdb
       - mosquitto
     volumes:
-      - ./docker/telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+      - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
     networks:
       - beeper-network
 
@@ -54,6 +56,8 @@ services:
     image: grafana/grafana:12.2.1
     container_name: beeper_grafana
     restart: unless-stopped
+    env_file:
+      - ../.env
     dns:
       - 8.8.8.8
       - 8.8.4.4
@@ -61,24 +65,24 @@ services:
       - "3000:3000"
     environment:
       - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-change-this-password}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
       - GF_INSTALL_PLUGINS=
       # SMTP / Email Configuration
       - GF_SMTP_ENABLED=${GF_SMTP_ENABLED:-false}
       - GF_SMTP_HOST=${GF_SMTP_HOST:-smtp.gmail.com:587}
-      - GF_SMTP_USER=${GF_SMTP_USER:-your-email@gmail.com}
+      - GF_SMTP_USER=${GF_SMTP_USER:-user@example.com}
       - GF_SMTP_PASSWORD=${GF_SMTP_PASSWORD:-your-app-password}
       - GF_SMTP_FROM_ADDRESS=${GF_SMTP_FROM_ADDRESS:-grafana@beeper.local}
       - GF_SMTP_FROM_NAME=${GF_SMTP_FROM_NAME:-Beeper Keeper Alerts}
       - GF_SMTP_SKIP_VERIFY=${GF_SMTP_SKIP_VERIFY:-true}
     volumes:
       - grafana-data:/var/lib/grafana
-      - ./docker/grafana/provisioning:/etc/grafana/provisioning
-      - ./docker/grafana/dashboards:/var/lib/grafana/dashboards
-      - ./images/chicken_of_despair.png:/usr/share/grafana/public/img/chicken_of_despair.png:ro
-      - ./docker/grafana/public/custom.css:/usr/share/grafana/public/css/custom.css:ro
-      - ./docker/grafana/grafana.ini:/etc/grafana/grafana.ini:ro
-      - ./docker/grafana/templates:/usr/share/grafana/public/emails
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+      - ./chicken_of_despair.png:/usr/share/grafana/public/img/chicken_of_despair.png:ro
+      - ./grafana/public/custom.css:/usr/share/grafana/public/css/custom.css:ro
+      - ./grafana/grafana.ini:/etc/grafana/grafana.ini:ro
+      - ./grafana/templates:/usr/share/grafana/public/emails
     depends_on:
       - influxdb
     networks:

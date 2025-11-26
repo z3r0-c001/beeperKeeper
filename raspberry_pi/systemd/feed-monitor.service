@@ -1,0 +1,28 @@
+[Unit]
+Description=BeeperKeeper Feed Monitor
+Documentation=https://github.com/z3r0-c001/beeperKeeper
+After=network-online.target mosquitto.service mediamtx.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi_user
+Group=pi_user
+WorkingDirectory=/opt/beeperKeeper
+ExecStart=/usr/bin/python3 /opt/beeperKeeper/feed_monitor.py
+Restart=always
+RestartSec=30
+
+# Environment
+Environment="PYTHONUNBUFFERED=1"
+
+# Security hardening (NoNewPrivileges disabled to allow sudo for MediaMTX stop/start)
+PrivateTmp=true
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=feed-monitor
+
+[Install]
+WantedBy=multi-user.target

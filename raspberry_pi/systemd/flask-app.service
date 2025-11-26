@@ -8,7 +8,7 @@
 
 [Unit]
 Description=Beeper Keeper Flask Web Application
-Documentation=https://github.com/your_github_username/beeperKeeper
+Documentation=https://github.com/z3r0-c001/beeperKeeper
 # CRITICAL: Use network-online.target instead of network.target
 # This waits for actual network connectivity, not just network subsystem init
 # Depends on mediamtx being started first for camera stream integration
@@ -20,7 +20,7 @@ Type=simple
 User=pi_user
 Group=pi_user
 WorkingDirectory=/opt/beeperKeeper
-ExecStart=/usr/bin/python3 -u /opt/beeperKeeper/app.py
+ExecStart=/usr/bin/python3 -u /opt/beeperKeeper/run.py
 Restart=always
 RestartSec=10
 

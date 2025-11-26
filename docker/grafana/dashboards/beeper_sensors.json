@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": 23,
+  "id": 3,
   "links": [],
   "panels": [
     {
@@ -39,7 +39,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "<div style=\"text-align: center; padding: 20px; background: #2d5016; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.3);\">\n  <img src=\"/public/img/beeperKeeper.png\" alt=\"Beeper Keeper 10000\" style=\"max-width: 300px; height: auto; margin-bottom: 10px;\" />\n  <div style=\"font-size: 18px; color: #fef3c7; margin-top: 8px; font-weight: 600;\">Good Supply Farm \u2022 Live Chicken Coop Monitoring</div>\n</div>",
+        "content": "<div style=\"text-align: center; padding: 20px; background: #2d5016; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.3);\">\n  <img src=\"/public/img/beeperKeeper.png\" alt=\"Beeper Keeper 10000\" style=\"max-width: 300px; height: auto; margin-bottom: 10px;\" />\n  <div style=\"font-size: 18px; color: #fef3c7; margin-top: 8px; font-weight: 600;\">Good Supply Farm • Live Chicken Coop Monitoring</div>\n</div>",
         "mode": "html"
       },
       "pluginVersion": "12.2.1",
@@ -64,7 +64,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "<div style=\"height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); box-sizing: border-box;\">\n  <div style=\"font-size: 20px; font-weight: bold; color: white; margin-bottom: 15px;\">\ud83d\udcf9 LIVE CAMERA FEEDS</div>\n  <div style=\"display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;\">\n    <a href=\"http://10.10.10.28:8080/csi_test\" target=\"_blank\" style=\"padding: 10px 20px; background: #06ffa5; color: #0f172a; text-decoration: none; border-radius: 6px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3);\">\ud83d\udcf7 CSI Camera</a>\n    <a href=\"http://10.10.10.28:8080/usb_test\" target=\"_blank\" style=\"padding: 10px 20px; background: #4cc9f0; color: #0f172a; text-decoration: none; border-radius: 6px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3);\">\ud83c\udfa5 USB Camera</a>\n    <a href=\"http://10.10.10.28:8080\" target=\"_blank\" style=\"padding: 10px 20px; background: #ffd60a; color: #0f172a; text-decoration: none; border-radius: 6px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3);\">\ud83c\udfe0 Full Dashboard</a>\n  </div>\n</div>",
+        "content": "<div style=\"height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); box-sizing: border-box;\">\n  <div style=\"font-size: 20px; font-weight: bold; color: white; margin-bottom: 15px;\">📹 LIVE CAMERA FEEDS</div>\n  <div style=\"display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;\">\n    <a href=\"http://10.10.10.28:8080\" target=\"_blank\" style=\"padding: 10px 20px; background: #06ffa5; color: #0f172a; text-decoration: none; border-radius: 6px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3);\">📷 CSI Camera</a>\n    <a href=\"http://10.10.10.28:8080\" target=\"_blank\" style=\"padding: 10px 20px; background: #4cc9f0; color: #0f172a; text-decoration: none; border-radius: 6px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3);\">🎥 USB Camera</a>\n    <a href=\"http://10.10.10.28:8080\" target=\"_blank\" style=\"padding: 10px 20px; background: #ffd60a; color: #0f172a; text-decoration: none; border-radius: 6px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3);\">🏠 Full Dashboard</a>\n  </div>\n</div>",
         "mode": "html"
       },
       "pluginVersion": "12.2.1",
@@ -113,7 +113,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "\ud83d\ude0a Excited/Communicating"
+                "value": "😊 Excited/Communicating"
               },
               {
                 "id": "color",
@@ -132,7 +132,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "\ud83d\ude10 Mild Alerting"
+                "value": "😐 Mild Alerting"
               },
               {
                 "id": "color",
@@ -151,7 +151,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "\u26a0\ufe0f Alerting"
+                "value": "⚠️ Alerting"
               },
               {
                 "id": "color",
@@ -170,7 +170,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "\ud83d\udea8 PROBLEM"
+                "value": "🚨 PROBLEM"
               },
               {
                 "id": "color",
@@ -246,7 +246,7 @@
           "refId": "D"
         }
       ],
-      "title": "\ud83d\udc14 Audio Alert Event Counts",
+      "title": "🐔 Audio Alert Event Counts",
       "type": "stat"
     },
     {
@@ -264,7 +264,7 @@
               "options": {
                 "0": {
                   "color": "#73BF69",
-                  "text": "\ud83d\ude34 Quiet (Normal)"
+                  "text": "😴 Quiet (Normal)"
                 }
               },
               "type": "value"
@@ -273,7 +273,7 @@
               "options": {
                 "1": {
                   "color": "#4cc9f0",
-                  "text": "\ud83d\ude0a Active/Excited"
+                  "text": "😊 Active/Excited"
                 }
               },
               "type": "value"
@@ -282,7 +282,7 @@
               "options": {
                 "2": {
                   "color": "#ff9500",
-                  "text": "\u26a0\ufe0f Alarmed"
+                  "text": "⚠️ Alarmed"
                 }
               },
               "type": "value"
@@ -291,7 +291,7 @@
               "options": {
                 "3": {
                   "color": "#ff006e",
-                  "text": "\ud83d\udea8 DISTRESS!"
+                  "text": "🚨 DISTRESS!"
                 }
               },
               "type": "value"
@@ -348,7 +348,7 @@
           "refId": "A"
         }
       ],
-      "title": "\ud83d\udc14 Chicken Activity State",
+      "title": "🐔 Chicken Activity State",
       "type": "stat"
     },
     {
@@ -361,7 +361,7 @@
       },
       "id": 306,
       "panels": [],
-      "title": "\ud83c\udf0d COMPLETE ENVIRONMENTAL DATA",
+      "title": "🌍 COMPLETE ENVIRONMENTAL DATA",
       "type": "row"
     },
     {
@@ -448,7 +448,7 @@
               },
               {
                 "id": "custom.axisLabel",
-                "value": "Temp (\u00b0C)"
+                "value": "Temp (°C)"
               }
             ]
           },
@@ -831,7 +831,7 @@
           "refId": "J"
         }
       ],
-      "title": "\ud83c\udf0d Complete Environmental Data Timeline",
+      "title": "🌍 Complete Environmental Data Timeline",
       "type": "timeseries"
     },
     {
@@ -839,7 +839,7 @@
         "type": "influxdb",
         "uid": "InfluxDB_Beeper"
       },
-      "description": "Real-time chicken behavioral state tracking based on audio levels:\n\u2022 0-10 dB: Sleeping/Quiet (dark blue)\n\u2022 11-22 dB: Awake (blue)\n\u2022 23-28 dB: Excited (green)\n\u2022 29-35 dB: Alerting (yellow)\n\u2022 36-45 dB: Distress (orange)\n\u2022 46+ dB: Trouble (red)",
+      "description": "Real-time chicken behavioral state tracking based on audio levels:\n• 0-10 dB: Sleeping/Quiet (dark blue)\n• 11-22 dB: Awake (blue)\n• 23-28 dB: Excited (green)\n• 29-35 dB: Alerting (yellow)\n• 36-45 dB: Distress (orange)\n• 46+ dB: Trouble (red)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -957,11 +957,11 @@
             "type": "influxdb",
             "uid": "InfluxDB_Beeper"
           },
-          "query": "from(bucket: \"sensors\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"topic\"] == \"beeper/audio/level\")\n  |> filter(fn: (r) => r[\"_field\"] == \"level_db\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> map(fn: (r) => {\n    behavior = if r._value <= 10.0 then \"\ud83d\ude34 Sleeping/Quiet\"\n      else if r._value <= 22.0 then \"\ud83d\ude0a Awake\"\n      else if r._value <= 28.0 then \"\ud83c\udf89 Excited\"\n      else if r._value <= 35.0 then \"\u26a0\ufe0f Alerting\"\n      else if r._value <= 45.0 then \"\ud83d\ude30 Distress\"\n      else \"\ud83d\udea8 Trouble\"\n    return {r with _value: r._value, _field: behavior}\n  })\n  |> keep(columns: [\"_time\", \"_value\", \"_field\"])",
+          "query": "from(bucket: \"sensors\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"topic\"] == \"beeper/audio/level\")\n  |> filter(fn: (r) => r[\"_field\"] == \"level_db\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> map(fn: (r) => {\n    behavior = if r._value <= 10.0 then \"😴 Sleeping/Quiet\"\n      else if r._value <= 22.0 then \"😊 Awake\"\n      else if r._value <= 28.0 then \"🎉 Excited\"\n      else if r._value <= 35.0 then \"⚠️ Alerting\"\n      else if r._value <= 45.0 then \"😰 Distress\"\n      else \"🚨 Trouble\"\n    return {r with _value: r._value, _field: behavior}\n  })\n  |> keep(columns: [\"_time\", \"_value\", \"_field\"])",
           "refId": "B"
         }
       ],
-      "title": "\ud83d\udd0a Audio Level Trend with Behavioral Zones",
+      "title": "🔊 Audio Level Trend with Behavioral Zones",
       "type": "timeseries"
     },
     {
@@ -1041,11 +1041,11 @@
             "type": "influxdb",
             "uid": "InfluxDB_Beeper"
           },
-          "query": "from(bucket: \"sensors\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"topic\"] == \"beeper/sensors/bme680/all\")\n  |> filter(fn: (r) => r[\"_field\"] == \"temperature\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> map(fn: (r) => ({ r with _field: \"Temperature (\u00b0C)\" }))\n  |> keep(columns: [\"_time\", \"_value\", \"_field\"])",
+          "query": "from(bucket: \"sensors\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"topic\"] == \"beeper/sensors/bme680/all\")\n  |> filter(fn: (r) => r[\"_field\"] == \"temperature\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> map(fn: (r) => ({ r with _field: \"Temperature (°C)\" }))\n  |> keep(columns: [\"_time\", \"_value\", \"_field\"])",
           "refId": "A"
         }
       ],
-      "title": "\ud83c\udf21\ufe0f TEMPERATURE",
+      "title": "🌡️ TEMPERATURE",
       "type": "gauge"
     },
     {
@@ -1131,7 +1131,7 @@
           "refId": "A"
         }
       ],
-      "title": "\ud83d\udca7 HUMIDITY",
+      "title": "💧 HUMIDITY",
       "type": "gauge"
     },
     {
@@ -1150,7 +1150,7 @@
                 "from": 0,
                 "result": {
                   "color": "#06ffa5",
-                  "text": "\ud83d\ude0a EXCELLENT"
+                  "text": "😊 EXCELLENT"
                 },
                 "to": 50
               },
@@ -1161,7 +1161,7 @@
                 "from": 51,
                 "result": {
                   "color": "#4cc9f0",
-                  "text": "\ud83d\udc4d GOOD"
+                  "text": "👍 GOOD"
                 },
                 "to": 100
               },
@@ -1172,7 +1172,7 @@
                 "from": 101,
                 "result": {
                   "color": "#ffd60a",
-                  "text": "\ud83d\ude10 MODERATE"
+                  "text": "😐 MODERATE"
                 },
                 "to": 150
               },
@@ -1183,7 +1183,7 @@
                 "from": 151,
                 "result": {
                   "color": "#ff9500",
-                  "text": "\ud83d\ude1f POOR"
+                  "text": "😟 POOR"
                 },
                 "to": 200
               },
@@ -1194,7 +1194,7 @@
                 "from": 201,
                 "result": {
                   "color": "#ff006e",
-                  "text": "\ud83d\ude31 VERY POOR"
+                  "text": "😱 VERY POOR"
                 },
                 "to": 300
               },
@@ -1205,7 +1205,7 @@
                 "from": 301,
                 "result": {
                   "color": "#d62828",
-                  "text": "\ud83d\udc80 SEVERE"
+                  "text": "💀 SEVERE"
                 },
                 "to": 500
               },
@@ -1283,7 +1283,7 @@
           "refId": "A"
         }
       ],
-      "title": "\ud83c\udf2c\ufe0f AIR QUALITY",
+      "title": "🌬️ AIR QUALITY",
       "type": "stat"
     },
     {
@@ -1367,11 +1367,11 @@
             "type": "influxdb",
             "uid": "InfluxDB_Beeper"
           },
-          "query": "import \"timezone\"\nimport \"date\"\n\nfrom(bucket: \"sensors\")\n  |> range(start: -5m)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"topic\"] == \"beeper/sensors/bme680/all\")\n  |> filter(fn: (r) => r[\"_field\"] == \"temperature\")\n  |> aggregateWindow(every: 30s, fn: mean, createEmpty: false)\n  |> map(fn: (r) => {\n    // Get time in Eastern timezone\n    tz = timezone.location(name: \"America/New_York\")\n    hour = date.hour(t: r._time, location: tz)\n    minute = date.minute(t: r._time, location: tz)\n    \n    // Calculate if lights should be ON (6:30 AM - 7:00 PM)\n    minutesSinceMidnight = hour * 60 + minute\n    lightsOn = minutesSinceMidnight >= 390 and minutesSinceMidnight < 1140\n    \n    return {r with _value: if lightsOn then 1.0 else 0.0, _field: \"Lights\"}\n  })\n  |> last()",
+          "query": "from(bucket: \"sensors\")\n  |> range(start: -5m)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"topic\"] == \"beeper/camera/csi/metadata\")\n  |> filter(fn: (r) => r[\"_field\"] == \"Lux\")\n  |> aggregateWindow(every: 30s, fn: mean, createEmpty: false)\n  |> map(fn: (r) => {\n    // Dynamic lights detection based on actual lux reading\n    // Threshold: 80 lux (midpoint between OFF ~30 lux and ON ~140 lux)\n    // Based on 7-day analysis: OFF < 50 lux, ON >= 100 lux\n    lightsOn = r._value > 80.0\n    \n    return {r with _value: if lightsOn then 1.0 else 0.0, _field: \"Lights\"}\n  })\n  |> last()",
           "refId": "A"
         }
       ],
-      "title": "\ud83d\udca1 LIGHT STATUS",
+      "title": "💡 LIGHT STATUS",
       "type": "stat"
     },
     {
@@ -1449,7 +1449,7 @@
           "refId": "A"
         }
       ],
-      "title": "\ud83d\udd0a AUDIO LEVEL",
+      "title": "🔊 AUDIO LEVEL",
       "type": "gauge"
     },
     {
@@ -1521,7 +1521,7 @@
           "refId": "A"
         }
       ],
-      "title": "\ud83c\udf2b\ufe0f CO2 EQUIV",
+      "title": "🌫️ CO2 EQUIV",
       "type": "gauge"
     },
     {
@@ -1532,9 +1532,422 @@
         "x": 0,
         "y": 59
       },
+      "id": 711,
+      "panels": [],
+      "title": "🍽️ FEED MONITORING",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "InfluxDB_Beeper"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 50
+              },
+              {
+                "color": "green",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Image Quality %"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "📸 Image Quality"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Detection Confidence %"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "🎯 Detection Confidence"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 0,
+        "y": 60
+      },
+      "id": 715,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "vertical",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value_and_name",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB_Beeper"
+          },
+          "query": "from(bucket: \"sensors\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"topic\"] == \"beeper/feed/level/current\")\n  |> filter(fn: (r) => r[\"_field\"] == \"image_quality\")\n  |> last()\n  |> map(fn: (r) => ({ r with _field: \"Image Quality %\" }))",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB_Beeper"
+          },
+          "query": "from(bucket: \"sensors\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"topic\"] == \"beeper/feed/level/current\")\n  |> filter(fn: (r) => r[\"_field\"] == \"confidence\")\n  |> last()\n  |> map(fn: (r) => ({ r with _field: \"Detection Confidence %\" }))",
+          "refId": "B"
+        }
+      ],
+      "title": "✅ Detection Quality",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "InfluxDB_Beeper"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "orange",
+                "value": 10
+              },
+              {
+                "color": "yellow",
+                "value": 40
+              },
+              {
+                "color": "green",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 16,
+        "w": 11,
+        "x": 6,
+        "y": 60
+      },
+      "id": 714,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB_Beeper"
+          },
+          "query": "from(bucket: \"sensors\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"topic\"] == \"beeper/feed/level/current\")\n  |> filter(fn: (r) => r[\"_field\"] == \"percentage\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)",
+          "refId": "A"
+        }
+      ],
+      "title": "Food Consumed Over Time",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "InfluxDB_Beeper"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "orange",
+                "value": 10
+              },
+              {
+                "color": "yellow",
+                "value": 40
+              },
+              {
+                "color": "green",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 16,
+        "w": 7,
+        "x": 17,
+        "y": 60
+      },
+      "id": 712,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": true,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "12.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB_Beeper"
+          },
+          "query": "from(bucket: \"sensors\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"topic\"] == \"beeper/feed/level/current\")\n  |> filter(fn: (r) => r[\"_field\"] == \"percentage\")\n  |> last()",
+          "refId": "A"
+        }
+      ],
+      "title": "🌾 Feed Level",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "InfluxDB_Beeper"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "green",
+                  "text": "FULL 🟢"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "1": {
+                  "color": "yellow",
+                  "text": "MEDIUM 🟡"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "2": {
+                  "color": "orange",
+                  "text": "LOW 🟠"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "3": {
+                  "color": "red",
+                  "text": "EMPTY 🔴"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "4": {
+                  "color": "gray",
+                  "text": "UNKNOWN ⚪"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "level {host=\"beeper_telegraf\", location=\"raspberry_pi\", sensor_type=\"camera\", topic=\"beeper/feed/level/current\"}"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Food level"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 0,
+        "y": 68
+      },
+      "id": 713,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value_and_name",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB_Beeper"
+          },
+          "query": "from(bucket: \"sensors\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"topic\"] == \"beeper/feed/level/current\")\n  |> filter(fn: (r) => r[\"_field\"] == \"level\")\n  |> last()\n  |> map(fn: (r) => ({\n      r with\n      _value: if r._value == \"FULL\" then 0.0\n              else if r._value == \"MEDIUM\" then 1.0\n              else if r._value == \"LOW\" then 2.0\n              else if r._value == \"EMPTY\" then 3.0\n              else 4.0\n    }))",
+          "refId": "A"
+        }
+      ],
+      "title": "📊 Feed Status",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 76
+      },
       "id": 606,
       "panels": [],
-      "title": "\ud83d\udca7 WATER MANAGEMENT STATUS",
+      "title": "💧 WATER MANAGEMENT STATUS",
       "type": "row"
     },
     {
@@ -1554,7 +1967,7 @@
         "h": 8,
         "w": 5,
         "x": 0,
-        "y": 60
+        "y": 77
       },
       "id": 506,
       "options": {
@@ -1580,7 +1993,7 @@
         "viewMode": "list"
       },
       "pluginVersion": "12.2.1",
-      "title": "\ud83d\udea8 Active Alerts & History",
+      "title": "🚨 Active Alerts & History",
       "type": "alertlist"
     },
     {
@@ -1623,7 +2036,7 @@
         "h": 4,
         "w": 6,
         "x": 5,
-        "y": 60
+        "y": 77
       },
       "id": 603,
       "options": {
@@ -1724,7 +2137,7 @@
         "h": 8,
         "w": 9,
         "x": 11,
-        "y": 60
+        "y": 77
       },
       "id": 605,
       "options": {
@@ -1794,7 +2207,7 @@
         "h": 8,
         "w": 4,
         "x": 20,
-        "y": 60
+        "y": 77
       },
       "id": 602,
       "options": {
@@ -1833,7 +2246,7 @@
           "refId": "A"
         }
       ],
-      "title": "\ud83d\udca7 Water Level",
+      "title": "💧 Water Level",
       "type": "bargauge"
     },
     {
@@ -1849,7 +2262,7 @@
               "options": {
                 "1": {
                   "color": "green",
-                  "text": "\u2713 Online"
+                  "text": "✓ Online"
                 }
               },
               "type": "value"
@@ -1858,13 +2271,13 @@
               "options": {
                 "0": {
                   "color": "red",
-                  "text": "\u2717 Error"
+                  "text": "✗ Error"
                 }
               },
               "type": "value"
             }
           ],
-          "noValue": "\u26a0 Offline",
+          "noValue": "⚠ Offline",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -1881,7 +2294,7 @@
         "h": 4,
         "w": 6,
         "x": 5,
-        "y": 64
+        "y": 81
       },
       "id": 604,
       "options": {
@@ -1924,11 +2337,11 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 68
+        "y": 85
       },
       "id": 200,
       "panels": [],
-      "title": "\ud83d\udd25 KEY METRICS AT A GLANCE",
+      "title": "🔥 KEY METRICS AT A GLANCE",
       "type": "row"
     },
     {
@@ -2034,7 +2447,7 @@
         "h": 8,
         "w": 9,
         "x": 0,
-        "y": 69
+        "y": 86
       },
       "id": 607,
       "options": {
@@ -2100,7 +2513,7 @@
           "refId": "E"
         }
       ],
-      "title": "\ud83d\udca7 Water Consumption by Time Period",
+      "title": "💧 Water Consumption by Time Period",
       "type": "stat"
     },
     {
@@ -2179,7 +2592,7 @@
         "h": 8,
         "w": 15,
         "x": 9,
-        "y": 69
+        "y": 86
       },
       "id": 608,
       "options": {
@@ -2218,7 +2631,7 @@
           "refId": "B"
         }
       ],
-      "title": "\ud83d\udca7 Water Consumption Rate Over Time",
+      "title": "💧 Water Consumption Rate Over Time",
       "type": "timeseries"
     },
     {
@@ -2227,11 +2640,11 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 77
+        "y": 94
       },
       "id": 300,
       "panels": [],
-      "title": "\ud83d\udcca ENVIRONMENTAL TRENDS",
+      "title": "📊 ENVIRONMENTAL TRENDS",
       "type": "row"
     },
     {
@@ -2316,7 +2729,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 78
+        "y": 95
       },
       "id": 301,
       "options": {
@@ -2344,11 +2757,11 @@
             "type": "influxdb",
             "uid": "InfluxDB_Beeper"
           },
-          "query": "from(bucket: \"sensors\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"topic\"] == \"beeper/sensors/bme680/all\")\n  |> filter(fn: (r) => r[\"_field\"] == \"temperature\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> map(fn: (r) => ({ r with _field: \"Temperature (\u00b0C)\" }))\n  |> keep(columns: [\"_time\", \"_value\", \"_field\"])",
+          "query": "from(bucket: \"sensors\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\n  |> filter(fn: (r) => r[\"topic\"] == \"beeper/sensors/bme680/all\")\n  |> filter(fn: (r) => r[\"_field\"] == \"temperature\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> map(fn: (r) => ({ r with _field: \"Temperature (°C)\" }))\n  |> keep(columns: [\"_time\", \"_value\", \"_field\"])",
           "refId": "A"
         }
       ],
-      "title": "\ud83c\udf21\ufe0f TEMPERATURE TREND",
+      "title": "🌡️ TEMPERATURE TREND",
       "type": "timeseries"
     },
     {
@@ -2433,7 +2846,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 78
+        "y": 95
       },
       "id": 302,
       "options": {
@@ -2465,7 +2878,7 @@
           "refId": "A"
         }
       ],
-      "title": "\ud83d\udca7 HUMIDITY TREND",
+      "title": "💧 HUMIDITY TREND",
       "type": "timeseries"
     },
     {
@@ -2562,7 +2975,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 78
+        "y": 95
       },
       "id": 303,
       "options": {
@@ -2594,7 +3007,7 @@
           "refId": "A"
         }
       ],
-      "title": "\ud83c\udf2c\ufe0f AIR QUALITY TREND",
+      "title": "🌬️ AIR QUALITY TREND",
       "type": "timeseries"
     },
     {
@@ -2691,7 +3104,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 86
+        "y": 103
       },
       "id": 304,
       "options": {
@@ -2723,7 +3136,7 @@
           "refId": "A"
         }
       ],
-      "title": "\ud83d\udd0a AUDIO LEVELS OVER TIME",
+      "title": "🔊 AUDIO LEVELS OVER TIME",
       "type": "timeseries"
     },
     {
@@ -2808,7 +3221,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 86
+        "y": 103
       },
       "id": 305,
       "options": {
@@ -2840,7 +3253,7 @@
           "refId": "A"
         }
       ],
-      "title": "\u2601\ufe0f ATMOSPHERIC PRESSURE",
+      "title": "☁️ ATMOSPHERIC PRESSURE",
       "type": "timeseries"
     },
     {
@@ -2849,11 +3262,11 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 94
+        "y": 111
       },
       "id": 400,
       "panels": [],
-      "title": "\u26a1 SYSTEM PERFORMANCE",
+      "title": "⚡ SYSTEM PERFORMANCE",
       "type": "row"
     },
     {
@@ -2902,7 +3315,7 @@
         "h": 5,
         "w": 6,
         "x": 0,
-        "y": 95
+        "y": 112
       },
       "id": 401,
       "options": {
@@ -2940,7 +3353,7 @@
           "refId": "A"
         }
       ],
-      "title": "\ud83d\udcbb CPU USAGE",
+      "title": "💻 CPU USAGE",
       "type": "bargauge"
     },
     {
@@ -2989,7 +3402,7 @@
         "h": 5,
         "w": 6,
         "x": 6,
-        "y": 95
+        "y": 112
       },
       "id": 402,
       "options": {
@@ -3027,7 +3440,7 @@
           "refId": "A"
         }
       ],
-      "title": "\ud83e\udde0 MEMORY USAGE",
+      "title": "🧠 MEMORY USAGE",
       "type": "bargauge"
     },
     {
@@ -3076,7 +3489,7 @@
         "h": 5,
         "w": 6,
         "x": 12,
-        "y": 95
+        "y": 112
       },
       "id": 403,
       "options": {
@@ -3114,7 +3527,7 @@
           "refId": "A"
         }
       ],
-      "title": "\ud83d\udcbe DISK USAGE",
+      "title": "💾 DISK USAGE",
       "type": "bargauge"
     },
     {
@@ -3163,7 +3576,7 @@
         "h": 5,
         "w": 6,
         "x": 18,
-        "y": 95
+        "y": 112
       },
       "id": 404,
       "options": {
@@ -3201,7 +3614,7 @@
           "refId": "A"
         }
       ],
-      "title": "\ud83d\udd25 CPU TEMP",
+      "title": "🔥 CPU TEMP",
       "type": "bargauge"
     },
     {
@@ -3210,11 +3623,11 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 100
+        "y": 117
       },
       "id": 500,
       "panels": [],
-      "title": "\ud83d\udcf7 CAMERA METADATA & FEEDS",
+      "title": "📷 CAMERA METADATA & FEEDS",
       "type": "row"
     },
     {
@@ -3275,7 +3688,7 @@
         "h": 6,
         "w": 6,
         "x": 0,
-        "y": 101
+        "y": 118
       },
       "id": 501,
       "options": {
@@ -3304,7 +3717,7 @@
           "refId": "A"
         }
       ],
-      "title": "\ud83d\udcf8 LUX (Light Level)",
+      "title": "📸 LUX (Light Level)",
       "type": "gauge"
     },
     {
@@ -3353,7 +3766,7 @@
         "h": 6,
         "w": 6,
         "x": 6,
-        "y": 101
+        "y": 118
       },
       "id": 502,
       "options": {
@@ -3382,7 +3795,7 @@
           "refId": "A"
         }
       ],
-      "title": "\ud83c\udfa8 COLOR TEMP (K)",
+      "title": "🎨 COLOR TEMP (K)",
       "type": "gauge"
     },
     {
@@ -3431,7 +3844,7 @@
         "h": 6,
         "w": 6,
         "x": 12,
-        "y": 101
+        "y": 118
       },
       "id": 504,
       "options": {
@@ -3460,7 +3873,7 @@
           "refId": "A"
         }
       ],
-      "title": "\ud83d\udcc8 ANALOGUE GAIN",
+      "title": "📈 ANALOGUE GAIN",
       "type": "gauge"
     },
     {
@@ -3501,7 +3914,7 @@
               }
             ]
           },
-          "unit": "\u00b5s"
+          "unit": "µs"
         },
         "overrides": []
       },
@@ -3509,7 +3922,7 @@
         "h": 6,
         "w": 6,
         "x": 18,
-        "y": 101
+        "y": 118
       },
       "id": 503,
       "options": {
@@ -3538,7 +3951,7 @@
           "refId": "A"
         }
       ],
-      "title": "\u23f1\ufe0f EXPOSURE TIME",
+      "title": "⏱️ EXPOSURE TIME",
       "type": "gauge"
     }
   ],
@@ -3561,5 +3974,5 @@
   "timezone": "browser",
   "title": "BeeperKeeper - Production",
   "uid": "beeperTestBoard",
-  "version": 19
+  "version": 2
 }

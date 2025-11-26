@@ -36,7 +36,7 @@ Environment Variables:
 - MQTT_BROKER_HOST: MQTT broker hostname/IP (default: localhost)
 - MQTT_BROKER_PORT: MQTT broker port (default: 1883)
 
-Author: your_github_username
+Author: z3r0-c001
 License: MIT
 """
 
@@ -49,6 +49,7 @@ import os
 import math
 import numpy as np
 import pytz
+import threading
 
 # Audio sample rate constant (shared by capture and FFT analysis)
 AUDIO_SAMPLE_RATE = 48000  # USB webcam microphone sample rate
@@ -75,18 +76,133 @@ audio_enabled = False
 audio_history = []  # List of recent dB readings for rolling averages
 AUDIO_HISTORY_SIZE = 6  # Keep last 60 seconds (6 readings at 10s intervals)
 
-# BME680 Air Quality Configuration
-# Baseline stored in /var/lib for persistence, with fallback to /tmp if permissions fail
-BME680_BASELINE_DIR = '/var/lib/beeperKeeper'
-BME680_BASELINE_FILE = os.path.join(BME680_BASELINE_DIR, 'bme680_baseline.json')
-BME680_BASELINE_FALLBACK = '/tmp/bme680_baseline.json'
+# ML Feed Level globals (async execution to prevent blocking)
+ml_feed_data = None  # Cached ML prediction result
+ml_feed_lock = threading.Lock()  # Thread safety for shared data
+ml_feed_thread = None  # Background thread handle
+ml_last_update = 0  # Timestamp of last ML update
+ML_UPDATE_INTERVAL = 300  # Run ML prediction every 5 minutes (300s) - TFLite loading is slow on Pi3
 
-bme680_baseline = {
-    'gas_baseline': None,
-    'hum_baseline': 40.0,
-    'calibration_time': None,
-    'samples_collected': 0
+# BSEC state and calibration directories
+BME680_BASELINE_DIR = '/var/lib/beeperKeeper'
+
+# BSEC Calibration Start Time Tracking (for UI progress display)
+BSEC_CAL_START_FILE = os.path.join(BME680_BASELINE_DIR, 'bsec_calibration_start.txt')
+BSEC_CAL_START_FALLBACK = '/tmp/bsec_calibration_start.txt'
+
+# Cache for BSEC data (used to merge with Adafruit readings)
+bsec_cache = {
+    'iaq': None,
+    'iaq_accuracy': 0,
+    'co2_equivalent': None,
+    'breath_voc_equivalent': None,
+    'static_iaq': None,
+    'timestamp': 0
 }
+
+# Weather data cache and settings (NWS API - free, no key required)
+weather_cache = {
+    'current': None,
+    'forecast': None,
+    'last_update': 0
+}
+WEATHER_UPDATE_INTERVAL = 1800  # Update weather every 30 minutes
+NWS_FORECAST_URL = "https://api.weather.gov/gridpoints/GYX/11,13/forecast"
+NWS_USER_AGENT = "BeeperKeeper/2.0 (chicken coop monitor)"
+
+
+def fetch_weather():
+    """Fetch weather data from National Weather Service API."""
+    global weather_cache
+
+    try:
+        import urllib.request
+        import urllib.error
+
+        # Check if we need to update
+        if time.time() - weather_cache['last_update'] < WEATHER_UPDATE_INTERVAL:
+            return weather_cache  # Return cached data
+
+        print("🌤️  Fetching weather data from NWS...")
+
+        # Create request with required User-Agent header
+        req = urllib.request.Request(
+            NWS_FORECAST_URL,
+            headers={'User-Agent': NWS_USER_AGENT, 'Accept': 'application/geo+json'}
+        )
+
+        with urllib.request.urlopen(req, timeout=10) as response:
+            data = json.loads(response.read().decode())
+
+        periods = data.get('properties', {}).get('periods', [])
+
+        if not periods:
+            print("⚠️  No forecast periods in NWS response")
+            return weather_cache
+
+        # Current conditions (first period)
+        current = periods[0]
+        current_data = {
+            'temperature': current.get('temperature'),
+            'temperatureUnit': current.get('temperatureUnit', 'F'),
+            'shortForecast': current.get('shortForecast', ''),
+            'detailedForecast': current.get('detailedForecast', ''),
+            'windSpeed': current.get('windSpeed', ''),
+            'windDirection': current.get('windDirection', ''),
+            'isDaytime': current.get('isDaytime', True),
+            'icon': current.get('icon', ''),
+            'name': current.get('name', '')
+        }
+
+        # 5-day forecast (next 10 periods = 5 days of day/night)
+        forecast_data = []
+        for period in periods[:10]:
+            forecast_data.append({
+                'name': period.get('name', ''),
+                'temperature': period.get('temperature'),
+                'temperatureUnit': period.get('temperatureUnit', 'F'),
+                'shortForecast': period.get('shortForecast', ''),
+                'isDaytime': period.get('isDaytime', True),
+                'icon': period.get('icon', '')
+            })
+
+        # Update cache
+        weather_cache = {
+            'current': current_data,
+            'forecast': forecast_data,
+            'last_update': time.time()
+        }
+
+        print(f"✓ Weather: {current_data['temperature']}°{current_data['temperatureUnit']} - {current_data['shortForecast']}")
+        return weather_cache
+
+    except urllib.error.URLError as e:
+        print(f"⚠️  Weather fetch failed (network): {e}")
+        return weather_cache
+    except Exception as e:
+        print(f"⚠️  Weather fetch error: {e}")
+        return weather_cache
+
+
+def publish_weather():
+    """Publish weather data to MQTT."""
+    weather = fetch_weather()
+
+    if weather['current']:
+        # Publish current conditions
+        mqtt_client.publish("beeper/weather/current", json.dumps(weather['current']))
+
+        # Publish forecast
+        if weather['forecast']:
+            mqtt_client.publish("beeper/weather/forecast", json.dumps(weather['forecast']))
+
+        # Publish combined for easy frontend consumption
+        mqtt_client.publish("beeper/weather/all", json.dumps({
+            'current': weather['current'],
+            'forecast': weather['forecast'],
+            'timestamp': int(time.time())
+        }))
+
 
 def on_connect(client, userdata, flags, rc):
     """Callback for when the client connects to the MQTT broker."""
@@ -155,12 +271,7 @@ def init_bme680():
         try:
             bme680 = adafruit_bme680.Adafruit_BME680_I2C(i2c, address=BME680_I2C_ADDRESS)
             print(f"✓ BME680 sensor detected at 0x{BME680_I2C_ADDRESS:02x}")
-            # Load baseline calibration
-            load_bme680_baseline()
-            if bme680_baseline['gas_baseline'] is None:
-                print("⚠ BME680: No baseline found. Starting 30-minute calibration...")
-            else:
-                print(f"✓ BME680: Baseline loaded - Gas: {bme680_baseline['gas_baseline']:.0f}Ω")
+            print("  Using BSEC for IAQ/CO2 calculations (vendor algorithm)")
             return True
         except:
             # Try alternate address
@@ -172,152 +283,115 @@ def init_bme680():
         print(f"✗ BME680 initialization failed: {e}")
         return False
 
-def load_bme680_baseline():
+def save_bsec_calibration_start():
     """
-    Load BME680 baseline calibration from file.
-
-    Attempts to load from /var/lib/beeperKeeper/ first, falls back to /tmp if not found.
-    Creates the /var/lib directory if it doesn't exist (with appropriate permissions).
+    Save BSEC calibration start timestamp to file (only if doesn't exist yet).
+    This tracks when the 4-day BSEC calibration period began.
     """
-    global bme680_baseline, BME680_BASELINE_FILE
+    global BSEC_CAL_START_FILE
 
-    # Try to create the /var/lib directory if it doesn't exist
+    # Check if file already exists - don't overwrite existing calibration timestamp
+    if os.path.exists(BSEC_CAL_START_FILE):
+        try:
+            with open(BSEC_CAL_START_FILE, 'r') as f:
+                timestamp = float(f.read().strip())
+                elapsed_hours = (time.time() - timestamp) / 3600.0
+                print(f"✓ BSEC calibration in progress: {elapsed_hours:.1f} hours elapsed")
+                return True
+        except:
+            pass  # File exists but corrupted, will recreate
+
+    # File doesn't exist, create it with current timestamp
     try:
+        # Try to create directory if it doesn't exist
         if not os.path.exists(BME680_BASELINE_DIR):
             os.makedirs(BME680_BASELINE_DIR, mode=0o755, exist_ok=True)
-            print(f"✓ Created baseline directory: {BME680_BASELINE_DIR}")
-    except PermissionError:
-        print(f"⚠ No permission to create {BME680_BASELINE_DIR}, using fallback location")
-        BME680_BASELINE_FILE = BME680_BASELINE_FALLBACK
-    except Exception as e:
-        print(f"⚠ Could not create baseline directory: {e}, using fallback")
-        BME680_BASELINE_FILE = BME680_BASELINE_FALLBACK
 
-    # Try to load from primary location
-    try:
-        if os.path.exists(BME680_BASELINE_FILE):
-            with open(BME680_BASELINE_FILE, 'r') as f:
-                saved_baseline = json.load(f)
-                bme680_baseline.update(saved_baseline)
-                print(f"✓ Loaded baseline from {BME680_BASELINE_FILE}")
-                return True
-    except PermissionError:
-        print(f"⚠ No permission to read {BME680_BASELINE_FILE}, trying fallback")
-        BME680_BASELINE_FILE = BME680_BASELINE_FALLBACK
-        try:
-            if os.path.exists(BME680_BASELINE_FILE):
-                with open(BME680_BASELINE_FILE, 'r') as f:
-                    saved_baseline = json.load(f)
-                    bme680_baseline.update(saved_baseline)
-                    print(f"✓ Loaded baseline from fallback: {BME680_BASELINE_FILE}")
-                    return True
-        except Exception as e:
-            print(f"⚠ Could not load BME680 baseline from fallback: {e}")
-    except Exception as e:
-        print(f"⚠ Could not load BME680 baseline: {e}")
-
-    return False
-
-def save_bme680_baseline():
-    """
-    Save BME680 baseline calibration to file.
-
-    Attempts to save to /var/lib/beeperKeeper/ first, falls back to /tmp on permission error.
-    """
-    global BME680_BASELINE_FILE
-
-    try:
-        with open(BME680_BASELINE_FILE, 'w') as f:
-            json.dump(bme680_baseline, f)
-        print(f"✓ Saved baseline to {BME680_BASELINE_FILE}")
+        with open(BSEC_CAL_START_FILE, 'w') as f:
+            f.write(str(int(time.time())))
+        print(f"✓ BSEC calibration start time saved to {BSEC_CAL_START_FILE}")
         return True
     except PermissionError:
-        print(f"⚠ No permission to write {BME680_BASELINE_FILE}, trying fallback")
-        BME680_BASELINE_FILE = BME680_BASELINE_FALLBACK
+        # Fallback to /tmp if no permissions
+        print(f"⚠ No permission to write {BSEC_CAL_START_FILE}, using fallback")
+        BSEC_CAL_START_FILE = BSEC_CAL_START_FALLBACK
         try:
-            with open(BME680_BASELINE_FILE, 'w') as f:
-                json.dump(bme680_baseline, f)
-            print(f"✓ Saved baseline to fallback: {BME680_BASELINE_FILE}")
+            with open(BSEC_CAL_START_FILE, 'w') as f:
+                f.write(str(int(time.time())))
+            print(f"✓ BSEC calibration start time saved to fallback: {BSEC_CAL_START_FILE}")
             return True
         except Exception as e:
-            print(f"✗ Could not save BME680 baseline to fallback: {e}")
+            print(f"✗ Could not save BSEC calibration start time to fallback: {e}")
     except Exception as e:
-        print(f"✗ Could not save BME680 baseline: {e}")
+        print(f"✗ Could not save BSEC calibration start time: {e}")
     return False
 
-def calculate_gas_resistance_compensated(gas_raw, humidity):
-    """Calculate humidity-compensated gas resistance"""
-    if gas_raw <= 0:
-        return 0
+def load_bsec_calibration_start():
+    """
+    Load BSEC calibration start timestamp from file.
+    Returns timestamp (float) or None if not found.
+    """
+    global BSEC_CAL_START_FILE
+
     try:
-        log_gas = math.log(gas_raw)
-        hum_offset = 0.04 * log_gas * humidity
-        comp_gas = log_gas + hum_offset
-        return comp_gas
+        if os.path.exists(BSEC_CAL_START_FILE):
+            with open(BSEC_CAL_START_FILE, 'r') as f:
+                return float(f.read().strip())
+    except PermissionError:
+        # Try fallback location
+        BSEC_CAL_START_FILE = BSEC_CAL_START_FALLBACK
+        try:
+            if os.path.exists(BSEC_CAL_START_FILE):
+                with open(BSEC_CAL_START_FILE, 'r') as f:
+                    return float(f.read().strip())
+        except:
+            pass
     except:
-        return 0
+        pass
 
-def calculate_iaq(gas_raw, humidity):
+    return None
+
+def classify_iaq(iaq_value):
     """
-    Calculate Indoor Air Quality (IAQ) index from 0-500.
+    Classify IAQ value according to BSEC standard thresholds.
 
-    Requires 30-minute calibration period (180 samples at 10s intervals).
-    Logs calibration progress every 5 minutes (30 samples) for user feedback.
+    BSEC IAQ Scale:
+    0-50: Excellent
+    51-100: Good
+    101-150: Lightly polluted
+    151-200: Moderately polluted
+    201-250: Heavily polluted
+    251-350: Severely polluted
+    >350: Extremely polluted
     """
-    global bme680_baseline
-
-    if bme680_baseline['gas_baseline'] is None:
-        if bme680_baseline['samples_collected'] < 180:  # 30 min at 10s intervals
-            bme680_baseline['samples_collected'] += 1
-
-            # Log calibration progress every 5 minutes (30 samples)
-            if bme680_baseline['samples_collected'] % 30 == 0:
-                elapsed_minutes = bme680_baseline['samples_collected'] // 6
-                print(f"⏱ BME680 Calibration: {elapsed_minutes} of 30 minutes elapsed ({bme680_baseline['samples_collected']}/180 samples)")
-
-            return None
-        else:
-            bme680_baseline['gas_baseline'] = gas_raw
-            bme680_baseline['hum_baseline'] = humidity
-            bme680_baseline['calibration_time'] = time.time()
-            save_bme680_baseline()
-            print(f"✓ BME680: Baseline calibrated! Gas={gas_raw:.0f}Ω, Hum={humidity:.1f}%")
-            return 50
-
-    gas_comp = calculate_gas_resistance_compensated(gas_raw, humidity)
-    baseline_comp = calculate_gas_resistance_compensated(
-        bme680_baseline['gas_baseline'],
-        bme680_baseline['hum_baseline']
-    )
-
-    if baseline_comp == 0:
+    if iaq_value is None:
         return None
 
-    gas_ratio = baseline_comp / gas_comp if gas_comp > 0 else 1.0
-    iaq = 50 + (1.0 - gas_ratio) * 450
-    iaq = max(0, min(500, iaq))
-
-    return round(iaq, 1)
-
-def estimate_co2_equivalent(iaq):
-    """Estimate CO2 equivalent in ppm from IAQ"""
-    if iaq is None:
-        return None
-
-    if iaq <= 50:
-        co2 = 400 + (iaq / 50) * 200
-    elif iaq <= 100:
-        co2 = 600 + ((iaq - 50) / 50) * 200
-    elif iaq <= 150:
-        co2 = 800 + ((iaq - 100) / 50) * 200
-    elif iaq <= 200:
-        co2 = 1000 + ((iaq - 150) / 50) * 500
-    elif iaq <= 300:
-        co2 = 1500 + ((iaq - 200) / 100) * 1000
+    if iaq_value <= 50:
+        return 'Excellent'
+    elif iaq_value <= 100:
+        return 'Good'
+    elif iaq_value <= 150:
+        return 'Moderate'
+    elif iaq_value <= 200:
+        return 'Poor'
+    elif iaq_value <= 300:
+        return 'Very Poor'
     else:
-        co2 = 2500 + ((iaq - 300) / 200) * 2500
+        return 'Severe'
 
-    return round(co2, 0)
+# BSEC 2.6.1.0 Integration
+# Must be initialized after function definitions but before main()
+bsec_available = False
+try:
+    from bme680_bsec_integration import init_bsec, read_bsec
+    bsec_available = init_bsec()
+    if bsec_available:
+        print("✓ BSEC 2.6.1.0 initialized - 4-day calibration period started")
+        # Save calibration start time (only if file doesn't exist yet)
+        save_bsec_calibration_start()
+except Exception as e:
+    print(f"⚠ BSEC 2.6.1.0 not available: {e}")
 
 def init_audio():
     """Initialize audio input for microphone monitoring using RTSP stream analysis."""
@@ -611,6 +685,72 @@ def publish_lights_state():
     except Exception as e:
         print(f"✗ Lights state publish error: {e}")
 
+def update_bsec_cache():
+    """
+    Read BSEC data and update cache for use by main publish_sensor_data().
+    Also publishes detailed BSEC topics for advanced monitoring.
+    """
+    global bsec_available, bsec_cache
+
+    if not bsec_available:
+        return
+
+    try:
+        data = read_bsec()
+        if data is None:
+            # BSEC needs time to complete first measurement cycle
+            return
+
+        timestamp = int(time.time())
+
+        # Update cache with BSEC values (used by publish_sensor_data for /all topic)
+        bsec_cache['iaq'] = data.get('iaq')
+        bsec_cache['iaq_accuracy'] = data.get('iaq_accuracy', 0)
+        bsec_cache['co2_equivalent'] = data.get('co2_equivalent')
+        bsec_cache['breath_voc_equivalent'] = data.get('breath_voc_equivalent')
+        bsec_cache['static_iaq'] = data.get('static_iaq')
+        bsec_cache['timestamp'] = timestamp
+
+        # Calculate calibration progress for UI (BSEC needs ~96 hours for full accuracy=3)
+        cal_start = load_bsec_calibration_start()
+        if cal_start:
+            cal_elapsed_hours = (time.time() - cal_start) / 3600.0
+            # Progress: 0-96 hours = 0-100%
+            bsec_cache['calibration_progress'] = min(100.0, round((cal_elapsed_hours / 96.0) * 100, 1))
+        else:
+            bsec_cache['calibration_progress'] = 0
+
+        # Publish detailed BSEC metrics (separate topics for advanced monitoring)
+        if data.get('iaq') is not None:
+            mqtt_client.publish("beeper/sensors/bme680/iaq_bsec",
+                              json.dumps({"value": data['iaq'], "accuracy": data['iaq_accuracy'], "timestamp": timestamp}))
+
+        if data.get('static_iaq') is not None:
+            mqtt_client.publish("beeper/sensors/bme680/static_iaq_bsec",
+                              json.dumps({"value": data['static_iaq'], "timestamp": timestamp}))
+
+        if data.get('co2_equivalent') is not None:
+            mqtt_client.publish("beeper/sensors/bme680/co2_bsec",
+                              json.dumps({"value": data['co2_equivalent'], "timestamp": timestamp}))
+
+        if data.get('breath_voc_equivalent') is not None:
+            mqtt_client.publish("beeper/sensors/bme680/breath_voc_bsec",
+                              json.dumps({"value": data['breath_voc_equivalent'], "timestamp": timestamp}))
+
+        # Publish combined BSEC data (detailed topic)
+        data['timestamp'] = timestamp
+        data['sensor_type'] = 'bme680_bsec'
+        data['location'] = 'raspberry_pi'
+        mqtt_client.publish("beeper/sensors/bme680/bsec_all", json.dumps(data))
+
+        # Log BSEC calibration status
+        accuracy_stars = "★" * data['iaq_accuracy'] + "☆" * (3 - data['iaq_accuracy'])
+        if data.get('iaq') is not None:
+            print(f"📤 BSEC: IAQ {data['iaq']:.1f} ({accuracy_stars}), CO₂ {data['co2_equivalent']:.0f}ppm")
+
+    except Exception as e:
+        print(f"✗ BSEC read error: {e}")
+
 def get_cpu_temp():
     """Read CPU temperature from thermal zone."""
     try:
@@ -623,48 +763,41 @@ def publish_sensor_data():
     """Read and publish all sensor data to MQTT."""
     timestamp = int(time.time())
 
-    # BME680 Environmental Sensor
+    # First update BSEC cache (reads BSEC and publishes detailed topics)
+    update_bsec_cache()
+
+    # BME680 Environmental Sensor - raw readings from Adafruit + IAQ/CO2 from BSEC
     if bme680:
         try:
-            # Read raw sensor values
+            # Read raw sensor values (Adafruit library for basic readings)
             temperature = round(bme680.temperature, 2)
             humidity = round(bme680.humidity, 2)
             pressure = round(bme680.pressure, 2)
             gas_raw = int(bme680.gas)
 
-            # Calculate air quality metrics
-            gas_compensated = calculate_gas_resistance_compensated(gas_raw, humidity)
-            iaq = calculate_iaq(gas_raw, humidity)
-            co2_equivalent = estimate_co2_equivalent(iaq)
+            # Get air quality metrics from BSEC cache (Bosch vendor algorithm)
+            iaq = bsec_cache.get('iaq')
+            co2_equivalent = bsec_cache.get('co2_equivalent')
+            calibration_progress = bsec_cache.get('calibration_progress', 0)
+            iaq_accuracy = bsec_cache.get('iaq_accuracy', 0)
 
-            # Calculate calibration progress
-            calibration_progress = 0
-            if bme680_baseline['gas_baseline'] is None:
-                calibration_progress = round((bme680_baseline['samples_collected'] / 180.0) * 100, 1)
-
-            # Classify IAQ level
-            iaq_classification = None
+            # Round BSEC values for consistency
             if iaq is not None:
-                if iaq <= 50:
-                    iaq_classification = 'Excellent'
-                elif iaq <= 100:
-                    iaq_classification = 'Good'
-                elif iaq <= 150:
-                    iaq_classification = 'Moderate'
-                elif iaq <= 200:
-                    iaq_classification = 'Poor'
-                elif iaq <= 300:
-                    iaq_classification = 'Very Poor'
-                else:
-                    iaq_classification = 'Severe'
+                iaq = round(iaq, 1)
+            if co2_equivalent is not None:
+                co2_equivalent = round(co2_equivalent, 0)
 
+            # Classify IAQ level using BSEC value
+            iaq_classification = classify_iaq(iaq)
+
+            # Build combined data payload (same field names for Grafana compatibility)
             data = {
                 "temperature": temperature,
                 "humidity": humidity,
                 "pressure": pressure,
                 "gas_raw": gas_raw,
-                "gas_compensated": round(gas_compensated, 3) if gas_compensated else None,
                 "iaq": iaq,
+                "iaq_accuracy": iaq_accuracy,
                 "iaq_classification": iaq_classification,
                 "co2_equivalent": co2_equivalent,
                 "calibration_progress": calibration_progress,
@@ -682,10 +815,8 @@ def publish_sensor_data():
                               json.dumps({"value": pressure, "timestamp": timestamp}))
             mqtt_client.publish("beeper/sensors/bme680/gas",
                               json.dumps({"value": gas_raw, "timestamp": timestamp}))
-            mqtt_client.publish("beeper/sensors/bme680/gas_compensated",
-                              json.dumps({"value": gas_compensated, "timestamp": timestamp}))
 
-            # Publish air quality metrics
+            # Publish air quality metrics (from BSEC)
             if iaq is not None:
                 mqtt_client.publish("beeper/sensors/bme680/iaq",
                                   json.dumps({"value": iaq, "timestamp": timestamp}))
@@ -696,14 +827,15 @@ def publish_sensor_data():
                 mqtt_client.publish("beeper/sensors/bme680/iaq_classification",
                                   json.dumps({"value": iaq_classification, "timestamp": timestamp}))
 
-            # Publish combined data
+            # Publish combined data (main topic used by Grafana)
             mqtt_client.publish("beeper/sensors/bme680/all", json.dumps(data))
 
-            # Enhanced logging
+            # Log sensor readings
             if iaq is not None:
-                print(f"📤 BME680: {temperature}°C, {humidity}%, {pressure}hPa, IAQ: {iaq}, CO₂: {co2_equivalent}ppm")
+                accuracy_stars = "★" * iaq_accuracy + "☆" * (3 - iaq_accuracy)
+                print(f"📤 BME680: {temperature}°C, {humidity}%, {pressure}hPa | BSEC IAQ: {iaq} ({accuracy_stars}), CO₂: {co2_equivalent}ppm")
             else:
-                print(f"📤 BME680: {temperature}°C, {humidity}%, {pressure}hPa, Gas: {gas_raw}Ω (Calibrating {calibration_progress}%)")
+                print(f"📤 BME680: {temperature}°C, {humidity}%, {pressure}hPa, Gas: {gas_raw}Ω (BSEC calibrating {calibration_progress}%)")
         except Exception as e:
             print(f"✗ BME680 read error: {e}")
 
@@ -770,6 +902,8 @@ def publish_sensor_data():
 
     # Lights State Tracking
     publish_lights_state()
+
+    # Note: BSEC data is updated at start of publish_sensor_data() via update_bsec_cache()
 
     # Enhanced Audio Monitoring with Frequency Analysis and Event Detection
     if audio_enabled:
@@ -844,6 +978,128 @@ def publish_sensor_data():
 
         except Exception as e:
             print(f"✗ Audio monitoring error: {e}")
+
+    # ML Feed Level Monitoring (async - non-blocking)
+    # Publish cached ML result immediately
+    publish_feed_level_cached()
+    # Start background update if needed
+    schedule_ml_update()
+
+    # Weather Data (updated every 30 minutes, cached)
+    publish_weather()
+
+
+def get_ml_feed_level():
+    """Get feed level prediction from ML model"""
+    try:
+        import subprocess
+        roi_image = '/tmp/test_roi_from_api.jpg'
+
+        if not os.path.exists(roi_image):
+            return None
+
+        # Call ML wrapper script (TFLite version for faster inference)
+        # Set environment variable to suppress TFLite info messages
+        env = os.environ.copy()
+        env['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Suppress INFO and WARNING
+
+        result = subprocess.run(
+            ['/opt/beeperKeeper/ml_predict_wrapper_tflite.sh', roi_image],
+            capture_output=True,
+            text=True,
+            timeout=45,  # Pi3 needs ~13s for TF init + ~2-3s for inference
+            env=env
+        )
+
+        if result.returncode == 0:
+            # Parse JSON output
+            prediction = json.loads(result.stdout.strip())
+            percent = round(prediction['percent_full'], 2)
+            # Derive level from percentage
+            if percent >= 75:
+                level = 'FULL'
+            elif percent >= 50:
+                level = 'MEDIUM'
+            elif percent >= 25:
+                level = 'LOW'
+            else:
+                level = 'EMPTY'
+            return {
+                'percent_full': percent,
+                'confidence': round(prediction['confidence'], 2),
+                'method': 'ml',
+                'level': level
+            }
+        else:
+            print(f"ML prediction failed: {result.stderr}")
+            return None
+
+    except Exception as e:
+        print(f"ML feed level error: {e}")
+        return None
+
+
+def publish_feed_level_cached():
+    """Publish cached ML-based feed level to MQTT (non-blocking)"""
+    global ml_feed_data
+
+    # Read cached data with thread safety
+    with ml_feed_lock:
+        feed_data = ml_feed_data
+
+    try:
+        if feed_data:
+            mqtt_client.publish("beeper/feed/level/current", feed_data['percent_full'])
+            mqtt_client.publish("beeper/feed/level/confidence", feed_data['confidence'])
+
+            # Publish combined payload
+            payload = json.dumps(feed_data)
+            mqtt_client.publish("beeper/feed/level/all", payload)
+
+            print(f"📊 Feed Level: {feed_data['percent_full']}% (confidence: {feed_data['confidence']}%)")
+        else:
+            print("⚠️  Feed level: ML prediction unavailable (no cache)")
+
+    except Exception as e:
+        print(f"✗ Feed level publish error: {e}")
+
+
+def update_ml_feed_background():
+    """Background thread function to update ML feed prediction"""
+    global ml_feed_data, ml_last_update
+
+    print("🔄 Updating ML feed level (background)...")
+    feed_data = get_ml_feed_level()
+
+    # Update cached data with thread safety
+    with ml_feed_lock:
+        ml_feed_data = feed_data
+        ml_last_update = time.time()
+
+    if feed_data:
+        print(f"✓ ML update complete: {feed_data['percent_full']}% ({feed_data['confidence']}% confidence)")
+    else:
+        print("⚠️  ML update failed")
+
+
+def schedule_ml_update():
+    """Start ML update in background thread if needed"""
+    global ml_feed_thread, ml_last_update
+
+    current_time = time.time()
+
+    # Check if update is needed
+    if current_time - ml_last_update < ML_UPDATE_INTERVAL:
+        return  # Too soon for another update
+
+    # Check if thread is already running
+    if ml_feed_thread and ml_feed_thread.is_alive():
+        return  # Update already in progress
+
+    # Start new background thread
+    ml_feed_thread = threading.Thread(target=update_ml_feed_background, daemon=True)
+    ml_feed_thread.start()
+
 
 def main():
     """Main loop for MQTT publisher."""

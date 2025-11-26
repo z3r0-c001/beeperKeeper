@@ -11,17 +11,17 @@ webrtcAddress: :8889
 webrtcICEServers2: []
 
 # HLS - Balanced for reliability and moderate latency
-# FIXED: Reduced segment count from 40 to 6 (was causing 80s buffer)
-# FIXED: Increased segment duration from 2s to 4s (fewer HTTP requests)
-# FIXED: Changed variant from lowLatency to mpegts (traditional HLS - most compatible)
-# FIXED: Increased part duration from 500ms to 1s (less overhead)
+# v2.1 FIX (Nov 26, 2025): Reduced drift between streams
+# - Shorter segments (2s) for tighter sync
+# - fMP4 variant for better audio/video sync (vs mpegts)
+# - Segment count 4 = ~8s buffer (was 24s with 6x4s)
 hls: yes
 hlsAddress: :8888
 hlsAlwaysRemux: yes
-hlsVariant: mpegts
-hlsSegmentCount: 6
-hlsSegmentDuration: 4s
-hlsPartDuration: 1s
+hlsVariant: fmp4
+hlsSegmentCount: 4
+hlsSegmentDuration: 2s
+hlsPartDuration: 500ms
 hlsSegmentMaxSize: 50M
 
 # RTSP backend

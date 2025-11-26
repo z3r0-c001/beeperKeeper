@@ -89,14 +89,28 @@ if [ "$USE_AUDIO" = true ]; then
     # WITH AUDIO: 800x600@15fps MJPEG → H.264 Baseline + AAC
     # AAC audio for HLS compatibility (Opus doesn't work reliably with HLS.js)
     # Balanced resolution/framerate for USB 2.0 cameras
+    #
+    # AUDIO FIX v2.1 (Nov 26, 2025):
+    # Issue: ALSA buffer xruns causing choppy audio
+    # Fixes applied:
+    #   - thread_queue_size 4096 (was 1024) - larger buffer for audio input
+    #   - probesize/analyzeduration - faster stream detection, less initial buffering
+    #   - fflags +genpts - generate presentation timestamps for cleaner muxing
+    #   - async audio resampling to handle timestamp jitter
+    #   - Reduced video thread_queue_size to prioritize audio buffering
     echo "[USB Camera v2.0] Starting stream WITH audio (800x600@15fps, USB 2.0, AAC for HLS)" >&2
     exec ffmpeg \
-        -f v4l2 -input_format mjpeg -video_size 800x600 -framerate 15 -i "$USB_VIDEO_DEV" \
-        -f alsa -sample_rate 48000 -channels 1 -i "$USB_AUDIO_DEV" \
+        -probesize 32 -analyzeduration 0 \
+        -f v4l2 -thread_queue_size 512 -input_format mjpeg -video_size 800x600 -framerate 15 -i "$USB_VIDEO_DEV" \
+        -f alsa -thread_queue_size 4096 -sample_rate 48000 -channels 1 -i "$USB_AUDIO_DEV" \
+        -fflags +genpts \
+        -map 0:v:0 -map 1:a:0 \
         -c:v libx264 -profile:v baseline -level 3.1 -preset ultrafast -tune zerolatency \
         -pix_fmt yuv420p \
-        -crf 26 -maxrate 1500k -bufsize 1500k -g 30 \
-        -c:a aac -b:a 64k -ar 48000 \
+        -crf 26 -maxrate 1500k -bufsize 3000k -g 30 \
+        -c:a aac -aac_coder twoloop -b:a 96k -ar 48000 -ac 1 \
+        -af "aresample=async=1000:min_hard_comp=0.100000:first_pts=0" \
+        -max_muxing_queue_size 1024 \
         -f rtsp -rtsp_transport tcp rtsp://localhost:8554/usb_camera
 else
     # VIDEO ONLY: 800x600@15fps MJPEG → H.264 Baseline

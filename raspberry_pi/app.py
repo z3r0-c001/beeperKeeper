@@ -6,7 +6,7 @@ BEEPER KEEPER v2.0 - Streamlined Camera Monitoring System
 HLS-based dual camera streaming with BME680 sensor integration
 and real-time metrics via MQTT.
 
-Author: your_github_username
+Author: z3r0-c001
 """
 
 from flask import Flask, render_template, jsonify, Response, request
@@ -29,6 +29,7 @@ import re
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import cv2
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 import subprocess
@@ -61,7 +62,7 @@ SMTP_HOST = os.getenv('GF_SMTP_HOST', 'smtp.gmail.com')
 SMTP_PORT = int(os.getenv('GF_SMTP_PORT', '587'))
 SMTP_USER = os.getenv('GF_SMTP_USER', '')
 SMTP_PASSWORD = os.getenv('GF_SMTP_PASSWORD', '')
-SMTP_FROM_ADDRESS = os.getenv('GF_SMTP_FROM_ADDRESS', 'beeper@YOUR_WEBSITE')
+SMTP_FROM_ADDRESS = os.getenv('GF_SMTP_FROM_ADDRESS', 'beeper@YOUR_DOMAIN')
 SMTP_FROM_NAME = os.getenv('GF_SMTP_FROM_NAME', 'Beeper Keeper Alerts')
 
 # Light schedule times
@@ -80,6 +81,8 @@ sensor_data = {
     'cpu_temperature': 0,
     'audio_level': 0,
     'water': {},
+    'food': {},
+    'weather': {},
     'last_update': 0
 }
 
@@ -106,6 +109,14 @@ announcement_lock = threading.Lock()
 # Real-time streaming sessions
 streaming_sessions = {}
 streaming_sessions_lock = threading.Lock()
+
+# ROI image cache (prevents concurrent captures)
+roi_image_cache = {
+    'image_data': None,
+    'timestamp': 0,
+    'lock': threading.Lock()
+}
+ROI_CACHE_DURATION = 30  # seconds (30s for fresher captures)
 
 def load_subscriptions():
     """Load email subscriptions from file"""
@@ -270,7 +281,10 @@ def on_mqtt_connect(client, userdata, flags, rc):
             ("beeper/camera/csi/metadata", 0),
             ("beeper/audio/level", 0),
             ("beeper/water/tank", 0),
-            ("beeper/water/status", 0)
+            ("beeper/water/status", 0),
+            ("beeper/feed/level/current", 0),
+            ("beeper/feed/level/all", 0),
+            ("beeper/weather/all", 0)
         ])
     else:
         print(f"✗ MQTT connection failed: {rc}")
@@ -285,6 +299,11 @@ def on_mqtt_message(client, userdata, msg):
         if 'bme680' in topic:
             if topic.endswith('/all'):
                 sensor_data['bme680'] = payload
+            elif topic.endswith('/iaq_bsec'):
+                # Capture BSEC IAQ accuracy data (0-3 scale)
+                if 'bme680' not in sensor_data:
+                    sensor_data['bme680'] = {}
+                sensor_data['bme680']['iaq_accuracy'] = payload.get('accuracy', 0)
         elif 'cpu/temperature' in topic:
             sensor_data['cpu_temperature'] = payload.get('cpu_temp', 0)
         elif 'system/stats' in topic:
@@ -303,6 +322,26 @@ def on_mqtt_message(client, userdata, msg):
             if 'water' not in sensor_data:
                 sensor_data['water'] = {}
             sensor_data['water'].update(payload)
+        elif 'feed/level/current' in topic:
+            # Food level data from MQTT (raw float value, not JSON object)
+            if 'food' not in sensor_data:
+                sensor_data['food'] = {}
+            # Handle both float and dict payloads
+            if isinstance(payload, dict):
+                sensor_data['food'].update(payload)
+            else:
+                sensor_data['food']['percentage'] = float(payload)
+        elif 'feed/level/all' in topic:
+            # Full feed level data with level classification
+            sensor_data['food'] = {
+                'percentage': payload.get('percent_full', 0),
+                'level': payload.get('level', 'UNKNOWN'),
+                'confidence': payload.get('confidence', 0),
+                'method': payload.get('method', 'unknown')
+            }
+        elif 'weather/all' in topic:
+            # Weather data from NWS API
+            sensor_data['weather'] = payload
 
         sensor_data['last_update'] = time.time()
     except Exception as e:
@@ -334,7 +373,9 @@ def get_cpu_temp():
 def get_system_stats():
     """Get system statistics"""
     try:
-        cpu_percent = round(psutil.cpu_percent(interval=0.5), 1)
+        # Use interval=0 for non-blocking CPU measurement (uses cached value)
+        # This prevents /api/metrics from blocking for 0.5s on every request
+        cpu_percent = round(psutil.cpu_percent(interval=0), 1)
         memory = psutil.virtual_memory()
         disk = psutil.disk_usage('/')
 
@@ -348,52 +389,77 @@ def get_system_stats():
         return sensor_data.get('system', {})
 
 def format_bme680_data(data):
-    """Format BME680 sensor data for display"""
+    """Format BME680 sensor data for display with BSEC calibration status"""
     if not data:
         return {}
 
-    # Check if IAQ is available (calibration complete)
-    calibrating = data.get('iaq') is None
+    # BSEC accuracy: 0=stabilizing, 1=low, 2=medium, 3=high (calibrated)
+    iaq_accuracy = data.get('iaq_accuracy', 0)
 
-    # Get calibration progress from data or calculate estimate
-    calibration_progress = data.get('calibration_progress', 0)
+    # Map accuracy to calibration status
+    # Accuracy < 3 means still calibrating (4-day BSEC calibration period)
+    calibrating = iaq_accuracy < 3
 
-    if calibrating:
-        # Show calibrating status with progress
-        return {
-            'temperature': round(data.get('temperature', 0), 1),
-            'humidity': round(data.get('humidity', 0), 1),
-            'pressure': round(data.get('pressure', 0), 1),
-            'gas_raw': int(data.get('gas_raw', 0)),
-            'calibration_status': 'calibrating',
-            'calibration_progress': calibration_progress
-        }
+    # Get calibration progress from MQTT data (calculated by mqtt_publisher using BSEC)
+    calibration_progress = data.get('calibration_progress', 0) or 0
 
-    # Classify IAQ level
-    iaq = data.get('iaq', 0)
-    if iaq <= 50:
-        iaq_class = 'Excellent'
-    elif iaq <= 100:
-        iaq_class = 'Good'
-    elif iaq <= 150:
-        iaq_class = 'Moderate'
-    elif iaq <= 200:
-        iaq_class = 'Poor'
-    elif iaq <= 300:
-        iaq_class = 'Very Poor'
+    # Calculate calibration day from progress (0-100% over 4 days)
+    # Progress: 0-25% = Day 1, 25-50% = Day 2, 50-75% = Day 3, 75-100% = Day 4
+    if calibration_progress < 25:
+        calibration_day = 1
+        calibration_day_label = f"Day 1 of 4 ({calibration_progress:.1f}%)"
+    elif calibration_progress < 50:
+        calibration_day = 2
+        calibration_day_label = f"Day 2 of 4 ({calibration_progress:.1f}%)"
+    elif calibration_progress < 75:
+        calibration_day = 3
+        calibration_day_label = f"Day 3 of 4 ({calibration_progress:.1f}%)"
+    elif calibration_progress < 100:
+        calibration_day = 4
+        calibration_day_label = f"Day 4 of 4 ({calibration_progress:.1f}%)"
     else:
-        iaq_class = 'Severe'
+        calibration_day = 4
+        calibration_day_label = "Calibrated"
 
-    return {
+    # Base sensor readings (always available)
+    result = {
         'temperature': round(data.get('temperature', 0), 1),
         'humidity': round(data.get('humidity', 0), 1),
         'pressure': round(data.get('pressure', 0), 1),
         'gas_raw': int(data.get('gas_raw', 0)),
-        'iaq': round(data.get('iaq', 0), 1) if data.get('iaq') else None,
-        'iaq_classification': iaq_class,
-        'co2_equivalent': int(data.get('co2_equivalent', 0)) if data.get('co2_equivalent') else None,
-        'calibration_status': 'ready'
+        'iaq_accuracy': iaq_accuracy,
+        'calibration_progress': calibration_progress,
+        'calibration_day': calibration_day,
+        'calibration_day_label': calibration_day_label
     }
+
+    if calibrating:
+        # Show calibrating status with progress
+        result['calibration_status'] = 'calibrating'
+    else:
+        # Calibration complete (accuracy = 3), show full IAQ data
+        result['calibration_status'] = 'ready'
+
+        # Classify IAQ level
+        iaq = data.get('iaq', 0)
+        if iaq <= 50:
+            iaq_class = 'Excellent'
+        elif iaq <= 100:
+            iaq_class = 'Good'
+        elif iaq <= 150:
+            iaq_class = 'Moderate'
+        elif iaq <= 200:
+            iaq_class = 'Poor'
+        elif iaq <= 300:
+            iaq_class = 'Very Poor'
+        else:
+            iaq_class = 'Severe'
+
+        result['iaq'] = round(data.get('iaq', 0), 1) if data.get('iaq') else None
+        result['iaq_classification'] = iaq_class
+        result['co2_equivalent'] = int(data.get('co2_equivalent', 0)) if data.get('co2_equivalent') else None
+
+    return result
 
 def format_camera_metadata(data):
     """Format camera metadata for display"""
@@ -448,7 +514,7 @@ def get_authenticated_username():
     jwt_token = request.headers.get('Cf-Access-Jwt-Assertion')
 
     if not jwt_token:
-        # Allow local development without JWT (local network or localhost)
+        # Allow local development without JWT
         if request.remote_addr.startswith('10.10.10.') or request.remote_addr == '127.0.0.1':
             return f"local-{request.remote_addr}"
         return None
@@ -462,14 +528,14 @@ def get_authenticated_username():
     except:
         return None
 
-def require_authenticated_email(f):
-    """Decorator: Require @YOUR_WEBSITE authenticated user"""
+def require_local_network(f):
+    """Decorator: Require @YOUR_DOMAIN authenticated user"""
     @wraps(f)
     def decorated_function(*args, **kwargs):
         jwt_token = request.headers.get('Cf-Access-Jwt-Assertion')
 
         if not jwt_token:
-            # Allow local development without JWT (local network or localhost)
+            # Allow local development without JWT
             if request.remote_addr.startswith('10.10.10.') or request.remote_addr == '127.0.0.1':
                 print("⚠ Local access - skipping auth check")
                 return f(*args, **kwargs)
@@ -479,13 +545,13 @@ def require_authenticated_email(f):
             decoded = jwt.decode(jwt_token, options={"verify_signature": False})
             email = decoded.get('email', '')
 
-            # Allowed emails: @YOUR_WEBSITE domain + specific authorized users
+            # Allowed emails: @YOUR_DOMAIN domain + specific authorized users
             ALLOWED_EMAILS = [
                 'user1@example.com',
                 'user2@example.com'
             ]
 
-            if not email or (not email.endswith('@YOUR_WEBSITE') and email not in ALLOWED_EMAILS):
+            if not email or (not email.endswith('@YOUR_DOMAIN') and email not in ALLOWED_EMAILS):
                 print(f"✗ Access denied for {email}")
                 return jsonify({'error': 'Access denied - authorization required'}), 403
 
@@ -684,7 +750,7 @@ def cleanup_stream(session_id):
 def handle_stream_connect():
     """Client connected for streaming"""
     username = get_authenticated_username()
-    if not username or not (username.endswith('@YOUR_WEBSITE') or username.startswith('local-') or
+    if not username or not (username.endswith('@YOUR_DOMAIN') or username.startswith('local-') or
                            username in ['user1@example.com', 'user2@example.com']):
         disconnect()
         return False
@@ -936,6 +1002,8 @@ def api_metrics():
         'camera': format_camera_metadata(sensor_data.get('camera', {})),
         'audio_level': sensor_data.get('audio_level', 0),
         'water': sensor_data.get('water', {}),
+        'food': sensor_data.get('food', {}),
+        'weather': sensor_data.get('weather', {}),
         'last_update': sensor_data.get('last_update', 0)
     }
 
@@ -1487,7 +1555,7 @@ def csi_test():
 
 @app.route('/api/announce', methods=['POST'])
 @limiter.limit("10 per minute")  # Rate limit: 10 announcements/minute
-@require_authenticated_email
+@require_local_network
 def api_announce():
     """Receive audio announcement from authenticated user"""
     username = get_username_from_jwt()
@@ -1573,6 +1641,788 @@ def proxy_grafana(subpath):
         print(f"Grafana proxy error: {e}")
         return jsonify({"error": "Grafana unavailable"}), 502
 
+
+
+# ============================================================================
+# FEED TRAINING ROUTES - ML Calibration & Training Data Collection
+# ============================================================================
+
+# Calibration data directory
+CALIBRATION_DATA_DIR = '/opt/beeperKeeper/calibration_data'
+TRAINING_DATA_DIR = '/opt/beeperKeeper/feed_training_data'
+TRAINING_IMAGES_DIR = os.path.join(TRAINING_DATA_DIR, 'images')
+TRAINING_LABELS_DIR = os.path.join(TRAINING_DATA_DIR, 'labels')
+
+# Ensure directories exist
+os.makedirs(CALIBRATION_DATA_DIR, exist_ok=True)
+os.makedirs(TRAINING_IMAGES_DIR, exist_ok=True)
+os.makedirs(TRAINING_LABELS_DIR, exist_ok=True)
+
+@app.route('/train-feed')
+def train_feed():
+    """Serve the feed training interface"""
+    return render_template('train_feed.html')
+
+@app.route('/api/feed/calibration')
+def get_feed_calibration():
+    """Get current feed calibration values from feed_config.py"""
+    try:
+        # Import current config to get live values
+        import re
+        config_path = '/opt/beeperKeeper/feed_config.py'
+
+        # Read feed_config.py and extract FEED_LEVEL_FULL_Y and FEED_LEVEL_EMPTY_Y
+        with open(config_path, 'r') as f:
+            config_content = f.read()
+
+        # Parse values using regex
+        full_y_match = re.search(r'FEED_LEVEL_FULL_Y\s*=\s*(\d+)', config_content)
+        empty_y_match = re.search(r'FEED_LEVEL_EMPTY_Y\s*=\s*(\d+)', config_content)
+
+        full_y = int(full_y_match.group(1)) if full_y_match else 0
+        empty_y = int(empty_y_match.group(1)) if empty_y_match else 0
+
+        return jsonify({
+            'full_y': full_y,
+            'empty_y': empty_y,
+            'range': abs(empty_y - full_y)
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/feed/roi-image')
+@limiter.limit("6 per minute")
+def get_feed_roi_image():
+    """
+    Extract and return the current ROI from the feed monitor image.
+
+    This captures a fresh image from the CSI camera, extracts the ROI,
+    and returns it as a JPEG for the training interface.
+
+    Uses 30-second caching to prevent concurrent capture attempts that
+    would cause MediaMTX restart storms and camera lock conflicts.
+    """
+    with roi_image_cache['lock']:
+        current_time = time.time()
+
+        # Check if user explicitly requests fresh capture
+        force_fresh = request.args.get('force_fresh', 'false').lower() == 'true'
+        cache_age = current_time - roi_image_cache['timestamp']
+
+        # Return cached image if:
+        # 1. Cache exists AND
+        # 2. Cache is less than 30 seconds old AND
+        # 3. User didn't request force_fresh
+        if (roi_image_cache['image_data'] is not None and
+            cache_age < ROI_CACHE_DURATION and
+            not force_fresh):
+            print(f"✓ Serving cached ROI image (age: {int(cache_age)}s)")
+            return Response(roi_image_cache['image_data'], mimetype='image/jpeg')
+
+        # Need fresh capture
+        print(f"⚡ Capturing fresh ROI image (force_fresh={force_fresh}, cache_age={int(cache_age)}s)...")
+
+        try:
+            # Import feed_config to get ROI coordinates
+            import sys
+            from io import BytesIO
+            from PIL import Image
+
+            sys.path.insert(0, '/opt/beeperKeeper')
+            from feed_config import ROI_X, ROI_Y, ROI_WIDTH, ROI_HEIGHT, IMAGE_PATH
+
+            # Trigger a fresh image capture using the feed monitor's capture script
+            # This calls capture_feed_still.sh which handles MediaMTX coordination
+            capture_script = '/opt/beeperKeeper/capture_feed_still.sh'
+
+            result = subprocess.run(
+                [capture_script],
+                capture_output=True,
+                text=True,
+                timeout=20
+            )
+
+            if result.returncode != 0:
+                print(f"✗ Capture script failed: {result.stderr}")
+                return jsonify({'error': 'Image capture failed'}), 500
+
+            # Load the captured image
+            if not os.path.exists(IMAGE_PATH):
+                print(f"✗ Image file not found: {IMAGE_PATH}")
+                return jsonify({'error': 'Image file not found'}), 500
+
+            image = cv2.imread(IMAGE_PATH)
+            if image is None:
+                print(f"✗ Could not load image from {IMAGE_PATH}")
+                return jsonify({'error': 'Could not load image'}), 500
+
+            # Extract ROI
+            roi = image[ROI_Y:ROI_Y+ROI_HEIGHT, ROI_X:ROI_X+ROI_WIDTH]
+
+            # Convert BGR (OpenCV) to RGB (PIL)
+            roi_rgb = cv2.cvtColor(roi, cv2.COLOR_BGR2RGB)
+
+            # Convert to PIL Image
+            pil_image = Image.fromarray(roi_rgb)
+
+            # Save to BytesIO buffer as JPEG
+            buffer = BytesIO()
+            pil_image.save(buffer, format='JPEG', quality=95)
+            roi_jpeg = buffer.getvalue()
+
+            # Cache the result
+            roi_image_cache['image_data'] = roi_jpeg
+            roi_image_cache['timestamp'] = current_time
+
+            print(f"✓ Fresh ROI image captured and cached ({len(roi_jpeg)} bytes)")
+            return Response(roi_jpeg, mimetype='image/jpeg')
+
+        except subprocess.TimeoutExpired:
+            print("✗ Image capture timeout (>20s)")
+            return jsonify({'error': 'Image capture timeout'}), 500
+        except Exception as e:
+            print(f"✗ ROI image error: {e}")
+            return jsonify({'error': str(e)}), 500
+
+@app.route('/api/feed/save-calibration', methods=['POST'])
+def save_feed_calibration():
+    """
+    Save new calibration markers to feed_config.py.
+
+    Expects JSON: { "full_y": int, "empty_y": int }
+
+    This updates the FEED_LEVEL_FULL_Y and FEED_LEVEL_EMPTY_Y values
+    in feed_config.py and restarts the feed-monitor service.
+    """
+    try:
+        import re
+
+        data = request.get_json()
+        full_y = int(data.get('full_y', 0))
+        empty_y = int(data.get('empty_y', 0))
+
+        if full_y >= empty_y:
+            return jsonify({
+                'success': False,
+                'error': 'FULL_Y must be less than EMPTY_Y (Y increases downward)'
+            }), 400
+
+        # Read current feed_config.py
+        config_path = '/opt/beeperKeeper/feed_config.py'
+        with open(config_path, 'r') as f:
+            config_content = f.read()
+
+        # Update FEED_LEVEL_FULL_Y value
+        config_content = re.sub(
+            r'FEED_LEVEL_FULL_Y\s*=\s*\d+',
+            f'FEED_LEVEL_FULL_Y = {full_y}',
+            config_content
+        )
+
+        # Update FEED_LEVEL_EMPTY_Y value
+        config_content = re.sub(
+            r'FEED_LEVEL_EMPTY_Y\s*=\s*\d+',
+            f'FEED_LEVEL_EMPTY_Y = {empty_y}',
+            config_content
+        )
+
+        # Update calibration date and version
+        today = datetime.now().strftime('%Y-%m-%d')
+        config_content = re.sub(
+            r"CALIBRATION_DATE\s*=\s*['\"].*?['\"]",
+            f"CALIBRATION_DATE = '{today}'",
+            config_content
+        )
+
+        # Write updated config
+        with open(config_path, 'w') as f:
+            f.write(config_content)
+
+        # Also save to calibration_data directory for record-keeping
+        calibration_record = {
+            'full_y': full_y,
+            'empty_y': empty_y,
+            'range': empty_y - full_y,
+            'timestamp': datetime.now().isoformat(),
+            'method': 'web_ui_manual'
+        }
+
+        record_path = os.path.join(
+            CALIBRATION_DATA_DIR,
+            f'calibration_{today}.json'
+        )
+        with open(record_path, 'w') as f:
+            json.dump(calibration_record, f, indent=2)
+
+        # Restart feed-monitor service to apply new calibration
+        restart_result = subprocess.run(
+            ['sudo', 'systemctl', 'restart', 'feed-monitor'],
+            capture_output=True,
+            timeout=10
+        )
+
+        if restart_result.returncode == 0:
+            return jsonify({
+                'success': True,
+                'full_y': full_y,
+                'empty_y': empty_y,
+                'message': 'Calibration saved and feed-monitor restarted'
+            })
+        else:
+            return jsonify({
+                'success': True,
+                'full_y': full_y,
+                'empty_y': empty_y,
+                'warning': 'Calibration saved but service restart failed. Manual restart may be needed.'
+            })
+
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/feed/save-training-sample', methods=['POST'])
+def save_training_sample():
+    """
+    Save a marked training sample for ML model training.
+
+    Expects JSON: { "y_position": int, "percent_full": float }
+
+    This saves the current ROI image and the label (Y position + percentage)
+    to the training dataset directory.
+    """
+    try:
+        data = request.get_json()
+        y_position = int(data.get('y_position', 0))
+        percent_full = float(data.get('percent_full', 0))
+
+        # Import feed_config
+        import sys
+        sys.path.insert(0, '/opt/beeperKeeper')
+        from feed_config import IMAGE_PATH, ROI_X, ROI_Y, ROI_WIDTH, ROI_HEIGHT
+
+        # Load the current feed image (should already exist from ROI extraction)
+        if not os.path.exists(IMAGE_PATH):
+            return jsonify({'success': False, 'error': 'No image available'}), 400
+
+        image = cv2.imread(IMAGE_PATH)
+        if image is None:
+            return jsonify({'success': False, 'error': 'Could not load image'}), 500
+
+        # Extract ROI
+        roi = image[ROI_Y:ROI_Y+ROI_HEIGHT, ROI_X:ROI_X+ROI_WIDTH]
+
+        # Generate unique filename
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_%f')
+        image_filename = f'feed_{timestamp}.jpg'
+        label_filename = f'feed_{timestamp}.json'
+
+        # Save ROI image
+        image_path = os.path.join(TRAINING_IMAGES_DIR, image_filename)
+        cv2.imwrite(image_path, roi, [cv2.IMWRITE_JPEG_QUALITY, 95])
+
+        # Save label
+        label_data = {
+            'image_filename': image_filename,
+            'y_position': y_position,
+            'percent_full': round(percent_full, 1),
+            'timestamp': datetime.now().isoformat(),
+            'roi_coords': {
+                'x': ROI_X,
+                'y': ROI_Y,
+                'width': ROI_WIDTH,
+                'height': ROI_HEIGHT
+            }
+        }
+
+        label_path = os.path.join(TRAINING_LABELS_DIR, label_filename)
+        with open(label_path, 'w') as f:
+            json.dump(label_data, f, indent=2)
+
+        # Update dataset CSV
+        dataset_csv = os.path.join(TRAINING_DATA_DIR, 'dataset.csv')
+        csv_exists = os.path.exists(dataset_csv)
+
+        with open(dataset_csv, 'a') as f:
+            if not csv_exists:
+                f.write('image_path,y_position,percent_full,timestamp\n')
+
+            f.write(f'{image_path},{y_position},{percent_full},{datetime.now().isoformat()}\n')
+
+        # Count total samples
+        samples_collected = len([f for f in os.listdir(TRAINING_LABELS_DIR) if f.endswith('.json')])
+
+        return jsonify({
+            'success': True,
+            'samples_collected': samples_collected,
+            'image_saved': image_filename
+        })
+
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/feed/training-progress')
+def get_training_progress():
+    """Get ML training dataset collection progress"""
+    try:
+        # Count JSON files in labels directory
+        label_files = [f for f in os.listdir(TRAINING_LABELS_DIR) if f.endswith('.json')]
+        samples_collected = len(label_files)
+
+        # Calculate distribution by fill level
+        distribution = {
+            '0-25%': 0,
+            '26-50%': 0,
+            '51-75%': 0,
+            '76-100%': 0
+        }
+
+        for label_file in label_files:
+            label_path = os.path.join(TRAINING_LABELS_DIR, label_file)
+            with open(label_path, 'r') as f:
+                label_data = json.load(f)
+                percent = label_data.get('percent_full', 0)
+
+                if percent <= 25:
+                    distribution['0-25%'] += 1
+                elif percent <= 50:
+                    distribution['26-50%'] += 1
+                elif percent <= 75:
+                    distribution['51-75%'] += 1
+                else:
+                    distribution['76-100%'] += 1
+
+        return jsonify({
+            'samples_collected': samples_collected,
+            'target': 150,
+            'progress_percentage': round((samples_collected / 150) * 100, 1),
+            'distribution': distribution
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/feed/full-frame')
+def get_feed_full_frame():
+    """
+    Capture and return full 1920x1080 camera frame for ROI adjustment.
+
+    Temporarily stops MediaMTX to capture a fresh image, then returns
+    the full frame as JPEG for the ROI Setup interface.
+    """
+    try:
+        import sys
+        from io import BytesIO
+        from PIL import Image
+
+        sys.path.insert(0, '/opt/beeperKeeper')
+        from feed_config import IMAGE_PATH
+
+        # Trigger fresh image capture (same pattern as ROI capture)
+        capture_script = '/opt/beeperKeeper/capture_feed_still.sh'
+
+        result = subprocess.run(
+            [capture_script],
+            capture_output=True,
+            text=True,
+            timeout=20
+        )
+
+        if result.returncode != 0:
+            print(f"✗ Full frame capture failed: {result.stderr}")
+            return jsonify({'error': 'Image capture failed'}), 500
+
+        # Load the captured full frame
+        if not os.path.exists(IMAGE_PATH):
+            print(f"✗ Image file not found: {IMAGE_PATH}")
+            return jsonify({'error': 'Image file not found'}), 500
+
+        image = cv2.imread(IMAGE_PATH)
+        if image is None:
+            print(f"✗ Could not load image from {IMAGE_PATH}")
+            return jsonify({'error': 'Could not load image'}), 500
+
+        # Convert BGR (OpenCV) to RGB (PIL)
+        image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+        # Convert to PIL Image
+        pil_image = Image.fromarray(image_rgb)
+
+        # Save to BytesIO buffer as JPEG
+        buffer = BytesIO()
+        pil_image.save(buffer, format='JPEG', quality=95)
+        full_frame_jpeg = buffer.getvalue()
+
+        print(f"✓ Full frame captured ({len(full_frame_jpeg)} bytes, {image.shape[1]}x{image.shape[0]})")
+        return Response(full_frame_jpeg, mimetype='image/jpeg')
+
+    except subprocess.TimeoutExpired:
+        print("✗ Full frame capture timeout (>20s)")
+        return jsonify({'error': 'Image capture timeout'}), 500
+    except Exception as e:
+        print(f"✗ Full frame capture error: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/feed/save-roi', methods=['POST'])
+def save_roi_config():
+    """
+    Save new ROI coordinates to feed_config.py.
+
+    Expects JSON: { "x": int, "y": int, "width": int, "height": int }
+
+    CRITICAL: ROI changes INVALIDATE all training data and models.
+    This endpoint will:
+    1. Delete all training images (incompatible ROI coordinates)
+    2. Delete trained ML model (incompatible with new ROI)
+    3. Reset calibration markers to safe defaults
+    4. Update feed_config.py with new ROI
+    5. Restart feed-monitor service
+    """
+    try:
+        import re
+        import shutil
+
+        # Get and log raw JSON
+        data = request.get_json()
+        print(f"🔧 ROI Save Request - Raw JSON: {data}")
+
+        # Parse coordinates
+        roi_x = int(data.get('x', 0))
+        roi_y = int(data.get('y', 0))
+        roi_width = int(data.get('width', 0))
+        roi_height = int(data.get('height', 0))
+
+        print(f"🔧 ROI Save - Parsed coords: X={roi_x}, Y={roi_y}, W={roi_width}, H={roi_height}")
+
+        # First validation check - log if it fails
+        if roi_x < 0 or roi_y < 0 or roi_width < 10 or roi_height < 10:
+            error_msg = f"Invalid ROI coordinates - X={roi_x}, Y={roi_y}, W={roi_width}, H={roi_height} (must be positive with minimum 10x10 size)"
+            print(f"❌ ROI Save FAILED - {error_msg}")
+            return jsonify({
+                'success': False,
+                'error': error_msg
+            }), 400
+
+        # Second validation check - log if it fails
+        if roi_x + roi_width > 1920 or roi_y + roi_height > 1080:
+            error_msg = f"ROI exceeds frame bounds (1920x1080) - X+W={roi_x}+{roi_width}={roi_x+roi_width}, Y+H={roi_y}+{roi_height}={roi_y+roi_height}"
+            print(f"❌ ROI Save FAILED - {error_msg}")
+            return jsonify({
+                'success': False,
+                'error': error_msg
+            }), 400
+
+        # =====================================================================
+        # DATASET INVALIDATION: Delete training data and models
+        # =====================================================================
+        cleanup_actions = []
+
+        # 1. Delete training images (all tagged with old ROI coordinates)
+        images_deleted = 0
+        labels_deleted = 0
+
+        if os.path.exists(TRAINING_IMAGES_DIR):
+            images_deleted = len([f for f in os.listdir(TRAINING_IMAGES_DIR) if f.endswith('.jpg')])
+            shutil.rmtree(TRAINING_IMAGES_DIR)
+            os.makedirs(TRAINING_IMAGES_DIR, exist_ok=True)
+            cleanup_actions.append(f"Deleted {images_deleted} training images")
+            print(f"🗑️ Deleted {images_deleted} training images from {TRAINING_IMAGES_DIR}")
+
+        if os.path.exists(TRAINING_LABELS_DIR):
+            labels_deleted = len([f for f in os.listdir(TRAINING_LABELS_DIR) if f.endswith('.json')])
+            shutil.rmtree(TRAINING_LABELS_DIR)
+            os.makedirs(TRAINING_LABELS_DIR, exist_ok=True)
+            cleanup_actions.append(f"Deleted {labels_deleted} training labels")
+            print(f"🗑️ Deleted {labels_deleted} training labels from {TRAINING_LABELS_DIR}")
+
+        # Delete dataset.csv
+        dataset_csv_path = os.path.join(TRAINING_DATA_DIR, 'dataset.csv')
+        if os.path.exists(dataset_csv_path):
+            os.remove(dataset_csv_path)
+            cleanup_actions.append("Deleted dataset.csv")
+            print(f"🗑️ Deleted dataset.csv")
+
+        # 2. Delete trained ML model (incompatible with new ROI)
+        model_path = '/opt/beeperKeeper/models/feed_model.tflite'
+        if os.path.exists(model_path):
+            os.remove(model_path)
+            cleanup_actions.append("Deleted trained ML model")
+            print(f"🗑️ Deleted trained model: {model_path}")
+
+        # 3. Delete model metadata if exists
+        model_metadata_path = '/opt/beeperKeeper/models/model_metadata.json'
+        if os.path.exists(model_metadata_path):
+            os.remove(model_metadata_path)
+            cleanup_actions.append("Deleted model metadata")
+            print(f"🗑️ Deleted model metadata")
+
+        # =====================================================================
+        # UPDATE CONFIGURATION
+        # =====================================================================
+
+        # Read current feed_config.py
+        config_path = '/opt/beeperKeeper/feed_config.py'
+        with open(config_path, 'r') as f:
+            config_content = f.read()
+
+        # Update ROI coordinates
+        config_content = re.sub(
+            r'ROI_X\s*=\s*\d+',
+            f'ROI_X = {roi_x}',
+            config_content
+        )
+        config_content = re.sub(
+            r'ROI_Y\s*=\s*\d+',
+            f'ROI_Y = {roi_y}',
+            config_content
+        )
+        config_content = re.sub(
+            r'ROI_WIDTH\s*=\s*\d+',
+            f'ROI_WIDTH = {roi_width}',
+            config_content
+        )
+        config_content = re.sub(
+            r'ROI_HEIGHT\s*=\s*\d+',
+            f'ROI_HEIGHT = {roi_height}',
+            config_content
+        )
+
+        # Reset calibration markers to safe defaults (10% and 90% of ROI height)
+        # This prevents out-of-bounds errors until user recalibrates
+        safe_full_y = int(roi_height * 0.1)
+        safe_empty_y = int(roi_height * 0.9)
+
+        config_content = re.sub(
+            r'FEED_LEVEL_FULL_Y\s*=\s*\d+',
+            f'FEED_LEVEL_FULL_Y = {safe_full_y}',
+            config_content
+        )
+        config_content = re.sub(
+            r'FEED_LEVEL_EMPTY_Y\s*=\s*\d+',
+            f'FEED_LEVEL_EMPTY_Y = {safe_empty_y}',
+            config_content
+        )
+        cleanup_actions.append(f"Reset calibration markers to FULL_Y={safe_full_y}, EMPTY_Y={safe_empty_y}")
+        print(f"🔧 Reset calibration: FULL_Y={safe_full_y}, EMPTY_Y={safe_empty_y}")
+
+        # Update calibration date and version
+        today = datetime.now().strftime('%Y-%m-%d')
+        config_content = re.sub(
+            r"CALIBRATION_DATE\s*=\s*['\"].*?['\"]",
+            f"CALIBRATION_DATE = '{today}'",
+            config_content
+        )
+
+        # Write updated config
+        with open(config_path, 'w') as f:
+            f.write(config_content)
+
+        # Clear ROI image cache (force fresh capture with new ROI)
+        with roi_image_cache['lock']:
+            roi_image_cache['image_data'] = None
+            roi_image_cache['timestamp'] = 0
+
+        # Restart feed-monitor service to apply new ROI
+        restart_result = subprocess.run(
+            ['sudo', 'systemctl', 'restart', 'feed-monitor'],
+            capture_output=True,
+            timeout=10
+        )
+
+        if restart_result.returncode == 0:
+            print(f"✅ ROI Save SUCCESS - Updated config: X={roi_x}, Y={roi_y}, W={roi_width}, H={roi_height}")
+            return jsonify({
+                'success': True,
+                'roi': {
+                    'x': roi_x,
+                    'y': roi_y,
+                    'width': roi_width,
+                    'height': roi_height
+                },
+                'cleanup_actions': cleanup_actions,
+                'training_data_deleted': {
+                    'images': images_deleted,
+                    'labels': labels_deleted
+                },
+                'calibration_reset': {
+                    'full_y': safe_full_y,
+                    'empty_y': safe_empty_y
+                },
+                'message': f'ROI updated successfully. Training data cleared - recalibration required.',
+                'warning': '⚠️ All training data and ML model deleted due to ROI change. You must recalibrate and retrain.'
+            })
+        else:
+            print(f"⚠️ ROI Save SUCCESS (with warning) - Updated config: X={roi_x}, Y={roi_y}, W={roi_width}, H={roi_height}, service restart failed")
+            return jsonify({
+                'success': True,
+                'roi': {
+                    'x': roi_x,
+                    'y': roi_y,
+                    'width': roi_width,
+                    'height': roi_height
+                },
+                'cleanup_actions': cleanup_actions,
+                'training_data_deleted': {
+                    'images': images_deleted,
+                    'labels': labels_deleted
+                },
+                'calibration_reset': {
+                    'full_y': safe_full_y,
+                    'empty_y': safe_empty_y
+                },
+                'warning': 'ROI saved and dataset cleared, but service restart failed. Manual restart may be needed.'
+            })
+
+    except Exception as e:
+        error_msg = f"Exception in save_roi_config: {str(e)}"
+        print(f"❌ ROI Save EXCEPTION - {error_msg}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'error': error_msg
+        }), 500
+
+@app.route('/api/feed/ml-predict')
+def ml_predict_feed_level():
+    """
+    Run ML inference on current ROI image to predict feed level.
+
+    Uses the trained TensorFlow Lite CNN model to predict feed level percentage
+    from the current camera ROI image.
+
+    Returns JSON with prediction, confidence, inference time, and detected Y position.
+    """
+    try:
+        import numpy as np
+        from PIL import Image
+        import sys
+
+        # Model path
+        MODEL_PATH = '/opt/beeperKeeper/models/feed_model.tflite'
+
+        # Check if model exists
+        if not os.path.exists(MODEL_PATH):
+            return jsonify({
+                'success': False,
+                'error': 'Model not found - training may still be in progress. Check /opt/beeperKeeper/models/feed_model.tflite'
+            }), 404
+
+        # Import TensorFlow Lite
+        try:
+            import tflite_runtime.interpreter as tflite
+        except ImportError:
+            try:
+                import tensorflow.lite as tflite
+            except ImportError:
+                return jsonify({
+                    'success': False,
+                    'error': 'TensorFlow Lite not installed. Run: pip3 install tflite-runtime'
+                }), 500
+
+        # Load feed config for ROI extraction
+        sys.path.insert(0, '/opt/beeperKeeper')
+        from feed_config import IMAGE_PATH, ROI_X, ROI_Y, ROI_WIDTH, ROI_HEIGHT, FEED_LEVEL_FULL_Y, FEED_LEVEL_EMPTY_Y
+
+        # Capture fresh ROI image (reuse existing capture logic)
+        capture_script = '/opt/beeperKeeper/capture_feed_still.sh'
+        result = subprocess.run(
+            [capture_script],
+            capture_output=True,
+            text=True,
+            timeout=20
+        )
+
+        if result.returncode != 0:
+            return jsonify({
+                'success': False,
+                'error': f'Image capture failed: {result.stderr}'
+            }), 500
+
+        # Load captured image
+        if not os.path.exists(IMAGE_PATH):
+            return jsonify({
+                'success': False,
+                'error': f'Captured image not found: {IMAGE_PATH}'
+            }), 500
+
+        full_image = cv2.imread(IMAGE_PATH)
+        if full_image is None:
+            return jsonify({
+                'success': False,
+                'error': 'Could not load captured image'
+            }), 500
+
+        # Extract ROI
+        roi = full_image[ROI_Y:ROI_Y+ROI_HEIGHT, ROI_X:ROI_X+ROI_WIDTH]
+
+        # Convert BGR to RGB
+        roi_rgb = cv2.cvtColor(roi, cv2.COLOR_BGR2RGB)
+
+        # Resize to model input size (224x224) - MobileNetV2 standard
+        roi_resized = cv2.resize(roi_rgb, (224, 224))
+
+        # Normalize to 0-1 range (float32)
+        roi_normalized = roi_resized.astype(np.float32) / 255.0
+
+        # Add batch dimension: (1, 224, 224, 3)
+        input_data = np.expand_dims(roi_normalized, axis=0)
+
+        # Load TFLite model
+        start_time = time.time()
+        interpreter = tflite.Interpreter(model_path=MODEL_PATH)
+        interpreter.allocate_tensors()
+
+        # Get input/output tensor details
+        input_details = interpreter.get_input_details()
+        output_details = interpreter.get_output_details()
+
+        # Set input tensor
+        interpreter.set_tensor(input_details[0]['index'], input_data)
+
+        # Run inference
+        interpreter.invoke()
+
+        # Get output (feed level percentage 0-100)
+        output = interpreter.get_tensor(output_details[0]['index'])
+        prediction_percent = float(output[0][0])  # Convert from numpy.float32 to Python float
+
+        inference_time_ms = (time.time() - start_time) * 1000
+
+        # Calculate detected Y position from prediction percentage
+        # prediction_percent: 100% = FULL_Y, 0% = EMPTY_Y
+        y_range = FEED_LEVEL_EMPTY_Y - FEED_LEVEL_FULL_Y
+        detected_y = int(FEED_LEVEL_FULL_Y + (y_range * (100 - prediction_percent) / 100))
+
+        # Calculate confidence (use absolute prediction value as confidence)
+        # For regression models, confidence is harder to derive - use a simple heuristic
+        # If prediction is close to extremes (0 or 100), higher confidence
+        # If prediction is in middle range, lower confidence (more ambiguous)
+        confidence_raw = 100 - abs(50 - prediction_percent) * 0.8  # Scale: 60-100%
+        confidence = float(max(60, min(100, confidence_raw)))
+
+        return jsonify({
+            'success': True,
+            'prediction': round(float(prediction_percent), 1),
+            'confidence': round(confidence, 1),
+            'inference_time_ms': round(inference_time_ms, 1),
+            'detected_y': detected_y,
+            'model_type': 'TensorFlow Lite CNN',
+            'training_samples': 292,
+            'timestamp': datetime.now().isoformat()
+        })
+
+    except subprocess.TimeoutExpired:
+        return jsonify({
+            'success': False,
+            'error': 'Image capture timeout (>20s)'
+        }), 500
+    except Exception as e:
+        print(f"ML prediction error: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'error': f'Prediction failed: {str(e)}'
+        }), 500
 
 @app.route("/health")
 def health_check():
