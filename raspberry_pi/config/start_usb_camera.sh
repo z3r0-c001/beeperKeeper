@@ -120,6 +120,6 @@ else
         -f v4l2 -input_format mjpeg -video_size 800x600 -framerate 15 -i "$USB_VIDEO_DEV" \
         -c:v libx264 -profile:v baseline -level 3.1 -preset ultrafast -tune zerolatency \
         -pix_fmt yuv420p \
-        -crf 26 -maxrate 1500k -bufsize 1500k -g 30 \
+        -crf 26 -maxrate 1500k -bufsize 3000k -g 30 \
         -f rtsp -rtsp_transport tcp rtsp://localhost:8554/usb_camera
 fi

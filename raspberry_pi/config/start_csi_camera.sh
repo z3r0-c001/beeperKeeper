@@ -1,35 +1,3 @@
 #!/bin/bash
-# BEEPER KEEPER v2.0 - CSI Camera Capture Script
-# OV5647 Camera Module @ 1920x1080 30fps with hardware H.264 encoding
-#
-# v2.1 FIX (Nov 26, 2025): Set intra period to match HLS segment duration
-# - intra 60 = keyframe every 2 seconds (30fps * 2s = 60 frames)
-# - Eliminates "segment duration changed" warnings
-
-echo "[CSI Camera v2.0] Starting OV5647 camera stream (GOP=60 for 2s HLS segments)..." >&2
-
-# Use rpicam-vid (libcamera) for Pi 4 with hardware H.264 encoding
-# Output to stdout, then pipe to ffmpeg for RTSP publishing
-exec rpicam-vid \
-    --timeout 0 \
-    --width 1920 \
-    --height 1080 \
-    --framerate 30 \
-    --codec h264 \
-    --profile baseline \
-    --bitrate 2000000 \
-    --intra 60 \
-    --keypress 0 \
-    --signal 0 \
-    --inline \
-    --flush \
-    --nopreview \
-    -o - | \
-ffmpeg \
-    -fflags +genpts \
-    -use_wallclock_as_timestamps 1 \
-    -i pipe:0 \
-    -c:v copy \
-    -f rtsp \
-    -rtsp_transport tcp \
-    rtsp://localhost:8554/csi_camera
+# CSI Camera - 1296x972 full FOV, 2s GOP
+exec rpicam-vid     --timeout 0     --width 1296     --height 972     --framerate 30     --codec h264     --profile baseline     --bitrate 1500000     --intra 60     --keypress 0     --signal 0     --inline     --flush     --nopreview     -o - | ffmpeg     -fflags +genpts     -use_wallclock_as_timestamps 1     -i pipe:0     -c:v copy     -f rtsp     -rtsp_transport tcp     rtsp://localhost:8554/csi_camera
